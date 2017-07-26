@@ -1,22 +1,40 @@
 package org.ehrscape.EhrscapeProvisioner.model;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
 
-//import org.apache.http.;
+import java.util.logging.Logger;
 
 public class EhrscapeRequest {
 	
+	private final static Logger logger = Logger.getLogger(EhrscapeRequest.class.getName());	
 	String description;
 	String method;
 	String url;
 	String request;
 	String response;
+	
+	// not sure if should be static just yet
+	public static EhrscapeConfig config = new EhrscapeConfig();
+	
+	private class response {
+		
+	}
+	
+	private class request {
+		
+	}
 	
 	/*
 	public EhrscapeRequest(String desc, String method, String url, 
@@ -31,7 +49,33 @@ public class EhrscapeRequest {
 	}
 	*/
 	
-	public void doPostRequest() {
+	public String getSession(String username, String password) throws ClientProtocolException, IOException {
+		HttpClient client = HttpClientBuilder.create().build();
+		url = config.getBaseUrl() + "session?username="+username+"&password="+password+"";
+		HttpPost request = new HttpPost(url);
+		
+		URIBuilder newBuilder = new URIBuilder(request.getURI());
+		List<NameValuePair> params = newBuilder.getQueryParams();
+		
+		HttpResponse response = client.execute(request);
+		String finalUrl = request.getRequestLine().toString();
+		System.out.println("Response Code : "
+		                + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl + " " + params.toString());
+		
+		logger.info("Response status logged: " + response.getStatusLine().getStatusCode());
+		
+		BufferedReader rd = new BufferedReader(
+		        new InputStreamReader(response.getEntity().getContent()));
+
+		StringBuffer result = new StringBuffer();
+		String line = "";
+		while ((line = rd.readLine()) != null) {
+			result.append(line);
+		}
+		
+		// TODO set the session id attr of ehrscapeConfig to the returned value
+		
+		return result.toString();//jsonResponse;
 		
 	}
 	
@@ -41,7 +85,8 @@ public class EhrscapeRequest {
 
 		String url = "http://www.google.com/search?q=developer";
 
-		HttpClient client = new DefaultHttpClient();
+		//HttpClient client = new DefaultHttpClient();
+		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url);
 
 		// add request header

@@ -1,11 +1,14 @@
 package org.ehrscape.EhrscapeProvisioner;
 
+import java.io.IOException;
+
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.ehrscape.EhrscapeProvisioner.model.EhrscapeRequest;
 
 /**
@@ -44,4 +47,15 @@ public class MyResource {
     	int str = req.sendGet();
     	return str;
     }
+    
+    @POST
+    @Path("getSession")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String doPost() throws ClientProtocolException, IOException {
+    	EhrscapeRequest req =  new EhrscapeRequest();
+    	String str = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
+    	return str;
+    }
+    
+    
 }
