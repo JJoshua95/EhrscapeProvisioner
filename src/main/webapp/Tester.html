@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js">
+	
+</script>
+
+<title>Insert title here</title>
+</head>
+<body ng-app="myApp">
+
+	<div class="Main" ng-controller="MainController">
+
+		<button ng-click="testFunction()">Post test</button>
+		<br>
+		<button ng-click="count = count + 1" ng-init="count=0">
+			Increment</button>
+		<span> count: {{count}} </span>
+		<br>
+		<button ng-click="getSession()">Get Session API Call</button>
+
+	</div>
+	
+	<!-- Modules -->
+	<script src="angular/app.js"></script>
+
+	<!-- Controllers -->
+	<script src="angular/controller/MainController.js"></script>
+
+</body>
+</html>

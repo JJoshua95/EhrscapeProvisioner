@@ -54,6 +54,7 @@ public class MyResource {
     public String doPost() throws ClientProtocolException, IOException {
     	EhrscapeRequest req =  new EhrscapeRequest();
     	String str = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
+    	System.out.println("Session id = " + req.config.getSessionId());
     	return str;
     }
     
