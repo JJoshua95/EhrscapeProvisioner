@@ -29,31 +29,7 @@ public class MyResource {
      *
      * @return String that will be returned as a text/plain response.
      */
-    // @GET
-    // @Produces(MediaType.TEXT_PLAIN)
-    // public String getIt() {
-    //     return "Got it!";
-    // }
-    
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public TestObj getXml() {
-    	TestObj t = new TestObj();
-    	t.SetA("a");
-    	t.SetB("b");
-    	t.setSub("c", "d");
-    	return t;
-    }
-    
-    @GET
-    @Path("getTest")
-    @Produces(MediaType.TEXT_PLAIN)
-    public int doGet() throws Exception {
-    	//EhrscapeRequest req =  new EhrscapeRequest();
-    	int str = req.sendGet();
-    	return str;
-    }
-    
+
     @POST
     @Path("getSession")
     @Produces(MediaType.APPLICATION_JSON)
@@ -75,13 +51,20 @@ public class MyResource {
 		return str;
     }
     
-    @GET
+    @POST
     @Path("uploadTemplate")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public String showTemplate() throws ParserConfigurationException, SAXException, IOException {
-    	String str = req.uploadDefaultTemplate("assets/sample_requests/vital-signs/vital-signs-template.xml"
-    			, null);
-    	// "src/main/java/org/ehrscape/EhrscapeProvisioner/assets/sample_requests/vital-signs/vital-signs-template.xml"
+    	String str = req.uploadDefaultTemplate("assets/sample_requests/vital-signs/vital-signs-template.xml", null);
     	return str;
     }
+    
+    @GET
+    @Path("uploadComposition")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String showComposition() {
+    	String str = req.uploadDefaultComposition("assets/sample_requests/vital-signs/vital-signs-composition.json"); 
+    	return str;
+    }
+    
 }

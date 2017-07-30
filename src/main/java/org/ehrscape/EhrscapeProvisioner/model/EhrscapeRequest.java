@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -17,7 +18,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.xml.sax.SAXException;
 
 import com.google.gson.Gson;
@@ -33,6 +37,32 @@ public class EhrscapeRequest {
 
 	// not sure if should be static just yet
 	public static EhrscapeConfig config = new EhrscapeConfig();
+
+	private String getFile(String fileName) {
+
+		StringBuilder result = new StringBuilder("");
+
+		// Get file from resources folder
+		ClassLoader classLoader = getClass().getClassLoader();
+		//ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		File file = new File(classLoader.getResource(fileName).getFile());
+		
+		try (Scanner scanner = new Scanner(file)) {
+
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				result.append(line).append("\n");
+			}
+
+			scanner.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return result.toString();
+
+	}
 
 	public String getSession(String username, String password) throws ClientProtocolException, IOException {
 
@@ -98,53 +128,25 @@ public class EhrscapeRequest {
 		return result.toString();
 	}
 
-	public String uploadDefaultTemplate(String filePath, String SessionId)
-			throws ParserConfigurationException, SAXException, IOException {
+	public String uploadDefaultTemplate(String filePath, String SessionId) throws IOException {
 		// get the template
+		String body = getFile(filePath);
+		System.out.println(body.length());
+		String url = config.getBaseUrl()+"template/";
+		HttpPost request = new HttpPost(url);
+		request.addHeader("Ehr-Session", config.getSessionId().replace("\"", ""));
+		request.addHeader("Content-Type", "application/xml");
+		request.setEntity(new StringEntity(body));
+		
 
-		StringBuilder result = new StringBuilder("");
-
-		// Get file from resources folder
-		ClassLoader classLoader = getClass().getClassLoader();
-		File file = new File(classLoader.getResource(filePath).getFile());
-		System.out.println(file.getAbsolutePath());
-
-		try (Scanner scanner = new Scanner(file)) {
-
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				result.append(line).append("\n");
-			}
-
-			scanner.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return result.toString();
-
-	}
-
-	// HTTP GET request
-	private final String USER_AGENT = "Mozilla/5.0";
-
-	public int sendGet() throws Exception {
-
-		String url = "http://www.google.com/search?q=developer";
-
-		// HttpClient client = new DefaultHttpClient();
-		HttpClient client = HttpClientBuilder.create().build();
-		HttpGet request = new HttpGet(url);
-
-		// add request header
-		request.addHeader("User-Agent", USER_AGENT);
-
+        logger.info("The current session is" + config.getSessionId());
+		String finalUrl = request.getRequestLine().toString();
+		System.out.println(finalUrl);
+		
+		
 		HttpResponse response = client.execute(request);
-
-		System.out.println("\nSending 'GET' request to URL : " + url);
 		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-
+		
 		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
 		StringBuffer result = new StringBuffer();
@@ -152,11 +154,16 @@ public class EhrscapeRequest {
 		while ((line = rd.readLine()) != null) {
 			result.append(line);
 		}
-
-		System.out.println(result.toString());
-
-		return response.getStatusLine().getStatusCode();
-
+		//JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+		return result.toString();
+	}
+	
+	// Composition
+	
+	public String uploadDefaultComposition(String filePath) {
+		String fileString = getFile(filePath);
+		System.out.println(fileString);
+		return fileString;
 	}
 
 }
