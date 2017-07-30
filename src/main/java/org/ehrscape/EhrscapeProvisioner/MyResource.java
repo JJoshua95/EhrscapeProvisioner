@@ -1,6 +1,7 @@
 package org.ehrscape.EhrscapeProvisioner;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -59,10 +60,10 @@ public class MyResource {
     	return str;
     }
     
-    @GET
+    @POST
     @Path("uploadComposition")
     @Produces(MediaType.APPLICATION_JSON)
-    public String showComposition() {
+    public String showComposition() throws ClientProtocolException, IOException, URISyntaxException {
     	String str = req.uploadDefaultComposition("assets/sample_requests/vital-signs/vital-signs-composition.json"); 
     	return str;
     }
