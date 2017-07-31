@@ -128,9 +128,9 @@ public class EhrscapeRequest {
 		
 	}
 
-	public String uploadDefaultTemplate(String filePath, String SessionId) throws IOException {
+	public String uploadDefaultTemplate() throws IOException {
 		// get the template
-		String body = getFile(filePath);
+		String body = getFile("assets/sample_requests/vital-signs/vital-signs-template.xml");
 		System.out.println(body.length());
 		String url = config.getBaseUrl() + "template/";
 		HttpPost request = new HttpPost(url);
@@ -159,8 +159,8 @@ public class EhrscapeRequest {
 
 	// Composition
 
-	public String uploadDefaultComposition(String filePath) throws ClientProtocolException, IOException, URISyntaxException {
-		String body = getFile(filePath);
+	public String uploadDefaultComposition() throws ClientProtocolException, IOException, URISyntaxException {
+		String body = getFile("assets/sample_requests/vital-signs/vital-signs-composition.json");
 		System.out.println(body.length());
 		System.out.println(config.getEhrId());
 		System.out.println(config.getTemplateId());

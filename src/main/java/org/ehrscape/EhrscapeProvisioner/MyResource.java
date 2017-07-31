@@ -3,7 +3,6 @@ package org.ehrscape.EhrscapeProvisioner;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -56,7 +55,7 @@ public class MyResource {
     @Path("uploadTemplate")
     @Produces(MediaType.APPLICATION_JSON)
     public String showTemplate() throws ParserConfigurationException, SAXException, IOException {
-    	String str = req.uploadDefaultTemplate("assets/sample_requests/vital-signs/vital-signs-template.xml", null);
+    	String str = req.uploadDefaultTemplate();
     	return str;
     }
     
@@ -64,7 +63,7 @@ public class MyResource {
     @Path("uploadComposition")
     @Produces(MediaType.APPLICATION_JSON)
     public String showComposition() throws ClientProtocolException, IOException, URISyntaxException {
-    	String str = req.uploadDefaultComposition("assets/sample_requests/vital-signs/vital-signs-composition.json"); 
+    	String str = req.uploadDefaultComposition(); 
     	return str;
     }
     
