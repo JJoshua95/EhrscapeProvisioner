@@ -63,7 +63,10 @@ public class EhrscapeRequest {
 
 		String url = config.getBaseUrl() + "session?username=" + username + "&password=" + password + "";
 		HttpPost request = new HttpPost(url);
-
+		
+		config.setUsername(username);
+		config.setPassword(password);
+		
 		URIBuilder newBuilder = new URIBuilder(request.getURI());
 		List<NameValuePair> params = newBuilder.getQueryParams();
 
@@ -193,10 +196,10 @@ public class EhrscapeRequest {
 		while ((line = rd.readLine()) != null) {
 			result.append(line);
 		}
-		//JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-		//logger.info("" + jsonObject.get("ehrId"));
+		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+		logger.info("" + jsonObject.get("compositionUid"));
 
-		//config.setEhrId(jsonObject.get("ehrId").toString());
+		config.setCompositionId(jsonObject.get("compositionUid").toString());
 		
 		return result.toString();
 	}
