@@ -1,6 +1,7 @@
 package org.ehrscape.EhrscapeProvisioner;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -34,7 +35,7 @@ public class SinglePatient {
 	@Path("single-provision")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.TEXT_PLAIN)
-	public String singleProvision(String inputBody) throws ClientProtocolException, IOException {
+	public String singleProvision(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {
 		EhrscapeRequest req =  new EhrscapeRequest();
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
@@ -42,13 +43,15 @@ public class SinglePatient {
 		System.out.println(jsonInput.get("password").getAsString());
 		JsonObject jsonOutput = new JsonObject();
 		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
-		String createEhrResponse = req.createEhr(subjectID, namespace, commiter);
+		String createEhrResponse = req.createEhr(req.config.getSessionId().replace("\"", ""), "uk.nhs.nhs_number", "JarrodEhrscapeProvisioner");
 		String uploadTemplateResponse = req.uploadDefaultTemplate();
 		String uploadCompResponse = req.uploadDefaultComposition();
+		// put the final response stuff here
 		jsonOutput.addProperty("num", 123);
 		jsonOutput.addProperty("testKey", "testVal");
+		String finalConfig = gson.toJson(req.config);
 		//System.out.println(jsonInput.toString());
-		return gson.toJson(jsonOutput);
+		return finalConfig; //gson.toJson(jsonOutput);
 	}
 	
 }
