@@ -46,7 +46,7 @@ public class MyResource {
     @Path("createPatientDemographic")
     @Produces(MediaType.APPLICATION_JSON)
     public String createPatientDemographic() throws ClientProtocolException, IOException {
-    	String str = req.createPatient();
+    	String str = req.createPatientDefault();
     	return str;
     }
     

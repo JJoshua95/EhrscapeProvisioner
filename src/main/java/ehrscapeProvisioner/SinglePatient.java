@@ -83,7 +83,7 @@ public class SinglePatient {
 		}
 		
 		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
-		String createPatientDemographicResponse = req.createPatient();
+		String createPatientDemographicResponse = req.createPatientDefault();
 		String createEhrResponse = req.createEhr(req.config.getSubjectId(), "uk.nhs.nhs_number", "JarrodEhrscapeProvisioner");
 		String uploadTemplateResponse = req.uploadDefaultTemplate();
 		String uploadCompResponse = req.uploadDefaultComposition();

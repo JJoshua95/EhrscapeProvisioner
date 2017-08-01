@@ -58,6 +58,8 @@ public class EhrscapeRequest {
 		return result.toString();
 
 	}
+	
+	// SINGLE PATIENT
 
 	public String getSession(String username, String password) throws ClientProtocolException, IOException {
 
@@ -81,7 +83,6 @@ public class EhrscapeRequest {
 		String result = EntityUtils.toString(entity);
         System.out.println(result);
 
-		// TODO set the session id attr of ehrscapeConfig to the returned value
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		// jsonObject.get("sessionId");
 
@@ -93,7 +94,7 @@ public class EhrscapeRequest {
 	}
 	
 	// create patient demographic
-	public String createPatient() throws ClientProtocolException, IOException {
+	public String createPatientDefault() throws ClientProtocolException, IOException {
 		String body = getFile("assets/sample_requests/party.json");
 		String url = config.getBaseUrl()+"demographics/party";
 		HttpPost request = new HttpPost(url);
@@ -215,5 +216,7 @@ public class EhrscapeRequest {
 		
 		return result.toString();
 	}
+	
+	// MULTIPLE PATIENT
 
 }
