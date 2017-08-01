@@ -43,6 +43,14 @@ public class MyResource {
     }
     
     @POST
+    @Path("createPatientDemographic")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String createPatientDemographic() throws ClientProtocolException, IOException {
+    	String str = req.createPatient();
+    	return str;
+    }
+    
+    @POST
     @Path("createEhr")
     @Produces(MediaType.APPLICATION_JSON)
     public String createEhr() throws ClientProtocolException, IOException {

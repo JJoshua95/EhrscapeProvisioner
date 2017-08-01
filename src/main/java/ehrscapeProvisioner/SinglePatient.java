@@ -65,4 +65,39 @@ public class SinglePatient {
 		return finalConfig; //gson.toJson(jsonOutput);
 	}
 	
+	@POST
+	@Path("single-provision-with-demographic")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String singleProvisionDemographic(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {
+		EhrscapeRequest req =  new EhrscapeRequest();
+		
+		Gson gson = new Gson();
+		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
+		System.out.println(jsonInput.get("username").getAsString());
+		System.out.println(jsonInput.get("password").getAsString());
+		
+		// Check if user wants to overwrite the base url
+		if (jsonInput.has("baseUrl")) {
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+		}
+		
+		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
+		String createPatientDemographicResponse = req.createPatient();
+		String createEhrResponse = req.createEhr(req.config.getSubjectId(), "uk.nhs.nhs_number", "JarrodEhrscapeProvisioner");
+		String uploadTemplateResponse = req.uploadDefaultTemplate();
+		String uploadCompResponse = req.uploadDefaultComposition();
+		
+		// put the final response stuff here
+		
+		//JsonObject jsonOutput = new JsonObject();
+		//jsonOutput.addProperty("num", 123);
+		//jsonOutput.addProperty("testKey", "testVal"); // for a custom response later if needed
+		
+		String finalConfig = gson.toJson(req.config);
+		//System.out.println(jsonInput.toString());
+		return finalConfig; //gson.toJson(jsonOutput);
+	}
+	
+	
 }

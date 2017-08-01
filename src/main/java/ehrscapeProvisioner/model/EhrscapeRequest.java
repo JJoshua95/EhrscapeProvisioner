@@ -87,14 +87,33 @@ public class EhrscapeRequest {
 
 		logger.info("" + jsonObject.get("sessionId"));
 
-		config.setSessionId(jsonObject.get("sessionId").toString().replace("\"", ""));
+		config.setSessionId(jsonObject.get("sessionId").getAsString());
 		return result.toString();// jsonResponse;
 
 	}
 	
 	// create patient demographic
-	public String createPatient() {
-		return null;
+	public String createPatient() throws ClientProtocolException, IOException {
+		String body = getFile("assets/sample_requests/party.json");
+		String url = config.getBaseUrl()+"demographics/party";
+		HttpPost request = new HttpPost(url);
+		request.addHeader("Ehr-Session", config.getSessionId()); 
+		request.addHeader("Content-Type", "application/json");
+		request.setEntity(new StringEntity(body));
+		HttpResponse response = client.execute(request);
+		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+		
+		HttpEntity entity = response.getEntity();
+		String result = EntityUtils.toString(entity);
+        //System.out.println(result);
+		
+		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+		JsonObject jsonSubObject = jsonObject.getAsJsonObject("meta");
+		String partyStringHref = jsonSubObject.get("href").getAsString();
+		String partyID =  partyStringHref.substring(partyStringHref.lastIndexOf("/")+1);
+		System.out.println(partyID);
+		config.setSubjectId(partyID);
+		return result;
 	}
 
 	// TODO skip provisioning step by deciding how to handle the subjectIDs
@@ -110,7 +129,7 @@ public class EhrscapeRequest {
 		String url = config.getBaseUrl() + "ehr?subjectId=" + subjectID + "&subjectNamespace=" + namespace
 				+ "&commiterName=" + commiter;
 		HttpPost request = new HttpPost(url);
-		request.addHeader("Ehr-Session", config.getSessionId().replace("\"", ""));
+		request.addHeader("Ehr-Session", config.getSessionId()); 
 		logger.info("The current session is" + config.getSessionId());
 		String finalUrl = request.getRequestLine().toString();
 		System.out.println(finalUrl);
@@ -123,7 +142,7 @@ public class EhrscapeRequest {
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		logger.info("" + jsonObject.get("ehrId"));
 
-		config.setEhrId(jsonObject.get("ehrId").toString().replace("\"", ""));
+		config.setEhrId(jsonObject.get("ehrId").getAsString());
 		config.setSubjectId(subjectID);
 		
 		return result.toString();
@@ -136,7 +155,7 @@ public class EhrscapeRequest {
 		System.out.println(body.length());
 		String url = config.getBaseUrl() + "template/";
 		HttpPost request = new HttpPost(url);
-		request.addHeader("Ehr-Session", config.getSessionId().replace("\"", ""));
+		request.addHeader("Ehr-Session", config.getSessionId()); 
 		request.addHeader("Content-Type", "application/xml");
 		request.setEntity(new StringEntity(body));
 
@@ -174,7 +193,7 @@ public class EhrscapeRequest {
 		url = ub.toString();
 		
 		HttpPost request = new HttpPost(url);
-		request.addHeader("Ehr-Session", config.getSessionId().replace("\"", ""));
+		request.addHeader("Ehr-Session", config.getSessionId()); 
 		request.addHeader("Content-Type", "application/json");
 		request.setEntity(new StringEntity(body));
 
@@ -192,7 +211,7 @@ public class EhrscapeRequest {
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		logger.info("" + jsonObject.get("compositionUid"));
 
-		config.setCompositionId(jsonObject.get("compositionUid").toString().replace("\"", ""));
+		config.setCompositionId(jsonObject.get("compositionUid").getAsString()); 
 		
 		return result.toString();
 	}
