@@ -44,6 +44,11 @@ public class SinglePatient {
 		System.out.println(jsonInput.get("username").getAsString());
 		System.out.println(jsonInput.get("password").getAsString());
 		
+		// Check if user wants to overwrite the base url
+		if (jsonInput.has("baseUrl")) {
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+		}
+		
 		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
 		String createEhrResponse = req.createEhr(req.config.getSessionId().replace("\"", ""), "uk.nhs.nhs_number", "JarrodEhrscapeProvisioner");
 		String uploadTemplateResponse = req.uploadDefaultTemplate();
@@ -51,9 +56,9 @@ public class SinglePatient {
 		
 		// put the final response stuff here
 		
-		JsonObject jsonOutput = new JsonObject();
-		jsonOutput.addProperty("num", 123);
-		jsonOutput.addProperty("testKey", "testVal"); // for a custom response later if needed
+		//JsonObject jsonOutput = new JsonObject();
+		//jsonOutput.addProperty("num", 123);
+		//jsonOutput.addProperty("testKey", "testVal"); // for a custom response later if needed
 		
 		String finalConfig = gson.toJson(req.config);
 		//System.out.println(jsonInput.toString());

@@ -1,9 +1,7 @@
 package ehrscapeProvisioner.model;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Scanner;
@@ -89,9 +87,14 @@ public class EhrscapeRequest {
 
 		logger.info("" + jsonObject.get("sessionId"));
 
-		config.setSessionId(jsonObject.get("sessionId").toString());
+		config.setSessionId(jsonObject.get("sessionId").toString().replace("\"", ""));
 		return result.toString();// jsonResponse;
 
+	}
+	
+	// create patient demographic
+	public String createPatient() {
+		return null;
 	}
 
 	// TODO skip provisioning step by deciding how to handle the subjectIDs
@@ -116,19 +119,12 @@ public class EhrscapeRequest {
 		HttpEntity entity = response.getEntity();
 		String result = EntityUtils.toString(entity);
         System.out.println(result);
-        /*
-		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
-		*/
+        
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		logger.info("" + jsonObject.get("ehrId"));
 
 		config.setEhrId(jsonObject.get("ehrId").toString().replace("\"", ""));
+		config.setSubjectId(subjectID);
 		
 		return result.toString();
 		
@@ -150,16 +146,6 @@ public class EhrscapeRequest {
 
 		HttpResponse response = client.execute(request);
 		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-		
-		/*
-		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
-		*/
 		
 		HttpEntity entity = response.getEntity();
 		String result = EntityUtils.toString(entity);
@@ -199,16 +185,6 @@ public class EhrscapeRequest {
 		HttpResponse response = client.execute(request);
 		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
 		
-		/*
-		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
-		*/
-		
 		HttpEntity entity = response.getEntity();
 		String result = EntityUtils.toString(entity);
         System.out.println(result);
@@ -216,7 +192,7 @@ public class EhrscapeRequest {
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		logger.info("" + jsonObject.get("compositionUid"));
 
-		config.setCompositionId(jsonObject.get("compositionUid").toString());
+		config.setCompositionId(jsonObject.get("compositionUid").toString().replace("\"", ""));
 		
 		return result.toString();
 	}
