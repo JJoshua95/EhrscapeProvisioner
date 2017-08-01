@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -17,6 +18,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -76,14 +78,10 @@ public class EhrscapeRequest {
 				+ params.toString());
 
 		logger.info("Response status logged: " + response.getStatusLine().getStatusCode());
-
-		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
+		
+		HttpEntity entity = response.getEntity();
+		String result = EntityUtils.toString(entity);
+        System.out.println(result);
 
 		// TODO set the session id attr of ehrscapeConfig to the returned value
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
@@ -115,6 +113,10 @@ public class EhrscapeRequest {
 		System.out.println(finalUrl);
 		HttpResponse response = client.execute(request);
 		System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl);
+		HttpEntity entity = response.getEntity();
+		String result = EntityUtils.toString(entity);
+        System.out.println(result);
+        /*
 		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
 		StringBuffer result = new StringBuffer();
@@ -122,6 +124,7 @@ public class EhrscapeRequest {
 		while ((line = rd.readLine()) != null) {
 			result.append(line);
 		}
+		*/
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		logger.info("" + jsonObject.get("ehrId"));
 
@@ -147,7 +150,8 @@ public class EhrscapeRequest {
 
 		HttpResponse response = client.execute(request);
 		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-
+		
+		/*
 		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
 		StringBuffer result = new StringBuffer();
@@ -155,6 +159,12 @@ public class EhrscapeRequest {
 		while ((line = rd.readLine()) != null) {
 			result.append(line);
 		}
+		*/
+		
+		HttpEntity entity = response.getEntity();
+		String result = EntityUtils.toString(entity);
+        System.out.println(result);
+		
 		// JsonObject jsonObject = (new
 		// JsonParser()).parse(result.toString()).getAsJsonObject();
 		return result.toString();
@@ -188,7 +198,8 @@ public class EhrscapeRequest {
 
 		HttpResponse response = client.execute(request);
 		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-
+		
+		/*
 		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
 		StringBuffer result = new StringBuffer();
@@ -196,6 +207,12 @@ public class EhrscapeRequest {
 		while ((line = rd.readLine()) != null) {
 			result.append(line);
 		}
+		*/
+		
+		HttpEntity entity = response.getEntity();
+		String result = EntityUtils.toString(entity);
+        System.out.println(result);
+		
 		JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 		logger.info("" + jsonObject.get("compositionUid"));
 
