@@ -2,7 +2,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 	
 	$scope.username = '';
 	$scope.password = '';
-	$scope.baseUrl = '';
+	$scope.baseUrl = 'https://cdr.code4health.org/rest/v1/'; //default
 	
 	$scope.testFunction = function() {
 		$window.alert("Clicked!");
