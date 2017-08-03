@@ -3,6 +3,9 @@ package ehrscapeProvisioner.model;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -17,10 +20,18 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.hl7.fhir.dstu3.model.ContactPoint;
+import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.StringType;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import ca.uhn.fhir.context.FhirContext;
+
 
 public class EhrscapeRequest {
 
@@ -28,8 +39,9 @@ public class EhrscapeRequest {
 	private final static Logger logger = Logger.getLogger(EhrscapeRequest.class.getName());
 
 	HttpClient client = HttpClientBuilder.create().build();
+	
+	FhirContext ctx = FhirContext.forDstu3();
 
-	// not sure if should be static just yet
 	public static EhrscapeConfig config = new EhrscapeConfig();
 
 	private String getFile(String fileName) {
@@ -120,11 +132,14 @@ public class EhrscapeRequest {
 	// TODO skip provisioning step by deciding how to handle the subjectIDs
 	// maybe use the sessionID as the subjectID? too much of a hack perhaps
 	// need some way of finding an unused subjectID from the server or perhaps
-	// if we
-	// are provisioning 500 patients simply increment each time
+	// if we are provisioning 500 patients simply increment each time
 	// Could check the subjectIDs manually but is this overkill
 	// for now use sessionID maybe and a random number unique id concatenated
 
+	// Could create a uniqueID for now too, and test if an ehr exists for that if not try a new id
+	// get the response code back and then take appropriate action
+	// and then create the ehr
+	
 	public String createEhr(String subjectID, String namespace, String commiter)
 			throws ClientProtocolException, IOException {
 		String url = config.getBaseUrl() + "ehr?subjectId=" + subjectID + "&subjectNamespace=" + namespace
@@ -215,6 +230,55 @@ public class EhrscapeRequest {
 		config.setCompositionId(jsonObject.get("compositionUid").getAsString()); 
 		
 		return result.toString();
+	}
+	
+	// FHIR Demographic call
+	
+	public String createFhirPatientDemographic() {
+		// tutorial: https://fhir-drills.github.io/fhir-api.html
+		// documentation - http://hapifhir.io/apidocs-dstu3/index.html
+		
+		// context - create this once, as it's an expensive operation
+        // see http://hapifhir.io/doc_intro.html
+        // FhirContext ctx = FhirContext.forDstu3();
+		// now a class instance
+
+        Patient patient = new Patient();
+
+        // you can use the Fluent API to chain calls
+        // see http://hapifhir.io/doc_fhirobjects.html
+        patient.addName().setUse(HumanName.NameUse.OFFICIAL)
+                .addPrefix("Mr").setFamily("Walford").addGiven("Steve");
+        patient.addIdentifier()
+                .setSystem("http://fhir.nhs.net/Id/nhs-number")
+                .setValue("7430555");
+        List<StringType> addressList = new ArrayList<StringType>();
+        StringType st = new StringType("60 Florida Gardens");
+        addressList.add(st);
+        patient.addAddress()
+        		.setCity("Cardiff").setPostalCode("LS23 4RT").setLine(addressList)
+        		.setState("Glamorgan").setText("60 Florida Gardens, Cardiff, Glamorgan, LS23 4RT");
+        
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH,12);
+        cal.set(Calendar.MONTH,6); // month - 1
+        cal.set(Calendar.YEAR,1965);
+
+        Date d = cal.getTime();
+        patient.setBirthDate(d);
+        
+        patient.addTelecom(new ContactPoint().setSystem(ContactPoint.ContactPointSystem.PHONE).setValue("011981 32362"));
+        
+        patient.setGender(AdministrativeGender.MALE);
+
+        // create a new XML parser and serialise our Patient object with it
+        String encoded = ctx.newXmlParser().setPrettyPrint(true)
+                .encodeResourceToString(patient);
+
+        //System.out.println(encoded);
+        
+        return encoded;
+
 	}
 	
 	// MULTIPLE PATIENT

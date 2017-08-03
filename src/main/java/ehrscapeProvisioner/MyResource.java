@@ -76,4 +76,12 @@ public class MyResource {
     	return str;
     }
     
+    @POST
+    @Path("createFhirPatient")
+    @Produces(MediaType.APPLICATION_XML)
+    public String createFhir() throws IOException {
+    	String str = req.createFhirPatientDemographic();;
+    	return str;
+    }
+    
 }

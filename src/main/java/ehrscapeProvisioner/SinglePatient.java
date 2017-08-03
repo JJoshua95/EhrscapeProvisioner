@@ -84,7 +84,8 @@ public class SinglePatient {
 		
 		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
 		String createPatientDemographicResponse = req.createPatientDefault();
-		String createEhrResponse = req.createEhr(req.config.getSubjectId(), "uk.nhs.nhs_number", "JarrodEhrscapeProvisioner");
+		String createEhrResponse = req.createEhr(req.config.getSubjectId(), "https://fhir.nhs.uk/Id/nhs-number", "JarrodEhrscapeProvisioner"); // replace uk.nhs.nhs_number , let that be a user input
+		// make the default https://fhir.nhs.uk/Id/nhs-number but make this a customisable input
 		String uploadTemplateResponse = req.uploadDefaultTemplate();
 		String uploadCompResponse = req.uploadDefaultComposition();
 		
@@ -98,6 +99,5 @@ public class SinglePatient {
 		//System.out.println(jsonInput.toString());
 		return finalConfig; //gson.toJson(jsonOutput);
 	}
-	
 	
 }

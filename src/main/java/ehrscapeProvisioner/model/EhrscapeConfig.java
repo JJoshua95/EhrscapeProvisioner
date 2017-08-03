@@ -8,10 +8,13 @@ public class EhrscapeConfig {
 	private String password = "";
 	private String sessionId = "";
 	private String subjectId = "";
+	private String subjectNamespace = "http://fhir.nhs.net/Id/nhs-number";
 	private String ehrId = "";
 	private String templateId = "Vital Signs Encounter (Composition)";
 	private String compositionId = "";
 	private String commiterName = "ehrscapeProvisioner";
+	
+	// make subject namespace here -- http://fhir.nhs.net/Id/nhs-number
 	
 	public String getPatientsFile() {
 		return patientsFile;
@@ -91,6 +94,14 @@ public class EhrscapeConfig {
 	
 	public void setCommiterName(String commiterName) {
 		this.commiterName = commiterName;
+	}
+	
+	public String getSubjectNamespace() {
+		return subjectNamespace;
+	}
+
+	public void setSubjectNamespace(String subjectNamespace) {
+		this.subjectNamespace = subjectNamespace;
 	}
 	
 }
