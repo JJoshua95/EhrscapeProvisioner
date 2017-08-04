@@ -45,8 +45,6 @@ public class EhrscapeRequest {
 	private final static Logger logger = Logger.getLogger(EhrscapeRequest.class.getName());
 
 	HttpClient client = HttpClientBuilder.create().build();
-	
-	FhirContext ctx = FhirContext.forDstu3();
 
 	public static EhrscapeConfig config = new EhrscapeConfig();
 
@@ -240,51 +238,8 @@ public class EhrscapeRequest {
 	
 	// FHIR Demographic call
 	
-	public String createFhirPatientDemographic() {
-		// tutorial: https://fhir-drills.github.io/fhir-api.html
-		// documentation - http://hapifhir.io/apidocs-dstu3/index.html
-		
-		// context - create this once, as it's an expensive operation
-        // see http://hapifhir.io/doc_intro.html
-        // FhirContext ctx = FhirContext.forDstu3();
-		// now a class instance
-
-        Patient patient = new Patient();
-
-        // you can use the Fluent API to chain calls
-        // see http://hapifhir.io/doc_fhirobjects.html
-        patient.addName().setUse(HumanName.NameUse.OFFICIAL)
-                .addPrefix("Mr").setFamily("Walford").addGiven("Steve");
-        patient.addIdentifier()
-                .setSystem("http://fhir.nhs.net/Id/nhs-number")
-                .setValue("7430555");
-        List<StringType> addressList = new ArrayList<StringType>();
-        StringType st = new StringType("60 Florida Gardens");
-        addressList.add(st);
-        patient.addAddress()
-        		.setCity("Cardiff").setPostalCode("LS23 4RT").setLine(addressList)
-        		.setState("Glamorgan").setText("60 Florida Gardens, Cardiff, Glamorgan, LS23 4RT");
-        
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_MONTH,12);
-        cal.set(Calendar.MONTH,6); // month - 1
-        cal.set(Calendar.YEAR,1965);
-
-        Date d = cal.getTime();
-        patient.setBirthDate(d);
-        
-        patient.addTelecom(new ContactPoint().setSystem(ContactPoint.ContactPointSystem.PHONE).setValue("011981 32362"));
-        
-        patient.setGender(AdministrativeGender.MALE);
-
-        // create a new XML parser and serialise our Patient object with it
-        String encoded = ctx.newXmlParser().setPrettyPrint(true)
-                .encodeResourceToString(patient);
-
-        //System.out.println(encoded);
-        
-        return encoded;
-
+	public String createDeafultFhirPatientDemographic() {
+		return "In progress";
 	}
 	
 	public List<PatientDemographic> readPatientCsvToObjectlist(String fileName) throws IOException {
@@ -298,6 +253,7 @@ public class EhrscapeRequest {
 		// [Key, , Forename, Surname, Address_1, Address_2, Address_3, Postcode, Telephone, 
 		// DateofBirth, Gender, NHSNumber, PasNumber, Department, GPNumber]
 		Map<String, String> columnMapping = new HashMap<String, String>();
+		
 		columnMapping.put("Key", "Key");
 		columnMapping.put("Forename", "Forename");
 		columnMapping.put("Surname", "Surname");
@@ -312,6 +268,7 @@ public class EhrscapeRequest {
 		columnMapping.put("PasNumber", "PasNumber");
 		columnMapping.put("Department", "Department");
 		columnMapping.put("GPNumber", "GPNumber");
+		columnMapping.put("", "Prefix"); // the prefix columns in the dummy data have no title atm.
 
 		HeaderColumnNameTranslateMappingStrategy<PatientDemographic> strategy = new HeaderColumnNameTranslateMappingStrategy<PatientDemographic>();
 		strategy.setType(PatientDemographic.class);
@@ -321,7 +278,10 @@ public class EhrscapeRequest {
 		CSVReader reader = new CSVReader(new FileReader(file), ',' , '"' , 0);
 		list = csvToBean.parse(strategy, reader);
 		
-		System.out.println(list.get(0).toString());
+		//ystem.out.println(list.get(0).toString());
+		//System.out.println(list.get(0).getPrefix());
+		//System.out.println(list.get(1).encodeInFhirFormat(""));
+		System.out.println(list.get(0).toMarandPartyJson());
 		
 		return list;
 		

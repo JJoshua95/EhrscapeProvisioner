@@ -22,7 +22,7 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
  * Root resource (exposed at "provision" path)
  */
 @Path("provision")
-public class SinglePatient {
+public class SinglePatientResource {
 	
 	@GET
 	@Path("test")

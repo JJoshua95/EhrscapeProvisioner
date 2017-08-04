@@ -80,8 +80,7 @@ public class MyResource {
     @Path("createFhirPatient")
     @Produces(MediaType.APPLICATION_XML)
     public String createFhir() throws IOException {
-    	String str = "done";
-    	req.readPatientCsvToObjectlist("assets/data/patients1.csv"); //req.createFhirPatientDemographic();
+    	String str = "In progress";
     	return str;
     }
     
