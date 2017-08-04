@@ -1,12 +1,15 @@
 package ehrscapeProvisioner.model;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -30,12 +33,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.bean.CsvToBean;
+import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 import ca.uhn.fhir.context.FhirContext;
-
 
 public class EhrscapeRequest {
 
 	Gson gson = new Gson();
+	
 	private final static Logger logger = Logger.getLogger(EhrscapeRequest.class.getName());
 
 	HttpClient client = HttpClientBuilder.create().build();
@@ -44,7 +50,7 @@ public class EhrscapeRequest {
 
 	public static EhrscapeConfig config = new EhrscapeConfig();
 
-	private String getFile(String fileName) {
+	private String getFileAsString(String fileName) {
 
 		StringBuilder result = new StringBuilder("");
 
@@ -107,7 +113,7 @@ public class EhrscapeRequest {
 	
 	// create patient demographic
 	public String createPatientDefault() throws ClientProtocolException, IOException {
-		String body = getFile("assets/sample_requests/party.json");
+		String body = getFileAsString("assets/sample_requests/party.json");
 		String url = config.getBaseUrl()+"demographics/party";
 		HttpPost request = new HttpPost(url);
 		request.addHeader("Ehr-Session", config.getSessionId()); 
@@ -167,7 +173,7 @@ public class EhrscapeRequest {
 
 	public String uploadDefaultTemplate() throws IOException {
 		// get the template
-		String body = getFile("assets/sample_requests/vital-signs/vital-signs-template.xml");
+		String body = getFileAsString("assets/sample_requests/vital-signs/vital-signs-template.xml");
 		System.out.println(body.length());
 		String url = config.getBaseUrl() + "template/";
 		HttpPost request = new HttpPost(url);
@@ -194,7 +200,7 @@ public class EhrscapeRequest {
 	// Composition
 
 	public String uploadDefaultComposition() throws ClientProtocolException, IOException, URISyntaxException {
-		String body = getFile("assets/sample_requests/vital-signs/vital-signs-composition.json");
+		String body = getFileAsString("assets/sample_requests/vital-signs/vital-signs-composition.json");
 		System.out.println(body.length());
 		System.out.println(config.getEhrId());
 		System.out.println(config.getTemplateId());
@@ -279,6 +285,46 @@ public class EhrscapeRequest {
         
         return encoded;
 
+	}
+	
+	public List<PatientDemographic> readPatientCsvToObjectlist(String fileName) throws IOException {
+		
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource(fileName).getFile());
+		
+		CsvToBean<PatientDemographic> csvToBean = new CsvToBean<PatientDemographic>();
+		// https://stackoverflow.com/questions/13505653/opencsv-how-to-map-selected-columns-to-java-bean-regardless-of-order/14976689#14976689
+		// CSV Header:
+		// [Key, , Forename, Surname, Address_1, Address_2, Address_3, Postcode, Telephone, 
+		// DateofBirth, Gender, NHSNumber, PasNumber, Department, GPNumber]
+		Map<String, String> columnMapping = new HashMap<String, String>();
+		columnMapping.put("Key", "Key");
+		columnMapping.put("Forename", "Forename");
+		columnMapping.put("Surname", "Surname");
+		columnMapping.put("Address_1", "Address_1");
+		columnMapping.put("Address_2", "Address_2");
+		columnMapping.put("Address_3", "Address_3");
+		columnMapping.put("Postcode", "Postcode");
+		columnMapping.put("Telephone", "Telephone");
+		columnMapping.put("DateofBirth", "DateofBirth");
+		columnMapping.put("Gender", "Gender");
+		columnMapping.put("NHSNumber", "NHSNumber");
+		columnMapping.put("PasNumber", "PasNumber");
+		columnMapping.put("Department", "Department");
+		columnMapping.put("GPNumber", "GPNumber");
+
+		HeaderColumnNameTranslateMappingStrategy<PatientDemographic> strategy = new HeaderColumnNameTranslateMappingStrategy<PatientDemographic>();
+		strategy.setType(PatientDemographic.class);
+		strategy.setColumnMapping(columnMapping);
+
+		List<PatientDemographic> list = null;
+		CSVReader reader = new CSVReader(new FileReader(file), ',' , '"' , 0);
+		list = csvToBean.parse(strategy, reader);
+		
+		System.out.println(list.get(0).toString());
+		
+		return list;
+		
 	}
 	
 	// MULTIPLE PATIENT

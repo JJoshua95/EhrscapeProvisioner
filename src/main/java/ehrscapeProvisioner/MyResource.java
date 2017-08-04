@@ -56,7 +56,7 @@ public class MyResource {
     public String createEhr() throws ClientProtocolException, IOException {
     	//System.out.println(req.config.getSessionId().replace("\"", "")); //details = details.replace("\"","\\\"");
     	// watch out for speech marks when getting strings from json objects
-    	String str = req.createEhr(req.config.getSessionId().replace("\"", ""), "uk.nhs.nhs_number", "JarrodEhrscapeProvisioner");
+    	String str = req.createEhr(req.config.getSessionId().replace("\"", ""), req.config.getSubjectNamespace(), "JarrodEhrscapeProvisioner");
 		return str;
     }
     
@@ -80,7 +80,8 @@ public class MyResource {
     @Path("createFhirPatient")
     @Produces(MediaType.APPLICATION_XML)
     public String createFhir() throws IOException {
-    	String str = req.createFhirPatientDemographic();;
+    	String str = "done";
+    	req.readPatientCsvToObjectlist("assets/data/patients1.csv"); //req.createFhirPatientDemographic();
     	return str;
     }
     

@@ -14,8 +14,6 @@ public class EhrscapeConfig {
 	private String compositionId = "";
 	private String commiterName = "ehrscapeProvisioner";
 	
-	// make subject namespace here -- http://fhir.nhs.net/Id/nhs-number
-	
 	public String getPatientsFile() {
 		return patientsFile;
 	}
