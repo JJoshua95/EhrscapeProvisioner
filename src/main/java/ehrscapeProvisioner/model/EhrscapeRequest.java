@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -30,6 +31,8 @@ import au.com.bytecode.opencsv.bean.CsvToBean;
 import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
 public class EhrscapeRequest {
+	
+	// TODO Error handling depeding on response codes and providing an appropriate response
 
 	Gson gson = new Gson();
 
@@ -107,9 +110,9 @@ public class EhrscapeRequest {
 	}
 
 	// create patient demographic
-	public String createMarandPatientDemographic(String filename)
+	public String createMarandPatientDemographic(String body)
 			throws ClientProtocolException, IOException, URISyntaxException {
-		String body = getFileAsString(filename);
+		//String body = getFileAsString(filename);
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "demographics/party");
 		String url = ub.toString(); // = config.getBaseUrl() +
 									// "demographics/party";
@@ -135,7 +138,8 @@ public class EhrscapeRequest {
 
 	// create patient demographic
 	public String createPatientDefault() throws ClientProtocolException, IOException, URISyntaxException {
-		String response = createMarandPatientDemographic("assets/sample_requests/party.json");
+		String body = getFileAsString("assets/sample_requests/party.json");
+		String response = createMarandPatientDemographic(body);
 		return response;
 	}
 
@@ -158,10 +162,11 @@ public class EhrscapeRequest {
 					// "&commiterName=" + commiter;
 
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr");
-		ub.addParameter("subjectId", config.getSubjectId());
+		ub.addParameter("subjectId", subjectID);
 		ub.addParameter("subjectNamespace", config.getSubjectNamespace());
 		ub.addParameter("commiterName", commiter);
 		url = ub.toString();
+		System.out.println("Params === " + ub.getQueryParams().toString());
 
 		HttpPost request = new HttpPost(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
@@ -266,9 +271,62 @@ public class EhrscapeRequest {
 	}
 
 	// FHIR Demographic call
+	
+	public String createFhirPatientDemographic(String fhirBaseUrl, String body) throws URISyntaxException, ClientProtocolException, IOException {
+		
+		String url;
+		URIBuilder ub = new URIBuilder(fhirBaseUrl + "Patient");
+		url = ub.toString();
+		
+		HttpPost request = new HttpPost(url);
+		request.addHeader("Content-Type", "application/xml");
+		request.setEntity(new StringEntity(body));
 
-	public String createDeafultFhirPatientDemographic() {
-		return "In progress";
+		String finalUrl = request.getRequestLine().toString();
+		logger.info("Post Request to : " + finalUrl);
+
+		HttpResponse response = client.execute(request);
+		
+		/*
+		
+		Key : Date ,Value : Sat, 05 Aug 2017 14:24:36 GMT
+		Key : X-Powered-By ,Value : HAPI FHIR 2.5 REST Server (FHIR Server; FHIR 1.0.2/DSTU2)
+		Key : ETag ,Value : W/"1"
+		Key : Content-Location ,Value : http://51.140.57.74:8090/fhir/Patient/453/_history/1
+		Key : Location ,Value : http://51.140.57.74:8090/fhir/Patient/453/_history/1
+		Key : Server ,Value : Jetty(9.2.22.v20170606)
+		
+		*/
+		
+		String locationUrl = response.getFirstHeader("Location").getValue();
+		System.out.println(locationUrl);
+		// cut off all of the url so all that is left is: Patient/{id}
+		String trimmedUrl = locationUrl.substring(locationUrl.lastIndexOf("Patient"),locationUrl.lastIndexOf("/_history/"));
+		System.out.println(trimmedUrl);
+		// then look at whats left after the forward slash
+		String fhirPatientId = trimmedUrl.substring(trimmedUrl.lastIndexOf("/")+1);
+		System.out.println(fhirPatientId);
+		
+		config.setSubjectId(fhirPatientId);
+		logger.info("SubjectId is now" + config.getSubjectId());
+		
+		JsonObject jsonResponse = new JsonObject();
+		
+		Header[] headers = response.getAllHeaders();
+		for (Header header : headers) {
+			//System.out.println("Key : " + header.getName() + " ,Value : " + header.getValue());
+			jsonResponse.addProperty(header.getName(), header.getValue());
+		}
+		
+		// get location and set this as SubjectId
+		
+		return jsonResponse.toString();
+	}
+
+	public String createDefaultFhirPatientDemographic() throws URISyntaxException, ClientProtocolException, IOException {
+		String fhirPatientBody = getFileAsString("assets/sample_requests/defaultFhirPatient.xml");
+		String response = createFhirPatientDemographic(config.getFhirDemographicBaseUrl(),fhirPatientBody);
+		return response;
 	}
 
 	public List<PatientDemographic> readPatientCsvToObjectlist(String fileName) throws IOException {
@@ -311,7 +369,7 @@ public class EhrscapeRequest {
 
 		// System.out.println(list.get(0).toString());
 		// System.out.println(list.get(0).getPrefix());
-		// System.out.println(list.get(1).encodeInFhirFormat(""));
+		// System.out.println(list.get(1).encodeInFhirFormat(true));
 		System.out.println(list.get(0).toMarandPartyJson());
 
 		return list;

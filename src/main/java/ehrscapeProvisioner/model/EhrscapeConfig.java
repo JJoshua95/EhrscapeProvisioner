@@ -14,6 +14,9 @@ public class EhrscapeConfig {
 	private String templateId = "Vital Signs Encounter (Composition)";
 	private String compositionId = "";
 	private String commiterName = "ehrscapeProvisioner";
+	private String fhirDemographicBaseUrl = "http://51.140.57.74:8090/fhir/";
+	
+	// FHIR BASE URL HERE 
 	
 	public String getPatientsFile() {
 		return patientsFile;
@@ -102,5 +105,15 @@ public class EhrscapeConfig {
 	public void setSubjectNamespace(String subjectNamespace) {
 		this.subjectNamespace = subjectNamespace;
 	}
+
+	public String getFhirDemographicBaseUrl() {
+		return fhirDemographicBaseUrl;
+	}
+	
+	public void setFhirDemographicBaseUrl(String fhirDemographicBaseUrl) {
+		this.fhirDemographicBaseUrl = fhirDemographicBaseUrl;
+	}
+	
+
 	
 }

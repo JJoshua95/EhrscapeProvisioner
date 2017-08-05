@@ -148,7 +148,7 @@ public class PatientDemographic {
 					+ this.getTelephone() + " " + this.getNHSNumber() + " ";
 	}
 	
-	public String encodeInFhirFormat(String format) {
+	public String encodeInFhirFormat(boolean formatAsXML) {
 		Patient patient = new Patient();
 		// tutorial: https://fhir-drills.github.io/fhir-api.html
 		// documentation - http://hapifhir.io/apidocs-dstu3/index.html
@@ -195,10 +195,10 @@ public class PatientDemographic {
 
         // create a new XML parser and serialise our Patient object with it
         String encoded;
-        if (format.equals("json")) {
-        	encoded = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
+        if (formatAsXML == true) {
+        	encoded = ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(patient);
         } else {
-        	encoded = ctx.newXmlParser().setPrettyPrint(true)
+        	encoded = ctx.newJsonParser().setPrettyPrint(true)
                 .encodeResourceToString(patient);
         }
         return encoded;

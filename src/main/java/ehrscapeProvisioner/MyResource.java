@@ -79,9 +79,9 @@ public class MyResource {
     
     @POST
     @Path("createFhirPatient")
-    @Produces(MediaType.APPLICATION_XML)
-    public String createFhir() throws IOException {
-    	String str = "In progress";
+    @Produces(MediaType.APPLICATION_JSON)
+    public String createFhir() throws IOException, URISyntaxException {
+    	String str = req.createDefaultFhirPatientDemographic();
     	return str;
     }
     
