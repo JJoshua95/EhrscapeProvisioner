@@ -29,15 +29,16 @@ public class MyResource {
      * to the client as "text/plain" media type.
      *
      * @return String that will be returned as a text/plain response.
+     * @throws URISyntaxException 
      */
 
     @POST
     @Path("getSession")
     @Produces(MediaType.APPLICATION_JSON)
-    public String doPost() throws ClientProtocolException, IOException {
+    public String doPost() throws ClientProtocolException, IOException, URISyntaxException {
     	//EhrscapeRequest req =  new EhrscapeRequest();
     	String str = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
-    	System.out.println("Session id = " + req.config.getSessionId());
+    	System.out.println("Session id = " + EhrscapeRequest.config.getSessionId());
     	//req.config.setSessionId(sessionId);
     	return str;
     }
@@ -45,7 +46,7 @@ public class MyResource {
     @POST
     @Path("createPatientDemographic")
     @Produces(MediaType.APPLICATION_JSON)
-    public String createPatientDemographic() throws ClientProtocolException, IOException {
+    public String createPatientDemographic() throws ClientProtocolException, IOException, URISyntaxException {
     	String str = req.createPatientDefault();
     	return str;
     }
@@ -53,17 +54,17 @@ public class MyResource {
     @POST
     @Path("createEhr")
     @Produces(MediaType.APPLICATION_JSON)
-    public String createEhr() throws ClientProtocolException, IOException {
+    public String createEhr() throws ClientProtocolException, IOException, URISyntaxException {
     	//System.out.println(req.config.getSessionId().replace("\"", "")); //details = details.replace("\"","\\\"");
     	// watch out for speech marks when getting strings from json objects
-    	String str = req.createEhr(req.config.getSessionId().replace("\"", ""), req.config.getSubjectNamespace(), "JarrodEhrscapeProvisioner");
+    	String str = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
 		return str;
     }
     
     @POST
     @Path("uploadTemplate")
     @Produces(MediaType.APPLICATION_JSON)
-    public String showTemplate() throws ParserConfigurationException, SAXException, IOException {
+    public String showTemplate() throws ParserConfigurationException, SAXException, IOException, URISyntaxException {
     	String str = req.uploadDefaultTemplate();
     	return str;
     }

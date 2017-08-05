@@ -6,15 +6,13 @@ import java.util.Date;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.ContactPoint;
+import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.StringType;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 
 import ca.uhn.fhir.context.FhirContext;
 
@@ -142,6 +140,7 @@ public class PatientDemographic {
 	}
 	
 	// methods to create a marand party.json demographic body or fhir xml / json representation of this patient
+	
 	@Override
 	public String toString() {
 		return this.getKey() + " " + this.getForename() + " " + this.getSurname() + " " + this.getAddress_1() + " " + this.getAddress_2() + " "
@@ -207,10 +206,6 @@ public class PatientDemographic {
 	}
 	
 	public String toMarandPartyJson() {
-		
-		String jsonTemplate;
-		
-		Gson gson = new Gson();
 		
 		JsonObject jsonOutput = new JsonObject();
 		
