@@ -196,7 +196,8 @@ public class PatientDemographic {
         // create a new XML parser and serialise our Patient object with it
         String encoded;
         if (formatAsXML == true) {
-        	encoded = ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(patient);
+        	encoded = ctx.newXmlParser().setPrettyPrint(true)
+        		.encodeResourceToString(patient);
         } else {
         	encoded = ctx.newJsonParser().setPrettyPrint(true)
                 .encodeResourceToString(patient);

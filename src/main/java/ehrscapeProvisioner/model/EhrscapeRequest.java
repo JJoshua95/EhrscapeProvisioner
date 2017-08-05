@@ -32,7 +32,7 @@ import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
 public class EhrscapeRequest {
 	
-	// TODO Error handling depeding on response codes and providing an appropriate response
+	// TODO Error handling depending on response codes and providing an appropriate response
 
 	Gson gson = new Gson();
 
@@ -328,6 +328,8 @@ public class EhrscapeRequest {
 		String response = createFhirPatientDemographic(config.getFhirDemographicBaseUrl(),fhirPatientBody);
 		return response;
 	}
+	
+	// MULTIPLE PATIENT
 
 	public List<PatientDemographic> readPatientCsvToObjectlist(String fileName) throws IOException {
 
@@ -370,12 +372,10 @@ public class EhrscapeRequest {
 		// System.out.println(list.get(0).toString());
 		// System.out.println(list.get(0).getPrefix());
 		// System.out.println(list.get(1).encodeInFhirFormat(true));
-		System.out.println(list.get(0).toMarandPartyJson());
+		// System.out.println(list.get(0).toMarandPartyJson());
 
 		return list;
 
 	}
-
-	// MULTIPLE PATIENT
 
 }

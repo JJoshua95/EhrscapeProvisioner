@@ -24,14 +24,6 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 @Path("provision")
 public class SinglePatientResource {
 	
-	@GET
-	@Path("test")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String tester() {
-		String str = "Provision";
-		return str;
-	}
-	
 	@POST
 	@Path("single-provision")
 	@Produces(MediaType.APPLICATION_JSON)

@@ -2,6 +2,7 @@ package ehrscapeProvisioner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,6 +16,7 @@ import org.xml.sax.SAXException;
 import com.google.gson.Gson;
 
 import ehrscapeProvisioner.model.EhrscapeRequest;
+import ehrscapeProvisioner.model.PatientDemographic;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -83,6 +85,14 @@ public class MyResource {
     public String createFhir() throws IOException, URISyntaxException {
     	String str = req.createDefaultFhirPatientDemographic();
     	return str;
+    }
+    
+    @POST
+    @Path("csvTest")
+    @Produces(MediaType.APPLICATION_XML)
+    public String readCsvPatient() throws IOException {
+    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+    	return list.get(5).encodeInFhirFormat(true);
     }
     
 }
