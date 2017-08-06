@@ -1,40 +1,50 @@
 package ehrscapeProvisioner;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import au.com.bytecode.opencsv.CSVParser;
+
+import ehrscapeProvisioner.model.EhrscapeRequest;
 
 @Path("import")
 public class ImportCsvResource {
 	
+	private String csvInputHeader;
+	private EhrscapeRequest req = new EhrscapeRequest();
+	
 	@POST
 	@Path("csv")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public String csvToCompositions(String inputCsvBody) throws IOException {
+	public String csvToCompositions(String inputCsvBody) throws IOException, URISyntaxException {
 		// parse the csv input and turn each row into JsonObject compositions
-		csvBodyToJsonCompositions(inputCsvBody);
-		
+		//csvBodyToJsonCompositions(inputCsvBody);
 		
 		// loop through the json compositions and upload them to the ehrScape server
 		
-		return inputCsvBody;
+		return csvBodyToJsonCompositions(inputCsvBody);
 	}
 	
-	private String csvBodyToJsonCompositions(String body) throws IOException {
+	private String csvBodyToJsonCompositions(String body) throws IOException, URISyntaxException {
 		String[] split = body.split("\n");
-		String header = split[0];
-		if (header.contains("subjectId")) {
+		csvInputHeader = split[0];
+		if (csvInputHeader.contains("subjectId")) {
 			System.out.println("subjectId column is present");
 			JsonObject[] compositionArray = mapToJsonObjects(body);
-			return "SubjectId csv file handled";
-		} else if (header.contains("ehrId")) {
+			String csvResponse = uploadJsonCompositionsArrayWithSubjectId(compositionArray);
+			return  csvResponse;
+		} else if (csvInputHeader.contains("ehrId")) {
 			System.out.println("ehrId column is present");
 			mapToJsonObjects(body);
 			return "EhrId csv file handled";
@@ -59,7 +69,7 @@ public class ImportCsvResource {
 			// look at the individual row
 			String csvRow = csvRows[i];
 			String csvRowValues[] = csvParser.parseLine(csvRow);
-			System.out.println("Number of rows components: " + csvRowValues.length);
+			// System.out.println("Number of rows components: " + csvRowValues.length);
 			// loop through the rows components with index j starting from the second element
 			// the first element is the subject id - extract that separately to upload the data
 			for (int j = 0; j < csvRowValues.length; j++) {
@@ -70,11 +80,42 @@ public class ImportCsvResource {
 		return jsonCompositionsArray;
 	}
 	
-	private String uploadJsonCompositionsArrayWithSubjectId(JsonObject[] compositionArray) {
+	private String uploadJsonCompositionsArrayWithSubjectId(JsonObject[] compositionArray) throws IOException, URISyntaxException {
+		// create the csv response
+		StringBuilder csvResponseSb = new StringBuilder();
+		csvResponseSb.append(csvInputHeader + ",compositionUid,errors\n");
 		for (int i = 0; i < compositionArray.length; i++) {
-			System.out.println(compositionArray[i].get("subjectId"));
+			String subjectId = compositionArray[i].get("subjectId").getAsString();
+			// remove the subject id from the composition json body before it is posted to the ehrScape server
+			compositionArray[i].remove("subjectId");
+			String compositionPostBody = compositionArray[i].toString();
+			// System.out.println(compositionPostBody);
+			
+			try {
+			// Do the post request to upload the composition
+			String postResponse = req.uploadComposition(compositionPostBody);
+			System.out.println(postResponse);
+			} catch(Exception e) {
+				e.getMessage();
+			}
+			// get all the values from the json object
+			// https://stackoverflow.com/questions/31094305/java-gson-getting-the-list-of-all-keys-under-a-jsonobject
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(compositionPostBody);
+			JsonObject obj = element.getAsJsonObject(); //since you know it's a JsonObject
+			Set<Map.Entry<String, JsonElement>> entries = obj.entrySet();//will return members of your object
+			// put the subjectID in the response
+			csvResponseSb.append(subjectId+",");
+			for (Map.Entry<String, JsonElement> entry: entries) {
+			    //System.out.println(entry.getKey());
+				csvResponseSb.append(entry.getValue().getAsString() + ",");
+			}
+			// delete the final ","
+			csvResponseSb.deleteCharAt(csvResponseSb.lastIndexOf(","));
+			csvResponseSb.append("\n");
 		}
-		return null;
+	    //System.out.println(csvResponseSb.toString());  
+		return csvResponseSb.toString();
 	}
 
 }
