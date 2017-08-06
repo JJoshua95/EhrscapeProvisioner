@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,7 +24,7 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 public class SinglePatientResource {
 	
 	@POST
-	@Path("single-provision")
+	@Path("single-provision-no-demographic")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String singleProvision(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {
@@ -59,7 +58,7 @@ public class SinglePatientResource {
 	}
 	
 	@POST
-	@Path("single-provision-with-demographic")
+	@Path("single-provision-marand")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String singleProvisionDemographic(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {

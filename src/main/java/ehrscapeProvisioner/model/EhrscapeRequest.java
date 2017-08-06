@@ -189,9 +189,9 @@ public class EhrscapeRequest {
 
 	}
 
-	public String uploadTemplate(String filename) throws IOException, URISyntaxException {
+	public String uploadTemplate(String body) throws IOException, URISyntaxException {
 		// get the template
-		String body = getFileAsString(filename);
+		// String body = getFileAsString(filename);
 		System.out.println(body.length());
 		String url; // = config.getBaseUrl() + "template/";
 
@@ -220,14 +220,17 @@ public class EhrscapeRequest {
 	}
 
 	public String uploadDefaultTemplate() throws IOException, URISyntaxException {
-		String response = uploadTemplate("assets/sample_requests/vital-signs/vital-signs-template.xml");
+		// get the template
+		String body = getFileAsString("assets/sample_requests/vital-signs/vital-signs-template.xml");
+		String response = uploadTemplate(body);
 		return response;
 	}
 
 	// Composition
 
-	public String uploadComposition(String filename) throws ClientProtocolException, IOException, URISyntaxException {
-		String body = getFileAsString(filename);
+	public String uploadComposition(String body) throws ClientProtocolException, IOException, URISyntaxException {
+		// get the composition body 
+		// String body = getFileAsString(filename);
 		System.out.println(body.length());
 		System.out.println(config.getEhrId());
 		System.out.println(config.getTemplateId());
@@ -266,7 +269,9 @@ public class EhrscapeRequest {
 	}
 	
 	public String uploadDefaultComposition() throws ClientProtocolException, IOException, URISyntaxException {
-		String response = uploadComposition("assets/sample_requests/vital-signs/vital-signs-composition.json");
+		// get the composition body 
+		String body = getFileAsString("assets/sample_requests/vital-signs/vital-signs-composition.json");
+		String response = uploadComposition(body);
 		return response;
 	}
 
@@ -376,6 +381,17 @@ public class EhrscapeRequest {
 
 		return list;
 
+	}
+	
+	public void uploadMultipleCompositions(String ehrId, boolean doAllergies, boolean doOrders, 
+			boolean doProblems, boolean doProcedures, boolean doLabResults, boolean doVitals) {
+		
+	}
+	
+	public String importCSV(String filename) {
+		// replicate the marand import csv resource
+		String fileString = getFileAsString(filename);
+		return fileString;
 	}
 
 }

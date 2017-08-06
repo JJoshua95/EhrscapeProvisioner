@@ -23,7 +23,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		console.log($scope.baseUrl);
 		var body = JSON.stringify({username: $scope.username, password:$scope.password, baseUrl: $scope.baseUrl})
 		console.log(body);
-		$http.post("http://localhost:8080/EhrscapeProvisioner/api/provision/single-provision", body)
+		$http.post("http://localhost:8080/EhrscapeProvisioner/api/provision/single-provision-no-demographic", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
@@ -37,7 +37,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		console.log($scope.baseUrl);
 		var body = JSON.stringify({username: $scope.username, password:$scope.password, baseUrl: $scope.baseUrl})
 		console.log(body);
-		$http.post("http://localhost:8080/EhrscapeProvisioner/api/provision/single-provision-with-demographic", body)
+		$http.post("http://localhost:8080/EhrscapeProvisioner/api/provision/single-provision-marand", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
