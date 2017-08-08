@@ -36,8 +36,7 @@ import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
 public class EhrscapeRequest {
 
-	// TODO Error handling depending on response codes and providing an
-	// appropriate response
+	// TODO TEST the errors and handling with bad inputs
 
 	Gson gson = new Gson();
 
@@ -109,14 +108,13 @@ public class EhrscapeRequest {
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			logger.info("" + jsonObject.get("sessionId"));
 			config.setSessionId(jsonObject.get("sessionId").getAsString());
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode())
-					.build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
 
 		} else {
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			System.out.println(jsonObject.toString());
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode())
-					.build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 
 	}
@@ -146,16 +144,16 @@ public class EhrscapeRequest {
 			String partyID = partyStringHref.substring(partyStringHref.lastIndexOf("/") + 1);
 			System.out.println(partyID);
 			config.setSubjectId(partyID);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode())
-					.build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("error-message", "demographic not created");
 			jsonResponse.addProperty("response-code", response.getStatusLine().getStatusCode());
 			jsonResponse.addProperty("message", response.getStatusLine().getReasonPhrase());
 			result = jsonResponse.toString();
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode())
-					.build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
@@ -209,12 +207,13 @@ public class EhrscapeRequest {
 
 			config.setEhrId(jsonObject.get("ehrId").getAsString());
 			config.setSubjectId(subjectID);
-			return Response.ok(result, MediaType.APPLICATION_JSON).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
 			System.out.println(result);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 
 	}
@@ -238,18 +237,16 @@ public class EhrscapeRequest {
 		if (responseCode == 200) {
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			JsonObject jsonResult = new JsonObject();
-			jsonResult.addProperty("status", responseCode);
-			jsonResult.addProperty("message", "No content - no EHR for the specified subject ID and namespace exists.");
-
-			// result = jsonResult.toString();
-			HttpEntity entity = response.getEntity();
-			result = EntityUtils.toString(entity);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			jsonResult.addProperty("Ehrscape Request", "Get Ehr with SubjectId and Namespace");
+			jsonResult.addProperty("Response Status", responseCode);
+			
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(jsonResult.toString()).type(MediaType.APPLICATION_JSON).build();
 		}
-
 	}
 	
 	public Response getEhrWithEhrId(String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
@@ -266,8 +263,8 @@ public class EhrscapeRequest {
 		String result;
 		HttpEntity entity = response.getEntity();
 		result = EntityUtils.toString(entity);
-		return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
-
+		//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	// templates
@@ -298,11 +295,13 @@ public class EhrscapeRequest {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
 			System.out.println(result);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 
 		// JsonObject jsonObject = (new
@@ -340,11 +339,13 @@ public class EhrscapeRequest {
 			String result = EntityUtils.toString(entity);
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			logger.info("" + jsonObject.get("compositionUid"));
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
@@ -384,12 +385,14 @@ public class EhrscapeRequest {
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			logger.info("" + jsonObject.get("compositionUid"));
 			config.setCompositionId(jsonObject.get("compositionUid").getAsString());
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
 			System.out.println(result);
-			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
@@ -458,14 +461,16 @@ public class EhrscapeRequest {
 			}
 
 			// get location and set this as SubjectId
-			return Response.ok(jsonResponse.toString(), MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(jsonResponse.toString(), MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(jsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 			
 		} else {
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("errorMessage", "Error creating this FHIR Resource");
 			// TODO add more info to this error message
 			
-			return Response.ok(jsonResponse, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//return Response.ok(jsonResponse, MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(jsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 

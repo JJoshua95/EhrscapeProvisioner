@@ -25,6 +25,8 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 public class SinglePatientResource {
 	
 	// TODO change these strings to Response objects and use the constituent responses to return relevant errors
+	// return feedback if the requests fail
+	// TODO make a new resource class with the invidual requests for the frontend to access directly
 	
 	@POST
 	@Path("single-provision-no-demographic")
