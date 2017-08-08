@@ -23,7 +23,7 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 @Path("import")
 public class ImportCsvResource {
 	
-	// TODO allow a json input for the username password and namespace config options here
+	// TODO allow a json input for the username password and namespace config options here?
 	
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
@@ -83,7 +83,6 @@ public class ImportCsvResource {
 	}
 	
 	private String uploadJsonCompositionsArrayWithSubjectId(JsonObject[] compositionArray) throws IOException, URISyntaxException {
-		// TODO get the error messages to see why some compositions dont upload
 		// create the CSV response
 		StringBuilder csvResponseSb = new StringBuilder();
 		csvResponseSb.append(csvInputHeader + ",compositionUid,errors\n");
@@ -124,7 +123,7 @@ public class ImportCsvResource {
 					compositionUidCsvString = compUid;
 				} else {
 					// failed to upload
-					errorCsvValue = "Failed to upload this composition";
+					errorCsvValue = "Error with Commit Composition Call: " + uploadCompositionResponseBody.replaceAll(",", ";");
 				}
 			} else if (responseCode == 201) {
 				// or just upload composition for the newly created EHR
@@ -144,13 +143,12 @@ public class ImportCsvResource {
 					compositionUidCsvString = compUid;
 				} else {
 					// failed to upload
-					errorCsvValue = "Failed to upload this composition";
+					errorCsvValue = "Error with Commit Composition Call: " + uploadCompositionResponseBody.replaceAll(",", ";");
 				}
 			} else {
 				// error
-				errorCsvValue = "Failed to upload this composition";
+				errorCsvValue = "Error with Create EHR call: " + ehrCreateResponse.getEntity().toString().replaceAll(",", ";");
 			}
-			
 			// get all the values from the JSON object
 			// https://stackoverflow.com/questions/31094305/java-gson-getting-the-list-of-all-keys-under-a-jsonobject
 			JsonParser parser = new JsonParser();
@@ -163,13 +161,15 @@ public class ImportCsvResource {
 			    //System.out.println(entry.getKey());
 				csvResponseSb.append(entry.getValue().getAsString() + ",");
 			}
-			// delete the final ","
-			//csvResponseSb.deleteCharAt(csvResponseSb.lastIndexOf(","));
 			csvResponseSb.append(compositionUidCsvString + ",");
 			csvResponseSb.append(errorCsvValue);
 			csvResponseSb.append("\n");
 		}
 		return csvResponseSb.toString();
 	}
-
+	
+	private String uploadJsonCompositionsArrayWithEhrId() {
+		return null;
+	}
+	
 }
