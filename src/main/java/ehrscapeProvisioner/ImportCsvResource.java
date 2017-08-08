@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,12 +29,10 @@ public class ImportCsvResource {
 	@POST
 	@Path("csv")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public String csvToCompositions(String inputCsvBody) throws IOException, URISyntaxException {
-		// parse the csv input and turn each row into JsonObject compositions
+	public String csvToCompositions(@HeaderParam("sessionId") String sessionId, String inputCsvBody) throws IOException, URISyntaxException {
+		// parse the CSV input and turn each row into JsonObject compositions
 		//csvBodyToJsonCompositions(inputCsvBody);
-		
-		// loop through the json compositions and upload them to the ehrScape server
-		
+		// loop through the JSON compositions and upload them to the ehrScape server
 		return csvBodyToJsonCompositions(inputCsvBody);
 	}
 	
@@ -81,7 +81,7 @@ public class ImportCsvResource {
 	}
 	
 	private String uploadJsonCompositionsArrayWithSubjectId(JsonObject[] compositionArray) throws IOException, URISyntaxException {
-		// create the csv response
+		// create the CSV response
 		StringBuilder csvResponseSb = new StringBuilder();
 		csvResponseSb.append(csvInputHeader + ",compositionUid,errors\n");
 		for (int i = 0; i < compositionArray.length; i++) {
@@ -93,12 +93,21 @@ public class ImportCsvResource {
 			
 			try {
 			// Do the post request to upload the composition
-			String postResponse = req.uploadComposition(compositionPostBody);
-			System.out.println(postResponse);
+			// use subjectId to create Ehr or if it exists retrieve one 
+			Response ehrCreateResponse = req.createEhr(subjectId, "ImportCsvTool");
+			System.out.println(ehrCreateResponse);
+			// parse the response to get the status
+			JsonObject jsonCreateEhrResponse = (new JsonParser()).parse(ehrCreateResponse.toString()).getAsJsonObject();
+			jsonCreateEhrResponse.has("action");
+			// then use the ehrId to upload the composition
+			// String postResponse = req.uploadComposition(compositionPostBody);
+			// System.out.println(postResponse);
 			} catch(Exception e) {
 				e.getMessage();
 			}
-			// get all the values from the json object
+			
+			
+			// get all the values from the JSON object
 			// https://stackoverflow.com/questions/31094305/java-gson-getting-the-list-of-all-keys-under-a-jsonobject
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(compositionPostBody);

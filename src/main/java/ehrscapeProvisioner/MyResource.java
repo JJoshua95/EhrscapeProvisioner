@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
@@ -37,53 +40,54 @@ public class MyResource {
     @POST
     @Path("getSession")
     @Produces(MediaType.APPLICATION_JSON)
-    public String doPost() throws ClientProtocolException, IOException, URISyntaxException {
+    public Response doPost() throws ClientProtocolException, IOException, URISyntaxException {
     	//EhrscapeRequest req =  new EhrscapeRequest();
-    	String str = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
+    	Response res = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
     	System.out.println("Session id = " + EhrscapeRequest.config.getSessionId());
+    	System.out.println(res.getStatus());
     	//req.config.setSessionId(sessionId);
-    	return str;
+    	return res;
     }
     
     @POST
     @Path("createPatientDemographic")
     @Produces(MediaType.APPLICATION_JSON)
-    public String createPatientDemographic() throws ClientProtocolException, IOException, URISyntaxException {
-    	String str = req.createPatientDefault();
-    	return str;
+    public Response createPatientDemographic() throws ClientProtocolException, IOException, URISyntaxException {
+    	Response res = req.createPatientDefault();
+    	return res;
     }
     
     @POST
     @Path("createEhr")
     @Produces(MediaType.APPLICATION_JSON)
-    public String createEhr() throws ClientProtocolException, IOException, URISyntaxException {
+    public Response createEhr() throws ClientProtocolException, IOException, URISyntaxException {
     	//System.out.println(req.config.getSessionId().replace("\"", "")); //details = details.replace("\"","\\\"");
     	// watch out for speech marks when getting strings from json objects
-    	String str = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
-		return str;
+    	Response res = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
+		return res;
     }
     
     @POST
     @Path("uploadTemplate")
     @Produces(MediaType.APPLICATION_JSON)
-    public String showTemplate() throws ParserConfigurationException, SAXException, IOException, URISyntaxException {
-    	String str = req.uploadDefaultTemplate();
-    	return str;
+    public Response showTemplate() throws ParserConfigurationException, SAXException, IOException, URISyntaxException {
+    	Response res = req.uploadDefaultTemplate();
+    	return res;
     }
     
     @POST
     @Path("uploadComposition")
     @Produces(MediaType.APPLICATION_JSON)
-    public String showComposition() throws ClientProtocolException, IOException, URISyntaxException {
-    	String str = req.uploadDefaultComposition(); 
+    public Response showComposition() throws ClientProtocolException, IOException, URISyntaxException {
+    	Response str = req.uploadDefaultComposition(); 
     	return str;
     }
     
     @POST
     @Path("createFhirPatient")
     @Produces(MediaType.APPLICATION_JSON)
-    public String createFhir() throws IOException, URISyntaxException {
-    	String str = req.createDefaultFhirPatientDemographic();
+    public Response createFhir() throws IOException, URISyntaxException {
+    	Response str = req.createDefaultFhirPatientDemographic();
     	return str;
     }
     
@@ -94,5 +98,14 @@ public class MyResource {
     	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
     	return list.get(5).encodeInFhirFormat(true);
     }
+    
+    
+    @GET
+    @Path("getEhrWithSubjectId")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEhrWithSubject() throws ClientProtocolException, URISyntaxException, IOException {
+    	return req.getEhrWithSubjectId(EhrscapeRequest.config.getSubjectId(), EhrscapeRequest.config.getSubjectNamespace());
+    }
+    
     
 }

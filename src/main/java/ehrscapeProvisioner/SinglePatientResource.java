@@ -8,6 +8,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -40,11 +41,11 @@ public class SinglePatientResource {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		
-		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
+		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
 		System.out.println(EhrscapeRequest.config.getSessionId());
-		String createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
-		String uploadTemplateResponse = req.uploadDefaultTemplate();
-		String uploadCompResponse = req.uploadDefaultComposition();
+		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
+		Response uploadTemplateResponse = req.uploadDefaultTemplate();
+		Response uploadCompResponse = req.uploadDefaultComposition();
 		
 		// put the final response stuff here
 		
@@ -74,13 +75,13 @@ public class SinglePatientResource {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		
-		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
-		String createPatientDemographicResponse = req.createPatientDefault();
-		String createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), "JarrodEhrscapeProvisioner"); 
+		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
+		Response createPatientDemographicResponse = req.createPatientDefault();
+		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), "JarrodEhrscapeProvisioner"); 
 		// replace uk.nhs.nhs_number , let that be a user input
 		// make the default https://fhir.nhs.uk/Id/nhs-number but make this a customisable input
-		String uploadTemplateResponse = req.uploadDefaultTemplate();
-		String uploadCompResponse = req.uploadDefaultComposition();
+		Response uploadTemplateResponse = req.uploadDefaultTemplate();
+		Response uploadCompResponse = req.uploadDefaultComposition();
 		
 		// put the final response stuff here
 		
@@ -110,13 +111,13 @@ public class SinglePatientResource {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		
-		String getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
-		String createPatientDemographicResponse = req.createDefaultFhirPatientDemographic();
-		String createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), "JarrodEhrscapeProvisioner"); 
+		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),jsonInput.get("password").getAsString()); 
+		Response createPatientDemographicResponse = req.createDefaultFhirPatientDemographic();
+		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), "JarrodEhrscapeProvisioner"); 
 		// replace uk.nhs.nhs_number , let that be a user input
 		// make the default https://fhir.nhs.uk/Id/nhs-number but make this a customisable input
-		String uploadTemplateResponse = req.uploadDefaultTemplate();
-		String uploadCompResponse = req.uploadDefaultComposition();
+		Response uploadTemplateResponse = req.uploadDefaultTemplate();
+		Response uploadCompResponse = req.uploadDefaultComposition();
 		
 		// put the final response stuff here
 		
