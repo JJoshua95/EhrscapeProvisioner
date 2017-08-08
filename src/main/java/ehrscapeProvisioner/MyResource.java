@@ -12,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
@@ -106,6 +105,13 @@ public class MyResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEhrWithSubject() throws ClientProtocolException, URISyntaxException, IOException {
     	return req.getEhrWithSubjectId(EhrscapeRequest.config.getSubjectId(), EhrscapeRequest.config.getSubjectNamespace());
+    }
+    
+    @GET
+    @Path("getEhrWithEhrId")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEhrWithEHRID() throws ClientProtocolException, URISyntaxException, IOException {
+    	return req.getEhrWithEhrId("fa81f04e-27b1-4226-be66-67f9034c235d");
     }
     
     

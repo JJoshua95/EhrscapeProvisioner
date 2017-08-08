@@ -3,7 +3,6 @@ package ehrscapeProvisioner.model;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
@@ -250,6 +249,24 @@ public class EhrscapeRequest {
 			result = EntityUtils.toString(entity);
 			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
 		}
+
+	}
+	
+	public Response getEhrWithEhrId(String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
+		String url;
+		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/"+ehrId);
+		//ub.addParameter("ehrId", ehrId);
+		url = ub.toString();
+		System.out.println(url);
+		HttpGet request = new HttpGet(url);
+		request.addHeader("Ehr-Session", config.getSessionId());
+		HttpResponse response = client.execute(request);
+		int responseCode = response.getStatusLine().getStatusCode();
+		System.out.println("Status response code: " + responseCode);
+		String result;
+		HttpEntity entity = response.getEntity();
+		result = EntityUtils.toString(entity);
+		return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
 
 	}
 
