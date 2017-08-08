@@ -45,6 +45,7 @@ public class MyResource {
     	Response res = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
     	System.out.println("Session id = " + EhrscapeRequest.config.getSessionId());
     	System.out.println(res.getStatus());
+    	System.out.println("Response content: " + res.getEntity().toString());
     	//req.config.setSessionId(sessionId);
     	return res;
     }

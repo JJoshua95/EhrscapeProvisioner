@@ -3,6 +3,7 @@ package ehrscapeProvisioner.model;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
@@ -301,10 +302,33 @@ public class EhrscapeRequest {
 
 	// Composition
 
-	public String uploadComposition(String body, String sessionId, String templateId, String commiterName,
-			String ehrId) {
-		// TODO
-		return null;
+	// for the import csv tool
+	public Response uploadComposition(String body, String sessionId, String templateId, String commiterName,
+			String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
+		String url;
+		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "composition");
+		ub.addParameter("ehrId", ehrId);
+		ub.addParameter("templateId", templateId);
+		ub.addParameter("format", "FLAT");
+		ub.addParameter("comitterId", commiterName);
+		url = ub.toString();
+		HttpPost request = new HttpPost(url);
+		request.addHeader("Ehr-Session", sessionId);
+		request.addHeader("Content-Type", "application/json");
+		request.setEntity(new StringEntity(body));
+		HttpResponse response = client.execute(request);
+		int responseCode = response.getStatusLine().getStatusCode();
+		if (responseCode == 201 || responseCode == 200) {
+			HttpEntity entity = response.getEntity();
+			String result = EntityUtils.toString(entity);
+			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+			logger.info("" + jsonObject.get("compositionUid"));
+			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+		} else {
+			HttpEntity entity = response.getEntity();
+			String result = EntityUtils.toString(entity);
+			return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+		}
 	}
 
 	public Response uploadComposition(String body) throws ClientProtocolException, IOException, URISyntaxException {

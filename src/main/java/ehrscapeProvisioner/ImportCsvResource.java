@@ -23,6 +23,8 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 @Path("import")
 public class ImportCsvResource {
 	
+	// TODO allow a json input for the username password and namespace config options here
+	
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
 	
@@ -47,7 +49,7 @@ public class ImportCsvResource {
 		} else if (csvInputHeader.contains("ehrId")) {
 			System.out.println("ehrId column is present");
 			mapToJsonObjects(body);
-			return "EhrId csv file handled";
+			return "EhrId csv file in progress";
 		} else {
 			// return an error message 
 			System.out.println("ERROR PARSING");
@@ -81,6 +83,7 @@ public class ImportCsvResource {
 	}
 	
 	private String uploadJsonCompositionsArrayWithSubjectId(JsonObject[] compositionArray) throws IOException, URISyntaxException {
+		// TODO get the error messages to see why some compositions dont upload
 		// create the CSV response
 		StringBuilder csvResponseSb = new StringBuilder();
 		csvResponseSb.append(csvInputHeader + ",compositionUid,errors\n");
@@ -91,28 +94,69 @@ public class ImportCsvResource {
 			String compositionPostBody = compositionArray[i].toString();
 			// System.out.println(compositionPostBody);
 			
-			try {
 			// Do the post request to upload the composition
 			// use subjectId to create Ehr or if it exists retrieve one 
 			Response ehrCreateResponse = req.createEhr(subjectId, "ImportCsvTool");
-			System.out.println(ehrCreateResponse);
-			// parse the response to get the status
-			JsonObject jsonCreateEhrResponse = (new JsonParser()).parse(ehrCreateResponse.toString()).getAsJsonObject();
-			jsonCreateEhrResponse.has("action");
+			int responseCode = ehrCreateResponse.getStatus();
+			System.out.println("Create EHR Response Code: " + responseCode);
+			System.out.println("Create EHR Response Content:" + ehrCreateResponse.getEntity());
+			String compositionUidCsvString = "";
+			String errorCsvValue = "";
+			// if the ehr exists get the ehrId
 			// then use the ehrId to upload the composition
-			// String postResponse = req.uploadComposition(compositionPostBody);
-			// System.out.println(postResponse);
-			} catch(Exception e) {
-				e.getMessage();
+			if (responseCode == 400) {
+				// get ehr
+				Response getEhrResponse = req.getEhrWithSubjectId(subjectId, EhrscapeRequest.config.getSubjectNamespace());
+				String getEhrResponseBody = getEhrResponse.getEntity().toString();
+				System.out.println("Get EHR response body \n" + getEhrResponseBody);
+				// parse the response to get the ehrId
+				JsonObject jsonObject = (new JsonParser()).parse(getEhrResponseBody.toString()).getAsJsonObject();
+				String ehrId = jsonObject.get("ehrId").getAsString();
+				Response uploadCompositionResponse = req.uploadComposition(compositionPostBody, EhrscapeRequest.config.getSessionId(), 
+						"Vital Signs Encounter (Composition)", "importCsvResource", ehrId);
+				String uploadCompositionResponseBody = uploadCompositionResponse.getEntity().toString();
+				int uploadCompositionResponseCode = uploadCompositionResponse.getStatus();
+				if (uploadCompositionResponseCode == 201 || uploadCompositionResponseCode == 200) {
+					// if successfully created
+					JsonObject jsonCompositionResponseObject 
+					= (new JsonParser()).parse(uploadCompositionResponseBody.toString()).getAsJsonObject();
+					String compUid = jsonCompositionResponseObject.get("compositionUid").getAsString();
+					compositionUidCsvString = compUid;
+				} else {
+					// failed to upload
+					errorCsvValue = "Failed to upload this composition";
+				}
+			} else if (responseCode == 201) {
+				// or just upload composition for the newly created EHR
+				String ehrCreateResponseBody = ehrCreateResponse.getEntity().toString();
+				JsonObject jsonNewEhrResponseObject 
+				= (new JsonParser()).parse(ehrCreateResponseBody.toString()).getAsJsonObject();
+				String newlyCreatedEhrId = jsonNewEhrResponseObject.get("ehrId").getAsString();
+				Response uploadCompositionResponse = req.uploadComposition(compositionPostBody, EhrscapeRequest.config.getSessionId(), 
+						"Vital Signs Encounter (Composition)", "importCsvResource", newlyCreatedEhrId);
+				String uploadCompositionResponseBody = uploadCompositionResponse.getEntity().toString();
+				int uploadCompositionResponseCode = uploadCompositionResponse.getStatus();
+				if (uploadCompositionResponseCode == 201 || uploadCompositionResponseCode == 200) {
+					// if successfully created
+					JsonObject jsonCompositionResponseObject 
+					= (new JsonParser()).parse(uploadCompositionResponseBody.toString()).getAsJsonObject();
+					String compUid = jsonCompositionResponseObject.get("compositionUid").getAsString();
+					compositionUidCsvString = compUid;
+				} else {
+					// failed to upload
+					errorCsvValue = "Failed to upload this composition";
+				}
+			} else {
+				// error
+				errorCsvValue = "Failed to upload this composition";
 			}
-			
 			
 			// get all the values from the JSON object
 			// https://stackoverflow.com/questions/31094305/java-gson-getting-the-list-of-all-keys-under-a-jsonobject
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(compositionPostBody);
-			JsonObject obj = element.getAsJsonObject(); //since you know it's a JsonObject
-			Set<Map.Entry<String, JsonElement>> entries = obj.entrySet();//will return members of your object
+			JsonObject obj = element.getAsJsonObject(); 
+			Set<Map.Entry<String, JsonElement>> entries = obj.entrySet(); 
 			// put the subjectID in the response
 			csvResponseSb.append(subjectId+",");
 			for (Map.Entry<String, JsonElement> entry: entries) {
@@ -120,10 +164,11 @@ public class ImportCsvResource {
 				csvResponseSb.append(entry.getValue().getAsString() + ",");
 			}
 			// delete the final ","
-			csvResponseSb.deleteCharAt(csvResponseSb.lastIndexOf(","));
+			//csvResponseSb.deleteCharAt(csvResponseSb.lastIndexOf(","));
+			csvResponseSb.append(compositionUidCsvString + ",");
+			csvResponseSb.append(errorCsvValue);
 			csvResponseSb.append("\n");
 		}
-	    //System.out.println(csvResponseSb.toString());  
 		return csvResponseSb.toString();
 	}
 

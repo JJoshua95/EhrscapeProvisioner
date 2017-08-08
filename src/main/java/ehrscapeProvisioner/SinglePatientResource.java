@@ -24,6 +24,8 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 @Path("provision")
 public class SinglePatientResource {
 	
+	// TODO change these strings to Response objects and use the constituent responses to return relevant errors
+	
 	@POST
 	@Path("single-provision-no-demographic")
 	@Produces(MediaType.APPLICATION_JSON)
