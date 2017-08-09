@@ -123,11 +123,12 @@ public class MyResource {
     	return req.pingSession(EhrscapeRequest.config.getSessionId());
     }
     
-    @POST
+    @PUT
     @Path("updateEhr")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateEhr() {
-    	return null; //req.updateEhr(body, ehrId);
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateEhr(String body) throws ClientProtocolException, URISyntaxException, IOException {
+    	return req.updateEhr(body, "fa81f04e-27b1-4226-be66-67f9034c235d");
     }
     
     

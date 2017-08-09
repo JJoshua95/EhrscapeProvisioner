@@ -22,7 +22,7 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
  * Root resource (exposed at "provision" path)
  */
 @Path("provision")
-public class SinglePatientResource {
+public class PatientProvisionerResource {
 	
 	// TODO change these strings to Response objects and use the constituent responses to return relevant errors
 	// return feedback if the requests fail

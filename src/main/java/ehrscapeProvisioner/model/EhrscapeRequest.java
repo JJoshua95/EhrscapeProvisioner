@@ -294,10 +294,10 @@ public class EhrscapeRequest {
 	
 	public Response updateEhr(String body, String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
-		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/" + ehrId);
+		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/status/" + ehrId);
 		url = ub.toString();
 		System.out.println(url);
-		HttpPost request = new HttpPost(url);
+		HttpPut request = new HttpPut(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
 		request.addHeader("Content-Type", "application/json");
 		request.setEntity(new StringEntity(body));
@@ -309,10 +309,14 @@ public class EhrscapeRequest {
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
 		} else {
+			/*
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("Message", "Failed to update this EHR");
 			jsonResponse.addProperty("Status", responseCode);
 			result = jsonResponse.toString();
+			*/
+			HttpEntity entity = response.getEntity();
+			result = EntityUtils.toString(entity);
 		}
 		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
@@ -584,11 +588,5 @@ public class EhrscapeRequest {
 			boolean doProcedures, boolean doLabResults, boolean doVitals) {
 
 	}
-
-	public String importCSV(String filename) {
-		// replicate the marand import csv resource
-		String fileString = getFileAsString(filename);
-		return fileString;
-	}
-
+	
 }
