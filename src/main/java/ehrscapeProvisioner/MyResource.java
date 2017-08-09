@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -96,7 +98,7 @@ public class MyResource {
     @Produces(MediaType.APPLICATION_XML)
     public String readCsvPatient() throws IOException {
     	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
-    	return list.get(5).encodeInFhirFormat(true);
+    	return list.get(5).writeEhrStatusBody();//.encodeInFhirFormat(true);
     }
     
     
@@ -112,6 +114,20 @@ public class MyResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEhrWithEHRID() throws ClientProtocolException, URISyntaxException, IOException {
     	return req.getEhrWithEhrId("fa81f04e-27b1-4226-be66-67f9034c235d");
+    }
+    
+    @PUT
+    @Path("pingSession")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response pingEhrSession() throws ClientProtocolException, URISyntaxException, IOException {
+    	return req.pingSession(EhrscapeRequest.config.getSessionId());
+    }
+    
+    @POST
+    @Path("updateEhr")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateEhr() {
+    	return null; //req.updateEhr(body, ehrId);
     }
     
     

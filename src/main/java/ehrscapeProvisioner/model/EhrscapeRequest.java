@@ -21,6 +21,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -117,6 +118,30 @@ public class EhrscapeRequest {
 			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 
+	}
+	
+	public Response pingSession(String sessionId) throws URISyntaxException, ClientProtocolException, IOException {
+		String url;
+		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "session");
+		url = ub.toString();
+		HttpPut request = new HttpPut(url);
+		request.addHeader("Ehr-Session",sessionId);
+		HttpResponse response = client.execute(request);
+		int responseCode = response.getStatusLine().getStatusCode();
+		String result;
+		if (responseCode == 204) {
+			// indicates session exists and has been refreshed
+			JsonObject jsonResponse = new JsonObject();
+			jsonResponse.addProperty("Ehr-session", sessionId);
+			result = jsonResponse.toString();
+			//System.out.println(result);
+		} else {
+			// if session doesn't exist
+			HttpEntity entity = response.getEntity();
+			result = EntityUtils.toString(entity);
+		}
+		System.out.println(result);
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	// create patient demographic
@@ -264,6 +289,31 @@ public class EhrscapeRequest {
 		HttpEntity entity = response.getEntity();
 		result = EntityUtils.toString(entity);
 		//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
+	}
+	
+	public Response updateEhr(String body, String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
+		String url;
+		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/" + ehrId);
+		url = ub.toString();
+		System.out.println(url);
+		HttpPost request = new HttpPost(url);
+		request.addHeader("Ehr-Session", config.getSessionId());
+		request.addHeader("Content-Type", "application/json");
+		request.setEntity(new StringEntity(body));
+		HttpResponse response = client.execute(request);
+		int responseCode = response.getStatusLine().getStatusCode();
+		System.out.println("Status response code: " + responseCode);
+		String result;
+		if (responseCode == 200) {
+			HttpEntity entity = response.getEntity();
+			result = EntityUtils.toString(entity);
+		} else {
+			JsonObject jsonResponse = new JsonObject();
+			jsonResponse.addProperty("Message", "Failed to update this EHR");
+			jsonResponse.addProperty("Status", responseCode);
+			result = jsonResponse.toString();
+		}
 		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 

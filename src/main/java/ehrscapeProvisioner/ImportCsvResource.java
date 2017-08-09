@@ -25,8 +25,9 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 @Path("import")
 public class ImportCsvResource {
 
-	// TODO allow a json input for the username password and namespace config
-	// options here?
+	// TODO allow a JSON input for the username password and namespace config options here?
+	// what type of input should go here?
+	// TODO add response codes to error messages here
 
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
@@ -34,13 +35,21 @@ public class ImportCsvResource {
 	@POST
 	@Path("csv")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public String csvToCompositions(@HeaderParam("sessionId") String sessionId, String inputCsvBody)
+	public Response csvToCompositions(@HeaderParam("Ehr-Session") String sessionId, String inputCsvBody)
 			throws IOException, URISyntaxException {
 		// parse the CSV input and turn each row into JsonObject compositions
-		// csvBodyToJsonCompositions(inputCsvBody);
 		// loop through the JSON compositions and upload them to the ehrScape
 		// server
-		return csvBodyToJsonCompositions(inputCsvBody);
+		
+		// TODO Ideally catch whether the template is invalid / user not authenticated here
+		
+		String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
+		if (csvResponse.equals("ERROR PARSING")) {
+			return Response.status(400).entity("Bad request - unreadable CSV data.")
+					.type(MediaType.TEXT_PLAIN).build();
+		} else {
+			return Response.status(200).entity(csvResponse).type(MediaType.TEXT_PLAIN).build();
+		}
 	}
 
 	private String csvBodyToJsonCompositions(String body) throws IOException, URISyntaxException {
@@ -137,7 +146,7 @@ public class ImportCsvResource {
 					compositionUidCsvString = compUid;
 				} else {
 					// failed to upload
-					errorCsvValue = "Error with Commit Composition Call: "
+					errorCsvValue = "Error with Commit Composition Call: " + uploadCompositionResponseCode + " "
 							+ uploadCompositionResponseBody.replaceAll(",", ";");
 				}
 			} else if (responseCode == 201) {
@@ -159,12 +168,12 @@ public class ImportCsvResource {
 					compositionUidCsvString = compUid;
 				} else {
 					// failed to upload
-					errorCsvValue = "Error with Commit Composition Call: "
+					errorCsvValue = "Error with Commit Composition Call: " + uploadCompositionResponseCode + " "
 							+ uploadCompositionResponseBody.replaceAll(",", ";");
 				}
 			} else {
 				// error
-				errorCsvValue = "Error with Create EHR call: "
+				errorCsvValue = "Error with Create EHR call: " + ehrCreateResponse.getStatus() + " "
 						+ ehrCreateResponse.getEntity().toString().replaceAll(",", ";");
 			}
 			// get all the values from the JSON object
@@ -223,11 +232,11 @@ public class ImportCsvResource {
 					compositionUidCsvString = compUid;
 				} else {
 					// failed to upload
-					errorCsvValue = "Error with Commit Composition Call: "
+					errorCsvValue = "Error with Commit Composition Call: " + uploadCompositionResponseCode + " "
 							+ uploadCompositionResponseBody.replaceAll(",", ";");
 				}
 			} else {
-				errorCsvValue = "Error with Get Ehr Call: "
+				errorCsvValue = "Error with Get Ehr Call: " + ehrGetResponse.getStatus() + " "
 						+ ehrGetResponse.getEntity().toString().replaceAll(",", ";");
 			}
 			
