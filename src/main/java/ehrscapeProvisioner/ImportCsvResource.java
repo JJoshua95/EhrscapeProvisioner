@@ -26,8 +26,7 @@ import ehrscapeProvisioner.model.EhrscapeRequest;
 public class ImportCsvResource {
 
 	// TODO allow a JSON input for the username password and namespace config options here?
-	// what type of input should go here?
-	// TODO add response codes to error messages here
+	// Consider what type of input should go here? How stand alone should this resource be?
 
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
@@ -41,15 +40,55 @@ public class ImportCsvResource {
 		// loop through the JSON compositions and upload them to the ehrScape
 		// server
 		
-		// TODO Ideally catch whether the template is invalid / user not authenticated here
+		// TODO Ideally catch whether the template is invalid earlier
+		// perhaps throw an exception for that response earlier
 		
-		String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
-		if (csvResponse.equals("ERROR PARSING")) {
-			return Response.status(400).entity("Bad request - unreadable CSV data.")
-					.type(MediaType.TEXT_PLAIN).build();
+		// included the option of providing a session id in the header in case another 
+		// service wants to use this resource 
+		// directly with a single call
+		
+		// check if the user has provided a Ehr-Session header 
+		if (sessionId != null) {
+			System.out.println("SessionId provided: " + sessionId);
+			// check if it is valid 
+			Response PingSessionResponse = req.pingSession(sessionId);//sessionId);
+			if (PingSessionResponse.getStatus() == 204) {
+				// do the upload
+				// set the provided session
+				EhrscapeRequest.config.setSessionId(sessionId);
+				String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
+				if (csvResponse.equals("ERROR PARSING")) {
+					return Response.status(400).entity("Bad request - unreadable CSV data.").type(MediaType.TEXT_PLAIN).build();
+				} else {
+					return Response.status(200).entity(csvResponse).type(MediaType.TEXT_PLAIN).build();
+				}
+			} else {
+				// return unauthorised response
+				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
+			}
+			// also check if the session is already set from previous API calls
+		} else if (!EhrscapeRequest.config.getSessionId().isEmpty()) {
+			// check if this sessionId is valid 
+			Response PingSessionResponse = req.pingSession(EhrscapeRequest.config.getSessionId());
+			if (PingSessionResponse.getStatus() == 204) {
+				// do the upload
+				String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
+				if (csvResponse.equals("ERROR PARSING")) {
+					return Response.status(400).entity("Bad request - unreadable CSV data.").type(MediaType.TEXT_PLAIN).build();
+				} else {
+					return Response.status(200).entity(csvResponse).type(MediaType.TEXT_PLAIN).build();
+				}
+			} else {
+				// return an unauthorised response
+				System.out.println("Session not found");
+				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
+			}
 		} else {
-			return Response.status(200).entity(csvResponse).type(MediaType.TEXT_PLAIN).build();
+			System.out.println("Session not provided");
+			// return an unauthorised response
+			return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 		}
+		
 	}
 
 	private String csvBodyToJsonCompositions(String body) throws IOException, URISyntaxException {
@@ -246,7 +285,7 @@ public class ImportCsvResource {
 			JsonElement element = parser.parse(compositionPostBody);
 			JsonObject obj = element.getAsJsonObject();
 			Set<Map.Entry<String, JsonElement>> entries = obj.entrySet();
-			// put the subjectID in the response
+			// put the ehrID in the response
 			csvResponseSb.append(ehrId + ",");
 			for (Map.Entry<String, JsonElement> entry : entries) {
 				// System.out.println(entry.getKey());

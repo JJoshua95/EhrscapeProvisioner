@@ -93,15 +93,6 @@ public class MyResource {
     	return str;
     }
     
-    @POST
-    @Path("csvTest")
-    @Produces(MediaType.APPLICATION_XML)
-    public String readCsvPatient() throws IOException {
-    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
-    	return list.get(5).writeEhrStatusBody();//.encodeInFhirFormat(true);
-    }
-    
-    
     @GET
     @Path("getEhrWithSubjectId")
     @Produces(MediaType.APPLICATION_JSON)
@@ -131,5 +122,12 @@ public class MyResource {
     	return req.updateEhr(body, "fa81f04e-27b1-4226-be66-67f9034c235d");
     }
     
+    @POST
+    @Path("csvTest")
+    @Produces(MediaType.APPLICATION_XML)
+    public String readCsvPatient() throws IOException {
+    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+    	return list.get(5).writeEhrStatusBody();//.encodeInFhirFormat(true);
+    }
     
 }
