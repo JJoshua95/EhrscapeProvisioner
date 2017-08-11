@@ -2,6 +2,7 @@ package ehrscapeProvisioner.model;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import com.google.gson.JsonParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
+import ehrscapeProvisioner.ImportCsvResource;
 
 public class EhrscapeRequest {
 
@@ -55,6 +57,9 @@ public class EhrscapeRequest {
 		ClassLoader classLoader = getClass().getClassLoader();
 		// ClassLoader classLoader =
 		// Thread.currentThread().getContextClassLoader();
+		
+		// Use URLDecoder.decode() on the pathname string below if dealing with whitespace in the filenames
+		// however this slowed down requests a lot so instead try and avoid whitespace in filenames.
 		File file = new File(classLoader.getResource(fileName).getFile());
 
 		try (Scanner scanner = new Scanner(file)) {
@@ -574,19 +579,144 @@ public class EhrscapeRequest {
 		List<PatientDemographic> list = null;
 		CSVReader reader = new CSVReader(new FileReader(file), ',', '"', 0);
 		list = csvToBean.parse(strategy, reader);
-
-		// System.out.println(list.get(0).toString());
-		// System.out.println(list.get(0).getPrefix());
-		// System.out.println(list.get(1).encodeInFhirFormat(true));
-		// System.out.println(list.get(0).toMarandPartyJson());
-
+		
 		return list;
 
 	}
+	
+	private String[] getAllCompositionFileNamesFromFolder(String folderName) {
+		ClassLoader classLoader = getClass().getClassLoader();
+		String path = classLoader.getResource(folderName).getFile();
+		File directory = new File(path);
+		String[] files = directory.list(new FilenameFilter() {
+		    public boolean accept(File directory, String fileName) {
+		        return fileName.endsWith(".json");
+		    }
+		});
+		
+		/*
+		for (String file_i : files) {
+			System.out.println(file_i);
+			System.out.println(getFileAsString(folderName + file_i));
+		}
+		*/
+		
+		return files;
+	}
 
-	public void uploadMultipleCompositions(String ehrId, boolean doAllergies, boolean doOrders, boolean doProblems,
-			boolean doProcedures, boolean doLabResults, boolean doVitals) {
-
+	public Response uploadMultipleCompositionsDefaultFolders(String ehrId, boolean doAllergies, boolean doOrders, boolean doProblems,
+			boolean doProcedures, boolean doLabResults) throws ClientProtocolException, IOException, URISyntaxException {
+		
+		// TODO Handle file not found errors
+		// Get the files with the dummy data
+		
+		JsonObject result = new JsonObject();
+		int counter = 0;
+		
+		String baseFile = "assets/sample_requests/";
+		
+		if (doAllergies) {
+			System.out.println("------- Allergies -------");
+			String folder = baseFile + "allergies/";
+			// Get all .json files in the folder assuming they are all compositions
+			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
+			for (String fileName: fileNamesToUpload) {
+				// System.out.println(fileName);
+				String compositionBody = getFileAsString(folder + fileName);
+				// System.out.println(compositionBody);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR Allergies List.v0", config.getCommiterName(),
+						config.getEhrId());
+				int responseCode = commitCompResponse.getStatus();
+				System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				if (responseCode == 201) {
+					counter++;
+				}
+			}
+		} 
+		if (doOrders) {
+			System.out.println("------- Orders -------");
+			String folder = baseFile + "orders/";
+			String fileNamesToUpload[] =  getAllCompositionFileNamesFromFolder(folder);
+			for (String fileName: fileNamesToUpload) {
+				//System.out.println(fileName);
+				String compositionBody = getFileAsString(folder + fileName);
+				//System.out.println(compositionBody);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR - Laboratory Order.v0", config.getCommiterName(),
+						config.getEhrId());
+				int responseCode = commitCompResponse.getStatus();
+				System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				if (responseCode == 201) {
+					counter++;
+				}
+			}
+		} 
+		if (doProblems) {
+			System.out.println("------- Problems -------");
+			String folder = baseFile + "problems/";
+			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
+			for (String fileName: fileNamesToUpload) {
+				//System.out.println(fileName);
+				String compositionBody = getFileAsString(folder + fileName);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR Problem List.v1", config.getCommiterName(),
+						config.getEhrId());
+				int responseCode = commitCompResponse.getStatus();
+				System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				if (responseCode == 201) {
+					counter++;
+				}
+			}
+		} 
+		if (doProcedures) {
+			System.out.println("------- Procedures -------");
+			String folder = baseFile + "procedures/";
+			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
+			for (String fileName: fileNamesToUpload) {
+				//System.out.println(fileName);
+				String compositionBody = getFileAsString(folder + fileName);
+				//System.out.println(compositionBody);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR Procedures List.v0", config.getCommiterName(),
+						config.getEhrId());
+				int responseCode = commitCompResponse.getStatus();
+				System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				if (responseCode == 201) {
+					counter++;
+				}
+			}
+		} 
+		if (doLabResults) {
+			System.out.println("------- Lab Results -------");
+			String folder = baseFile + "lab-results/";
+			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
+			for (String fileName: fileNamesToUpload) {
+				// System.out.println(fileName);
+				String compositionBody = getFileAsString(folder + fileName);
+				// System.out.println(compositionBody);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR - Laboratory Test Report.v0", config.getCommiterName(),
+						config.getEhrId());
+				int responseCode = commitCompResponse.getStatus();
+				System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				if (responseCode == 201) {
+					counter++;
+				}
+			}
+		} 
+		
+		result.addProperty("Total number of Compositions commited", counter);
+		
+		return Response.status(200).entity(result.toString()).type(MediaType.APPLICATION_JSON).build();
+		
+	} 
+	
+	public Response importCsv(String body) throws IOException, URISyntaxException {
+		body = getFileAsString("assets/data/nursing-obs.csv");
+		ImportCsvResource importer = new ImportCsvResource();
+		Response importResponse = importer.csvToCompositions(config.getSessionId(), body);
+		return importResponse;
 	}
 	
 }

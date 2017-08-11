@@ -17,6 +17,7 @@ public class EhrscapeConfig {
 	private String fhirDemographicBaseUrl = "http://51.140.57.74:8090/fhir/";
 	
 	// FHIR BASE URL HERE 
+	// use template id to customise what type of data to upload
 	
 	public String getPatientsFile() {
 		return patientsFile;

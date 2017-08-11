@@ -134,4 +134,26 @@ public class PatientProvisionerResource {
 		return finalConfig; //gson.toJson(jsonOutput);
 	}
 	
+	@POST
+	@Path("multi-patient")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response multiplePatientProvision() {
+		// create Session
+		
+		// upload templates
+		
+		// go through patients csv file
+		// for each patient:
+		
+		// demographics
+		
+		// ehr
+		
+		// compositions
+		
+		// vitals + import csv
+		
+		return null;
+	}
+	
 }

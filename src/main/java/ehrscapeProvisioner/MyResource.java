@@ -1,6 +1,7 @@
 package ehrscapeProvisioner;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -128,6 +129,21 @@ public class MyResource {
     public String readCsvPatient() throws IOException {
     	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
     	return list.get(5).writeEhrStatusBody();//.encodeInFhirFormat(true);
+    }
+    
+    @POST
+    @Path("multipleComposition")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response multiComposition() throws ClientProtocolException, IOException, URISyntaxException {
+    	Response res = req.uploadMultipleCompositionsDefaultFolders("", true, true, true, true, true);
+    	return res;
+    }
+    
+    @POST
+    @Path("importCsvCall")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response importCsvCall() throws IOException, URISyntaxException {
+    	return req.importCsv("");
     }
     
 }
