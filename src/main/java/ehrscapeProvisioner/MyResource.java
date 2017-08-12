@@ -1,7 +1,6 @@
 package ehrscapeProvisioner;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -143,7 +142,7 @@ public class MyResource {
     @Path("importCsvCall")
     @Produces(MediaType.TEXT_PLAIN)
     public Response importCsvCall() throws IOException, URISyntaxException {
-    	return req.importCsv("");
+    	return req.importCsv("assets/data/nursing-obs.csv");
     }
     
 }

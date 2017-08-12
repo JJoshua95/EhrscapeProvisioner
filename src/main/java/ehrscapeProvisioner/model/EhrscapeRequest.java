@@ -49,7 +49,7 @@ public class EhrscapeRequest {
 
 	public static EhrscapeConfig config = new EhrscapeConfig();
 
-	private String getFileAsString(String fileName) {
+	public String getFileAsString(String fileName) {
 
 		StringBuilder result = new StringBuilder("");
 
@@ -94,7 +94,7 @@ public class EhrscapeRequest {
 		ub.addParameter("username", username);
 		ub.addParameter("password", password);
 		url = ub.toString();
-
+		
 		HttpPost request = new HttpPost(url);
 
 		List<NameValuePair> params = ub.getQueryParams();
@@ -108,8 +108,8 @@ public class EhrscapeRequest {
 
 		HttpEntity entity = response.getEntity();
 		String result = EntityUtils.toString(entity);
-		System.out.println(result);
-
+		System.out.println(result);	
+		
 		if (response.getStatusLine().getStatusCode() == 201 || response.getStatusLine().getStatusCode() == 200) {
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			logger.info("" + jsonObject.get("sessionId"));
@@ -712,8 +712,8 @@ public class EhrscapeRequest {
 		
 	} 
 	
-	public Response importCsv(String body) throws IOException, URISyntaxException {
-		body = getFileAsString("assets/data/nursing-obs.csv");
+	public Response importCsv(String fileName) throws IOException, URISyntaxException {
+		String body = getFileAsString(fileName); // "assets/data/nursing-obs.csv"
 		ImportCsvResource importer = new ImportCsvResource();
 		Response importResponse = importer.csvToCompositions(config.getSessionId(), body);
 		return importResponse;

@@ -1,7 +1,5 @@
 app.controller('MainController', ['$scope', '$window', '$http', function($scope, $window, $http) { 
 	
-	var resourceUrl = "http://localhost:8080/EhrscapeProvisioner";
-	
 	$scope.username = '';
 	$scope.password = '';
 	$scope.baseUrl = 'https://cdr.code4health.org/rest/v1/'; //default
@@ -11,7 +9,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 	};
 	
 	$scope.getSession = function() {
-		$http.post(resourceUrl + "/api/myresource/getSession")
+		$http.post("api/myresource/getSession")
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
@@ -25,7 +23,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		console.log($scope.baseUrl);
 		var body = JSON.stringify({username: $scope.username, password:$scope.password, baseUrl: $scope.baseUrl})
 		console.log(body);
-		$http.post(resourceUrl + "/api/provision/single-provision-no-demographic", body)
+		$http.post("api/provision/single-provision-no-demographic", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
@@ -39,7 +37,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		console.log($scope.baseUrl);
 		var body = JSON.stringify({username: $scope.username, password:$scope.password, baseUrl: $scope.baseUrl})
 		console.log(body);
-		$http.post(resourceUrl + "/api/provision/single-provision-marand", body)
+		$http.post("api/provision/single-provision-marand", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
@@ -53,7 +51,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		console.log($scope.baseUrl);
 		var body = JSON.stringify({username: $scope.username, password:$scope.password, baseUrl: $scope.baseUrl})
 		console.log(body);
-		$http.post(resourceUrl + "/api/provision/single-provision-fhir", body)
+		$http.post("api/provision/single-provision-fhir", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);

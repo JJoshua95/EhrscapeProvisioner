@@ -135,12 +135,46 @@ public class PatientProvisionerResource {
 	}
 	
 	@POST
-	@Path("multi-patient")
+	@Path("multi-patient-default")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response multiplePatientProvision() {
-		// create Session
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response multiplePatientProvisionDefault(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {
 		
+		EhrscapeRequest req =  new EhrscapeRequest();
+		
+		// parse the request body
+		Gson gson = new Gson();
+		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
+		String user = jsonInput.get("username").getAsString();
+		String pass = jsonInput.get("password").getAsString();
+		System.out.println(user);
+		System.out.println(pass);
+		
+		// Check if user wants to overwrite the base url
+		if (jsonInput.has("baseUrl")) {
+			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+		}
+		
+		// prepare the response 
+		JsonObject finalJsonResponse = new JsonObject();
+		
+		// create Session
+		Response createSessionRes = req.getSession(user, pass);
+		if (createSessionRes.getStatus() == 400 || createSessionRes.getStatus() == 401) {
+			return createSessionRes;
+		}
 		// upload templates
+		String allergiesTemplateBody = req.getFileAsString("");
+		String problemsTemplateBody = req.getFileAsString("");
+		String ordersTemplateBody = req.getFileAsString("");
+		String proceduresTemplateBody = req.getFileAsString("");
+		String labResultsTemplateBody = req.getFileAsString("");
+		
+		Response allergiesUploadTemplate = req.uploadTemplate(allergiesTemplateBody);
+		Response problemsUploadTemplate = req.uploadTemplate(problemsTemplateBody);
+		Response ordersUploadTemplate = req.uploadTemplate(ordersTemplateBody);
+		Response proceduresUploadTemplate = req.uploadTemplate(proceduresTemplateBody);
+		Response labResultsUploadTemplate = req.uploadTemplate(labResultsTemplateBody);
 		
 		// go through patients csv file
 		// for each patient:
@@ -153,7 +187,9 @@ public class PatientProvisionerResource {
 		
 		// vitals + import csv
 		
-		return null;
+		return Response.ok("In Progress - Got to end of this call.", MediaType.APPLICATION_JSON).build();
 	}
+	
+	
 	
 }
