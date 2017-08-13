@@ -268,6 +268,11 @@ public class EhrscapeRequest {
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
 			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			String ehrId;
+			// parse the response and save the ehrId to config
+			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+			logger.info("" + jsonObject.get("ehrId"));
+			config.setEhrId(jsonObject.get("ehrId").getAsString());
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			JsonObject jsonResult = new JsonObject();
@@ -609,6 +614,8 @@ public class EhrscapeRequest {
 		
 		// TODO Handle file not found errors
 		// Get the files with the dummy data
+		
+		// change the config.EhrId calls to using the parameter ehrID
 		
 		JsonObject result = new JsonObject();
 		int counter = 0;
