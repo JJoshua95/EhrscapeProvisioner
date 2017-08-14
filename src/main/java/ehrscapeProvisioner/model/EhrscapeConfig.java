@@ -3,7 +3,7 @@ package ehrscapeProvisioner.model;
 public class EhrscapeConfig {
 	
 	// defaults
-	private String patientsFile = "assets/data/patients1.csv";
+	private String patientsFile = "assets/data/patientsAll.csv"; // "assets/data/singlePatient.csv"; // "assets/data/patientsAll.csv";
 	private String baseUrl = "https://ehrscape.code4health.org/rest/v1/"; // "https://cdr.code4health.org/rest/v1/"; //
 	private String username = "";
 	private String password = "";

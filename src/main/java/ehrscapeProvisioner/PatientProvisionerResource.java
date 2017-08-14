@@ -273,6 +273,7 @@ public class PatientProvisionerResource {
 			// compositions
 			Response multiCompositionRes = req.uploadMultipleCompositionsDefaultFolders(EhrscapeRequest.config.getEhrId(),
 					true, true, true, true, true);
+			patientsSuccessfullyUploaded++;
 		}
 		
 		// vitals + import csv
@@ -289,6 +290,9 @@ public class PatientProvisionerResource {
 		
 		Response importCsvResponse = req.importCsv("assets/data/nursing-obs.csv");
 		finalJsonResponse.addProperty("importCSV", importCsvResponse.getEntity().toString());
+		
+		finalJsonResponse.addProperty("Errors", numOfPatientUploadErrors);
+		finalJsonResponse.addProperty("Number uploaded", patientsSuccessfullyUploaded);
 		
 		return Response.status(200).entity(finalJsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 	}

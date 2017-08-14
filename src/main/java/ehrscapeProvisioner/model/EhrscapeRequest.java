@@ -723,6 +723,7 @@ public class EhrscapeRequest {
 		String body = getFileAsString(fileName); // "assets/data/nursing-obs.csv"
 		ImportCsvResource importer = new ImportCsvResource();
 		Response importResponse = importer.csvToCompositions(config.getSessionId(), body);
+		// custom response here
 		return importResponse;
 	}
 	
