@@ -42,8 +42,8 @@ public class PatientProvisionerResource {
 
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
-		System.out.println(jsonInput.get("username").getAsString());
-		System.out.println(jsonInput.get("password").getAsString());
+		//System.out.println(jsonInput.get("username").getAsString());
+		//System.out.println(jsonInput.get("password").getAsString());
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -52,7 +52,7 @@ public class PatientProvisionerResource {
 
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
 				jsonInput.get("password").getAsString());
-		System.out.println(EhrscapeRequest.config.getSessionId());
+		//System.out.println(EhrscapeRequest.config.getSessionId());
 		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
 		Response uploadTemplateResponse = req.uploadDefaultTemplate();
 		Response uploadCompResponse = req.uploadDefaultComposition();
@@ -65,7 +65,7 @@ public class PatientProvisionerResource {
 		// response later if needed
 
 		String finalConfig = gson.toJson(EhrscapeRequest.config);
-		// System.out.println(jsonInput.toString());
+		// //System.out.println(jsonInput.toString());
 		return finalConfig; // gson.toJson(jsonOutput);
 	}
 
@@ -79,8 +79,8 @@ public class PatientProvisionerResource {
 
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
-		System.out.println(jsonInput.get("username").getAsString());
-		System.out.println(jsonInput.get("password").getAsString());
+		//System.out.println(jsonInput.get("username").getAsString());
+		//System.out.println(jsonInput.get("password").getAsString());
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -119,8 +119,8 @@ public class PatientProvisionerResource {
 
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
-		System.out.println(jsonInput.get("username").getAsString());
-		System.out.println(jsonInput.get("password").getAsString());
+		//System.out.println(jsonInput.get("username").getAsString());
+		//System.out.println(jsonInput.get("password").getAsString());
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -162,8 +162,8 @@ public class PatientProvisionerResource {
 		JsonObject jsonInput = (parser.parse(inputBody.toString()).getAsJsonObject());
 		String user = jsonInput.get("username").getAsString();
 		String pass = jsonInput.get("password").getAsString();
-		System.out.println(user);
-		System.out.println(pass);
+		//System.out.println(user);
+		//System.out.println(pass);
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -283,10 +283,10 @@ public class PatientProvisionerResource {
 					numOfPatientUploadErrors++;
 					continue;
 				} else {
-					System.out.println("Got EhrId: " + EhrscapeRequest.config.getEhrId());
+					//System.out.println("Got EhrId: " + EhrscapeRequest.config.getEhrId());
 				}
 			} else {
-				System.out.println("Created EHR: " + EhrscapeRequest.config.getEhrId());
+				//System.out.println("Created EHR: " + EhrscapeRequest.config.getEhrId());
 			}
 
 			// compositions
@@ -338,8 +338,8 @@ public class PatientProvisionerResource {
 		JsonObject jsonInput = (parser.parse(inputBody.toString()).getAsJsonObject());
 		String user = jsonInput.get("username").getAsString();
 		String pass = jsonInput.get("password").getAsString();
-		System.out.println(user);
-		System.out.println(pass);
+		//System.out.println(user);
+		//System.out.println(pass);
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -370,12 +370,12 @@ public class PatientProvisionerResource {
 			doVitals = jsonInput.get("doVitals").getAsBoolean();
 		}
 		
-		System.out.println("Vitals: " + doVitals);
-		System.out.println("Problems: " + doProblems);
-		System.out.println("Procedures: " + doProcedures);
-		System.out.println("Lab-Results: " + doLabResults);
-		System.out.println("Orders: " + doOrders);
-		System.out.println("Allergies: " + doAllergies);
+		//System.out.println("Vitals: " + doVitals);
+		//System.out.println("Problems: " + doProblems);
+		//System.out.println("Procedures: " + doProcedures);
+		//System.out.println("Lab-Results: " + doLabResults);
+		//System.out.println("Orders: " + doOrders);
+		//System.out.println("Allergies: " + doAllergies);
 		
 		// prepare the response
 		JsonObject finalJsonResponse = new JsonObject();
@@ -473,7 +473,7 @@ public class PatientProvisionerResource {
 		for (PatientDemographic patient : patientList) {
 			// demographics
 			String marandPartyJson = patient.toMarandPartyJson();
-			// System.out.println(patient.toMarandPartyJson());
+			// //System.out.println(patient.toMarandPartyJson());
 			Response demographicResponse = req.createMarandPatientDemographic(marandPartyJson);
 			// if creating the demographic fails move onto next patient
 			if (demographicResponse.getStatus() == 400 || demographicResponse.getStatus() == 401
@@ -506,10 +506,10 @@ public class PatientProvisionerResource {
 					numOfPatientUploadErrors++;
 					continue;
 				} else {
-					System.out.println("Got EhrId: " + EhrscapeRequest.config.getEhrId());
+					//System.out.println("Got EhrId: " + EhrscapeRequest.config.getEhrId());
 				}
 			} else {
-				System.out.println("Created EHR: " + EhrscapeRequest.config.getEhrId());
+				//System.out.println("Created EHR: " + EhrscapeRequest.config.getEhrId());
 			}
 
 			// compositions

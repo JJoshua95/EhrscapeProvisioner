@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
@@ -58,28 +57,28 @@ public class EhrscapeRequest {
 		ClassLoader classLoader = getClass().getClassLoader();
 		// ClassLoader classLoader =
 		// Thread.currentThread().getContextClassLoader();
-		
-		// Use URLDecoder.decode() on the pathname string below if dealing with whitespace in the filenames
-		// however this slowed down requests a lot so instead try and avoid whitespace in filenames.
+
+		// Use URLDecoder.decode() on the pathname string below if dealing with
+		// whitespace in the filenames
+		// however this slowed down requests a lot so instead try and avoid
+		// whitespace in filenames.
 		File file = new File(classLoader.getResource(fileName).getFile());
 		/*
-		try (Scanner scanner = new Scanner(file)) {
-
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				result.append(line).append("\n");
-			}
-
-			scanner.close();
-		*/
+		 * try (Scanner scanner = new Scanner(file)) {
+		 * 
+		 * while (scanner.hasNextLine()) { String line = scanner.nextLine();
+		 * result.append(line).append("\n"); }
+		 * 
+		 * scanner.close();
+		 */
 		try {
-		    BufferedReader bReader = new BufferedReader(new FileReader(file));
+			BufferedReader bReader = new BufferedReader(new FileReader(file));
 
-		    String line;
-		    while ((line = bReader.readLine()) != null) {
-		        result.append(line).append("\n"); // System.out.println(line);
-		    }
-		    bReader.close();
+			String line;
+			while ((line = bReader.readLine()) != null) {
+				result.append(line).append("\n"); // //System.out.println(line);
+			}
+			bReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -103,43 +102,46 @@ public class EhrscapeRequest {
 		ub.addParameter("username", username);
 		ub.addParameter("password", password);
 		url = ub.toString();
-		
+
 		HttpPost request = new HttpPost(url);
 
 		List<NameValuePair> params = ub.getQueryParams();
 
 		HttpResponse response = client.execute(request);
 		String finalUrl = request.getRequestLine().toString();
-		System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl + " "
-				+ params.toString());
+		//System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl + " "
+		//		+ params.toString());
 
-		logger.info("Response status logged: " + response.getStatusLine().getStatusCode());
+		// logger.info("Response status logged: " + response.getStatusLine().getStatusCode());
 
 		HttpEntity entity = response.getEntity();
 		String result = EntityUtils.toString(entity);
-		System.out.println(result);	
-		
+		//System.out.println(result);
+
 		if (response.getStatusLine().getStatusCode() == 201 || response.getStatusLine().getStatusCode() == 200) {
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-			logger.info("" + jsonObject.get("sessionId"));
+			// logger.info("" + jsonObject.get("sessionId"));
 			config.setSessionId(jsonObject.get("sessionId").getAsString());
-			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result)
+					.type(MediaType.APPLICATION_JSON).build();
 
 		} else {
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-			System.out.println(jsonObject.toString());
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
-			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
+			//System.out.println(jsonObject.toString());
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result)
+					.type(MediaType.APPLICATION_JSON).build();
 		}
 
 	}
-	
+
 	public Response pingSession(String sessionId) throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "session");
 		url = ub.toString();
 		HttpPut request = new HttpPut(url);
-		request.addHeader("Ehr-Session",sessionId);
+		request.addHeader("Ehr-Session", sessionId);
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
 		String result;
@@ -148,13 +150,13 @@ public class EhrscapeRequest {
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("Ehr-session", sessionId);
 			result = jsonResponse.toString();
-			//System.out.println(result);
+			// //System.out.println(result);
 		} else {
 			// if session doesn't exist
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
 		}
-		System.out.println(result);
+		//System.out.println(result);
 		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
@@ -170,7 +172,7 @@ public class EhrscapeRequest {
 		request.addHeader("Content-Type", "application/json");
 		request.setEntity(new StringEntity(body));
 		HttpResponse response = client.execute(request);
-		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+		//System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
 
 		HttpEntity entity = response.getEntity();
 		String result = EntityUtils.toString(entity);
@@ -181,18 +183,22 @@ public class EhrscapeRequest {
 			JsonObject jsonSubObject = jsonObject.getAsJsonObject("meta");
 			String partyStringHref = jsonSubObject.get("href").getAsString();
 			String partyID = partyStringHref.substring(partyStringHref.lastIndexOf("/") + 1);
-			System.out.println(partyID);
+			//System.out.println(partyID);
 			config.setSubjectId(partyID);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
-			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result)
+					.type(MediaType.APPLICATION_JSON).build();
 		} else {
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("error-message", "demographic not created");
 			jsonResponse.addProperty("response-code", response.getStatusLine().getStatusCode());
 			jsonResponse.addProperty("message", response.getStatusLine().getReasonPhrase());
 			result = jsonResponse.toString();
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
-			return Response.status(response.getStatusLine().getStatusCode()).entity(result).type(MediaType.APPLICATION_JSON).build();
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
+			return Response.status(response.getStatusLine().getStatusCode()).entity(result)
+					.type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
@@ -226,23 +232,23 @@ public class EhrscapeRequest {
 		ub.addParameter("subjectNamespace", config.getSubjectNamespace());
 		ub.addParameter("commiterName", commiter);
 		url = ub.toString();
-		System.out.println("Params === " + ub.getQueryParams().toString());
+		//System.out.println("Params === " + ub.getQueryParams().toString());
 
 		HttpPost request = new HttpPost(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
-		logger.info("The current session is" + config.getSessionId());
+		// logger.info("The current session is" + config.getSessionId());
 		String finalUrl = request.getRequestLine().toString();
-		System.out.println(finalUrl);
+		//System.out.println(finalUrl);
 		HttpResponse response = client.execute(request);
-		System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl);
+		//System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200 || responseCode == 201) {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			System.out.println(result);
+			//System.out.println(result);
 
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-			logger.info("" + jsonObject.get("ehrId"));
+			// logger.info("" + jsonObject.get("ehrId"));
 
 			config.setEhrId(jsonObject.get("ehrId").getAsString());
 			config.setSubjectId(subjectID);
@@ -250,8 +256,9 @@ public class EhrscapeRequest {
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			System.out.println(result);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//System.out.println(result);
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 
@@ -264,76 +271,80 @@ public class EhrscapeRequest {
 		ub.addParameter("subjectId", subjectId);
 		ub.addParameter("subjectNamespace", subjectNamespace);
 		url = ub.toString();
-		System.out.println(url);
+		//System.out.println(url);
 
 		HttpGet request = new HttpGet(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
-		System.out.println("Status response code: " + responseCode);
+		//System.out.println("Status response code: " + responseCode);
 		String result;
 
 		if (responseCode == 200) {
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			String ehrId;
 			// parse the response and save the ehrId to config
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-			logger.info("" + jsonObject.get("ehrId"));
+			// logger.info("" + jsonObject.get("ehrId"));
 			config.setEhrId(jsonObject.get("ehrId").getAsString());
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			JsonObject jsonResult = new JsonObject();
 			jsonResult.addProperty("Ehrscape Request", "Get Ehr with SubjectId and Namespace");
 			jsonResult.addProperty("Response Status", responseCode);
-			
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(jsonResult.toString()).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
-	
+
 	public Response getEhrWithEhrId(String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
-		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/"+ehrId);
-		//ub.addParameter("ehrId", ehrId);
+		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/" + ehrId);
+		// ub.addParameter("ehrId", ehrId);
 		url = ub.toString();
-		System.out.println(url);
+		//(url);
 		HttpGet request = new HttpGet(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
-		System.out.println("Status response code: " + responseCode);
+		//System.out.println("Status response code: " + responseCode);
 		String result;
 		HttpEntity entity = response.getEntity();
 		result = EntityUtils.toString(entity);
-		//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+		// return Response.ok(result,
+		// MediaType.APPLICATION_JSON).status(responseCode).build();
 		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
-	
-	public Response updateEhr(String body, String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
+
+	public Response updateEhr(String body, String ehrId)
+			throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/status/" + ehrId);
 		url = ub.toString();
-		System.out.println(url);
+		//System.out.println(url);
 		HttpPut request = new HttpPut(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
 		request.addHeader("Content-Type", "application/json");
 		request.setEntity(new StringEntity(body));
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
-		System.out.println("Status response code: " + responseCode);
+		//System.out.println("Status response code: " + responseCode);
 		String result;
 		if (responseCode == 200) {
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
 		} else {
 			/*
-			JsonObject jsonResponse = new JsonObject();
-			jsonResponse.addProperty("Message", "Failed to update this EHR");
-			jsonResponse.addProperty("Status", responseCode);
-			result = jsonResponse.toString();
-			*/
+			 * JsonObject jsonResponse = new JsonObject();
+			 * jsonResponse.addProperty("Message", "Failed to update this EHR");
+			 * jsonResponse.addProperty("Status", responseCode); result =
+			 * jsonResponse.toString();
+			 */
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
 		}
@@ -345,7 +356,7 @@ public class EhrscapeRequest {
 	public Response uploadTemplate(String body) throws IOException, URISyntaxException {
 		// get the template
 		// String body = getFileAsString(filename);
-		System.out.println(body.length());
+		//System.out.println(body.length());
 		String url; // = config.getBaseUrl() + "template/";
 
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "template/");
@@ -356,24 +367,26 @@ public class EhrscapeRequest {
 		request.addHeader("Content-Type", "application/xml");
 		request.setEntity(new StringEntity(body));
 
-		logger.info("The current session is" + config.getSessionId());
+		// logger.info("The current session is" + config.getSessionId());
 		String finalUrl = request.getRequestLine().toString();
-		System.out.println(finalUrl);
+		//System.out.println(finalUrl);
 
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
-		System.out.println("Response Code : " + responseCode);
+		//System.out.println("Response Code : " + responseCode);
 
 		if (responseCode == 200 || responseCode == 201) {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			System.out.println(result);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//System.out.println(result);
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 
@@ -411,13 +424,15 @@ public class EhrscapeRequest {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-			logger.info("" + jsonObject.get("compositionUid"));
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			// logger.info("" + jsonObject.get("compositionUid"));
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
@@ -425,10 +440,10 @@ public class EhrscapeRequest {
 	public Response uploadComposition(String body) throws ClientProtocolException, IOException, URISyntaxException {
 		// get the composition body
 		// String body = getFileAsString(filename);
-		System.out.println(body.length());
-		System.out.println(config.getEhrId());
-		System.out.println(config.getTemplateId());
-		System.out.println(config.getCommiterName());
+		//System.out.println(body.length());
+		//System.out.println(config.getEhrId());
+		//System.out.println(config.getTemplateId());
+		//System.out.println(config.getCommiterName());
 		String url = config.getBaseUrl() + "composition?ehrId=" + config.getEhrId() + "&templateId="
 				+ config.getTemplateId() + "&committerName=" + config.getCommiterName();
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "composition");
@@ -443,28 +458,30 @@ public class EhrscapeRequest {
 		request.addHeader("Content-Type", "application/json");
 		request.setEntity(new StringEntity(body));
 
-		logger.info("The current session is" + config.getSessionId());
+		// logger.info("The current session is" + config.getSessionId());
 		String finalUrl = request.getRequestLine().toString();
-		System.out.println(finalUrl);
+		//System.out.println(finalUrl);
 
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
-		System.out.println("Response Code : " + responseCode);
+		//System.out.println("Response Code : " + responseCode);
 
 		if (responseCode == 201 || responseCode == 200) {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			System.out.println(result);
+			//System.out.println(result);
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
-			logger.info("" + jsonObject.get("compositionUid"));
+			// logger.info("" + jsonObject.get("compositionUid"));
 			config.setCompositionId(jsonObject.get("compositionUid").getAsString());
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		} else {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			System.out.println(result);
-			//return Response.ok(result, MediaType.APPLICATION_JSON).status(responseCode).build();
+			//System.out.println(result);
+			// return Response.ok(result,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
@@ -490,7 +507,7 @@ public class EhrscapeRequest {
 		request.setEntity(new StringEntity(body));
 
 		String finalUrl = request.getRequestLine().toString();
-		logger.info("Post Request to : " + finalUrl);
+		// logger.info("Post Request to : " + finalUrl);
 
 		HttpResponse response = client.execute(request);
 		int responseCode = response.getStatusLine().getStatusCode();
@@ -512,38 +529,42 @@ public class EhrscapeRequest {
 			 */
 
 			String locationUrl = response.getFirstHeader("Location").getValue();
-			System.out.println(locationUrl);
+			//System.out.println(locationUrl);
 			// cut off all of the url so all that is left is: Patient/{id}
 			String trimmedUrl = locationUrl.substring(locationUrl.lastIndexOf("Patient"),
 					locationUrl.lastIndexOf("/_history/"));
-			System.out.println(trimmedUrl);
+			//System.out.println(trimmedUrl);
 			// then look at whats left after the forward slash
 			String fhirPatientId = trimmedUrl.substring(trimmedUrl.lastIndexOf("/") + 1);
-			System.out.println(fhirPatientId);
+			//System.out.println(fhirPatientId);
 
 			config.setSubjectId(fhirPatientId);
-			logger.info("SubjectId is now" + config.getSubjectId());
+			// logger.info("SubjectId is now" + config.getSubjectId());
 
 			JsonObject jsonResponse = new JsonObject();
 
 			Header[] headers = response.getAllHeaders();
 			for (Header header : headers) {
-				// System.out.println("Key : " + header.getName() + " ,Value : "
+				// //System.out.println("Key : " + header.getName() + " ,Value : "
 				// + header.getValue());
 				jsonResponse.addProperty(header.getName(), header.getValue());
 			}
 
 			// get location and set this as SubjectId
-			//return Response.ok(jsonResponse.toString(), MediaType.APPLICATION_JSON).status(responseCode).build();
-			return Response.status(responseCode).entity(jsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
-			
+			// return Response.ok(jsonResponse.toString(),
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(jsonResponse.toString()).type(MediaType.APPLICATION_JSON)
+					.build();
+
 		} else {
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("errorMessage", "Error creating this FHIR Resource");
 			// TODO add more info to this error message
-			
-			//return Response.ok(jsonResponse, MediaType.APPLICATION_JSON).status(responseCode).build();
-			return Response.status(responseCode).entity(jsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
+
+			// return Response.ok(jsonResponse,
+			// MediaType.APPLICATION_JSON).status(responseCode).build();
+			return Response.status(responseCode).entity(jsonResponse.toString()).type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 	}
 
@@ -593,141 +614,141 @@ public class EhrscapeRequest {
 		List<PatientDemographic> list = null;
 		CSVReader reader = new CSVReader(new FileReader(file), ',', '"', 0);
 		list = csvToBean.parse(strategy, reader);
-		
+
 		return list;
 
 	}
-	
+
 	private String[] getAllCompositionFileNamesFromFolder(String folderName) {
 		ClassLoader classLoader = getClass().getClassLoader();
 		String path = classLoader.getResource(folderName).getFile();
 		File directory = new File(path);
 		String[] files = directory.list(new FilenameFilter() {
-		    public boolean accept(File directory, String fileName) {
-		        return fileName.endsWith(".json");
-		    }
+			public boolean accept(File directory, String fileName) {
+				return fileName.endsWith(".json");
+			}
 		});
-		
+
 		/*
-		for (String file_i : files) {
-			System.out.println(file_i);
-			System.out.println(getFileAsString(folderName + file_i));
-		}
-		*/
-		
+		 * for (String file_i : files) { //System.out.println(file_i);
+		 * //System.out.println(getFileAsString(folderName + file_i)); }
+		 */
+
 		return files;
 	}
 
-	public Response uploadMultipleCompositionsDefaultFolders(String ehrId, boolean doAllergies, boolean doOrders, boolean doProblems,
-			boolean doProcedures, boolean doLabResults) throws ClientProtocolException, IOException, URISyntaxException {
-		
+	public Response uploadMultipleCompositionsDefaultFolders(String ehrId, boolean doAllergies, boolean doOrders,
+			boolean doProblems, boolean doProcedures, boolean doLabResults)
+			throws ClientProtocolException, IOException, URISyntaxException {
+
 		// TODO Handle file not found errors
 		// Get the files with the dummy data
-		
+
 		// change the config.EhrId calls to using the parameter ehrID
-		
+
 		JsonObject result = new JsonObject();
 		int counter = 0;
-		
+
 		String baseFile = "assets/sample_requests/";
-		
+
 		if (doAllergies) {
-			System.out.println("------- Allergies -------");
+			//System.out.println("------- Allergies -------");
 			String folder = baseFile + "allergies/";
-			// Get all .json files in the folder assuming they are all compositions
+			// Get all .json files in the folder assuming they are all
+			// compositions
 			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
-			for (String fileName: fileNamesToUpload) {
+			for (String fileName : fileNamesToUpload) {
 				// System.out.println(fileName);
 				String compositionBody = getFileAsString(folder + fileName);
 				// System.out.println(compositionBody);
-				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR Allergies List.v0", config.getCommiterName(),
-						config.getEhrId());
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(),
+						"IDCR Allergies List.v0", config.getCommiterName(), config.getEhrId());
 				int responseCode = commitCompResponse.getStatus();
-				System.out.println(commitCompResponse.getEntity().toString());
-				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				//System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status");
 				if (responseCode == 201) {
 					counter++;
 				}
 			}
-		} 
+		}
 		if (doOrders) {
-			System.out.println("------- Orders -------");
+			////System.out.println("------- Orders -------");
 			String folder = baseFile + "orders/";
-			String fileNamesToUpload[] =  getAllCompositionFileNamesFromFolder(folder);
-			for (String fileName: fileNamesToUpload) {
-				//System.out.println(fileName);
+			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
+			for (String fileName : fileNamesToUpload) {
+				// System.out.println(fileName);
 				String compositionBody = getFileAsString(folder + fileName);
-				//System.out.println(compositionBody);
-				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR - Laboratory Order.v0", config.getCommiterName(),
-						config.getEhrId());
+				// System.out.println(compositionBody);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(),
+						"IDCR - Laboratory Order.v0", config.getCommiterName(), config.getEhrId());
 				int responseCode = commitCompResponse.getStatus();
-				System.out.println(commitCompResponse.getEntity().toString());
-				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				//System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status");
 				if (responseCode == 201) {
 					counter++;
 				}
 			}
-		} 
+		}
 		if (doProblems) {
-			System.out.println("------- Problems -------");
+			////System.out.println("------- Problems -------");
 			String folder = baseFile + "problems/";
 			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
-			for (String fileName: fileNamesToUpload) {
+			for (String fileName : fileNamesToUpload) {
 				//System.out.println(fileName);
 				String compositionBody = getFileAsString(folder + fileName);
-				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR Problem List.v1", config.getCommiterName(),
-						config.getEhrId());
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(),
+						"IDCR Problem List.v1", config.getCommiterName(), config.getEhrId());
 				int responseCode = commitCompResponse.getStatus();
-				System.out.println(commitCompResponse.getEntity().toString());
-				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				//System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status");
 				if (responseCode == 201) {
 					counter++;
 				}
 			}
-		} 
+		}
 		if (doProcedures) {
-			System.out.println("------- Procedures -------");
+			//System.out.println("------- Procedures -------");
 			String folder = baseFile + "procedures/";
 			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
-			for (String fileName: fileNamesToUpload) {
+			for (String fileName : fileNamesToUpload) {
 				//System.out.println(fileName);
 				String compositionBody = getFileAsString(folder + fileName);
 				//System.out.println(compositionBody);
-				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR Procedures List.v0", config.getCommiterName(),
-						config.getEhrId());
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(),
+						"IDCR Procedures List.v0", config.getCommiterName(), config.getEhrId());
 				int responseCode = commitCompResponse.getStatus();
-				System.out.println(commitCompResponse.getEntity().toString());
-				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				//System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status");
 				if (responseCode == 201) {
 					counter++;
 				}
 			}
-		} 
+		}
 		if (doLabResults) {
-			System.out.println("------- Lab Results -------");
+			//System.out.println("------- Lab Results -------");
 			String folder = baseFile + "lab-results/";
 			String fileNamesToUpload[] = getAllCompositionFileNamesFromFolder(folder);
-			for (String fileName: fileNamesToUpload) {
+			for (String fileName : fileNamesToUpload) {
 				// System.out.println(fileName);
 				String compositionBody = getFileAsString(folder + fileName);
-				// System.out.println(compositionBody);
-				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(), "IDCR - Laboratory Test Report.v0", config.getCommiterName(),
-						config.getEhrId());
+				//System.out.println(compositionBody);
+				Response commitCompResponse = uploadComposition(compositionBody, config.getSessionId(),
+						"IDCR - Laboratory Test Report.v0", config.getCommiterName(), config.getEhrId());
 				int responseCode = commitCompResponse.getStatus();
-				System.out.println(commitCompResponse.getEntity().toString());
-				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status" );
+				//System.out.println(commitCompResponse.getEntity().toString());
+				result.addProperty("Commit Composition: " + fileName, responseCode + " Response Status");
 				if (responseCode == 201) {
 					counter++;
 				}
 			}
-		} 
-		
+		}
+
 		result.addProperty("Total number of Compositions commited", counter);
-		
+
 		return Response.status(200).entity(result.toString()).type(MediaType.APPLICATION_JSON).build();
-		
-	} 
-	
+
+	}
+
 	public Response importCsv(String fileName) throws IOException, URISyntaxException {
 		String body = getFileAsString(fileName); // "assets/data/nursing-obs.csv"
 		ImportCsvResource importer = new ImportCsvResource();
@@ -735,5 +756,5 @@ public class EhrscapeRequest {
 		// custom response here
 		return importResponse;
 	}
-	
+
 }

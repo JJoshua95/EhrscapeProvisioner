@@ -49,7 +49,7 @@ public class ImportCsvResource {
 		
 		// check if the user has provided a Ehr-Session header 
 		if (sessionId != null) {
-			System.out.println("SessionId provided: " + sessionId);
+			//System.out.println("SessionId provided: " + sessionId);
 			// check if it is valid 
 			Response PingSessionResponse = req.pingSession(sessionId);//sessionId);
 			if (PingSessionResponse.getStatus() == 204) {
@@ -80,11 +80,11 @@ public class ImportCsvResource {
 				}
 			} else {
 				// return an unauthorised response
-				System.out.println("Session not found");
+				//System.out.println("Session not found");
 				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 			}
 		} else {
-			System.out.println("Session not provided");
+			//System.out.println("Session not provided");
 			// return an unauthorised response
 			return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 		}
@@ -95,18 +95,18 @@ public class ImportCsvResource {
 		String[] split = body.split("\n");
 		csvInputHeader = split[0];
 		if (csvInputHeader.contains("subjectId")) {
-			System.out.println("subjectId column is present");
+			//System.out.println("subjectId column is present");
 			JsonObject[] compositionArray = mapToJsonObjects(body);
 			String csvResponse = uploadJsonCompositionsArrayWithSubjectId(compositionArray);
 			return csvResponse;
 		} else if (csvInputHeader.contains("ehrId")) {
-			System.out.println("ehrId column is present");
+			//System.out.println("ehrId column is present");
 			JsonObject[] compositionArray = mapToJsonObjects(body);
 			String csvResponse = uploadJsonCompositionsArrayWithEhrId(compositionArray);
 			return csvResponse;
 		} else {
 			// return an error message
-			System.out.println("ERROR PARSING");
+			//System.out.println("ERROR PARSING");
 			return "ERROR PARSING";
 		}
 	}
@@ -118,14 +118,14 @@ public class ImportCsvResource {
 		String header = csvRows[0];
 		String[] compositionJsonKeys = csvParser.parseLine(header);
 		// go through remaining rows
-		System.out.println("Number of rows " + csvRows.length);
+		//System.out.println("Number of rows " + csvRows.length);
 		JsonObject[] jsonCompositionsArray = new JsonObject[csvRows.length - 1];
 		for (int i = 1; i < csvRows.length; i++) {
 			JsonObject jsonComposition = new JsonObject();
 			// look at the individual row
 			String csvRow = csvRows[i];
 			String csvRowValues[] = csvParser.parseLine(csvRow);
-			// System.out.println("Number of rows components: " +
+			// //System.out.println("Number of rows components: " +
 			// csvRowValues.length);
 			// loop through the rows components with index j starting from the
 			// second element
@@ -151,14 +151,14 @@ public class ImportCsvResource {
 			// posted to the ehrScape server
 			compositionArray[i].remove("subjectId");
 			String compositionPostBody = compositionArray[i].toString();
-			// System.out.println(compositionPostBody);
+			// //System.out.println(compositionPostBody);
 
 			// Do the post request to upload the composition
 			// use subjectId to create Ehr or if it exists retrieve one
 			Response ehrCreateResponse = req.createEhr(subjectId, "ImportCsvTool");
 			int responseCode = ehrCreateResponse.getStatus();
-			System.out.println("Create EHR Response Code: " + responseCode);
-			System.out.println("Create EHR Response Content:" + ehrCreateResponse.getEntity());
+			//System.out.println("Create EHR Response Code: " + responseCode);
+			//System.out.println("Create EHR Response Content:" + ehrCreateResponse.getEntity());
 			String compositionUidCsvString = "";
 			String errorCsvValue = "";
 			// if the ehr exists get the ehrId
@@ -168,7 +168,7 @@ public class ImportCsvResource {
 				Response getEhrResponse = req.getEhrWithSubjectId(subjectId,
 						EhrscapeRequest.config.getSubjectNamespace());
 				String getEhrResponseBody = getEhrResponse.getEntity().toString();
-				System.out.println("Get EHR response body \n" + getEhrResponseBody);
+				//System.out.println("Get EHR response body \n" + getEhrResponseBody);
 				// parse the response to get the ehrId
 				JsonObject jsonObject = (new JsonParser()).parse(getEhrResponseBody.toString()).getAsJsonObject();
 				String ehrId = jsonObject.get("ehrId").getAsString();
@@ -252,8 +252,8 @@ public class ImportCsvResource {
 			// use ehrId to get the Ehr if it exists, if it does exist upload composition
 			Response ehrGetResponse = req.getEhrWithEhrId(ehrId);
 			int responseCode = ehrGetResponse.getStatus();
-			System.out.println("Create EHR Response Code: " + responseCode);
-			System.out.println("Create EHR Response Content:" + ehrGetResponse.getEntity());
+			//System.out.println("Create EHR Response Code: " + responseCode);
+			//System.out.println("Create EHR Response Content:" + ehrGetResponse.getEntity());
 			String compositionUidCsvString = "";
 			String errorCsvValue = "";
 			// if the ehr exists get the ehrId
