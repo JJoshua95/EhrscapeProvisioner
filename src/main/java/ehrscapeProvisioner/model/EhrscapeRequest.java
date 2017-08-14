@@ -1,5 +1,6 @@
 package ehrscapeProvisioner.model;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
@@ -61,7 +62,7 @@ public class EhrscapeRequest {
 		// Use URLDecoder.decode() on the pathname string below if dealing with whitespace in the filenames
 		// however this slowed down requests a lot so instead try and avoid whitespace in filenames.
 		File file = new File(classLoader.getResource(fileName).getFile());
-
+		/*
 		try (Scanner scanner = new Scanner(file)) {
 
 			while (scanner.hasNextLine()) {
@@ -70,7 +71,15 @@ public class EhrscapeRequest {
 			}
 
 			scanner.close();
+		*/
+		try {
+		    BufferedReader bReader = new BufferedReader(new FileReader(file));
 
+		    String line;
+		    while ((line = bReader.readLine()) != null) {
+		        result.append(line).append("\n"); // System.out.println(line);
+		    }
+		    bReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
