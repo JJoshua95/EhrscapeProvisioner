@@ -292,6 +292,8 @@ public class PatientProvisionerResource {
 			// compositions
 			Response multiCompositionRes = req.uploadMultipleCompositionsDefaultFolders(
 					EhrscapeRequest.config.getEhrId(), true, true, true, true, true);
+			JsonElement compositionElement = parser.parse(multiCompositionRes.getEntity().toString());
+			finalJsonResponse.add("Commit Composition Response Patient key: " + patient.getKey(), compositionElement);
 			patientsSuccessfullyUploaded++;
 		}
 
@@ -516,6 +518,8 @@ public class PatientProvisionerResource {
 			Response multiCompositionRes = req.uploadMultipleCompositionsDefaultFolders(
 					EhrscapeRequest.config.getEhrId(), doAllergies, doOrders, doProblems, doProcedures, doLabResults);
 			patientsSuccessfullyUploaded++;
+			JsonElement compositionElement = parser.parse(multiCompositionRes.getEntity().toString());
+			finalJsonResponse.add("Commit Composition Response Patient key: " + patient.getKey(), compositionElement);
 		}
 
 		// vitals + import csv
@@ -540,5 +544,8 @@ public class PatientProvisionerResource {
 		
 		return Response.status(200).entity(finalJsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 	}
+	
+	
+	
 
 }

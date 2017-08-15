@@ -2,7 +2,9 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 	
 	$scope.username = '';
 	$scope.password = '';
-	$scope.baseUrl = 'https://cdr.code4health.org/rest/v1/'; //default
+	$scope.baseUrl = 'https://ehrscape.code4health.org/rest/v1/'; // 'https://cdr.code4health.org/rest/v1/'; //default
+	
+	$scope.response; // = 'Response';
 	
 	$scope.testFunction = function() {
 		$window.alert("Clicked!");
@@ -27,7 +29,10 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
-            console.log(res);
+            // console.log(res);
+            //$scope.response = res;
+            var obj = JSON.parse(res);
+            $scope.response = JSON.stringify(obj.data,null,2);
         });
 	};
 	
@@ -41,7 +46,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
-            console.log(res);
+            $scope.response = res;
         });
 	};
 	
@@ -55,7 +60,8 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
-            console.log(res);
+            //console.log(res);
+            $scope.response = res;
         });
 	};
 	
