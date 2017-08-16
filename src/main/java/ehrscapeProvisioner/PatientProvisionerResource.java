@@ -2,14 +2,20 @@ package ehrscapeProvisioner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -19,6 +25,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import ehrscapeProvisioner.model.EhrscapeRequest;
+import ehrscapeProvisioner.model.MultiPatientProvisionerResponse;
 import ehrscapeProvisioner.model.PatientDemographic;
 
 /**
@@ -42,8 +49,8 @@ public class PatientProvisionerResource {
 
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
-		//System.out.println(jsonInput.get("username").getAsString());
-		//System.out.println(jsonInput.get("password").getAsString());
+		// System.out.println(jsonInput.get("username").getAsString());
+		// System.out.println(jsonInput.get("password").getAsString());
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -52,7 +59,7 @@ public class PatientProvisionerResource {
 
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
 				jsonInput.get("password").getAsString());
-		//System.out.println(EhrscapeRequest.config.getSessionId());
+		// System.out.println(EhrscapeRequest.config.getSessionId());
 		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
 		Response uploadTemplateResponse = req.uploadDefaultTemplate();
 		Response uploadCompResponse = req.uploadDefaultComposition();
@@ -79,8 +86,8 @@ public class PatientProvisionerResource {
 
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
-		//System.out.println(jsonInput.get("username").getAsString());
-		//System.out.println(jsonInput.get("password").getAsString());
+		// System.out.println(jsonInput.get("username").getAsString());
+		// System.out.println(jsonInput.get("password").getAsString());
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -119,8 +126,8 @@ public class PatientProvisionerResource {
 
 		Gson gson = new Gson();
 		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
-		//System.out.println(jsonInput.get("username").getAsString());
-		//System.out.println(jsonInput.get("password").getAsString());
+		// System.out.println(jsonInput.get("username").getAsString());
+		// System.out.println(jsonInput.get("password").getAsString());
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
@@ -162,13 +169,16 @@ public class PatientProvisionerResource {
 		JsonObject jsonInput = (parser.parse(inputBody.toString()).getAsJsonObject());
 		String user = jsonInput.get("username").getAsString();
 		String pass = jsonInput.get("password").getAsString();
-		//System.out.println(user);
-		//System.out.println(pass);
+		// System.out.println(user);
+		// System.out.println(pass);
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
+		//if (jsonInput.has("patientsFile")) {
+		//	EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
+		//}
 
 		// prepare the response
 		JsonObject finalJsonResponse = new JsonObject();
@@ -283,10 +293,12 @@ public class PatientProvisionerResource {
 					numOfPatientUploadErrors++;
 					continue;
 				} else {
-					//System.out.println("Got EhrId: " + EhrscapeRequest.config.getEhrId());
+					// System.out.println("Got EhrId: " +
+					// EhrscapeRequest.config.getEhrId());
 				}
 			} else {
-				//System.out.println("Created EHR: " + EhrscapeRequest.config.getEhrId());
+				// System.out.println("Created EHR: " +
+				// EhrscapeRequest.config.getEhrId());
 			}
 
 			// compositions
@@ -340,45 +352,48 @@ public class PatientProvisionerResource {
 		JsonObject jsonInput = (parser.parse(inputBody.toString()).getAsJsonObject());
 		String user = jsonInput.get("username").getAsString();
 		String pass = jsonInput.get("password").getAsString();
-		//System.out.println(user);
-		//System.out.println(pass);
+		// System.out.println(user);
+		// System.out.println(pass);
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
-		
+
 		if (jsonInput.has("doAllergies")) {
 			doAllergies = jsonInput.get("doAllergies").getAsBoolean();
 		}
-		
+
 		if (jsonInput.has("doProblems")) {
 			doProblems = jsonInput.get("doProblems").getAsBoolean();
 		}
-		
+
 		if (jsonInput.has("doProcedures")) {
 			doProcedures = jsonInput.get("doProcedures").getAsBoolean();
 		}
-		
+
 		if (jsonInput.has("doOrders")) {
 			doOrders = jsonInput.get("doOrders").getAsBoolean();
 		}
-		
+
 		if (jsonInput.has("doLabResults")) {
 			doLabResults = jsonInput.get("doLabResults").getAsBoolean();
 		}
-		
+
 		if (jsonInput.has("doVitals")) {
 			doVitals = jsonInput.get("doVitals").getAsBoolean();
 		}
-		
-		//System.out.println("Vitals: " + doVitals);
-		//System.out.println("Problems: " + doProblems);
-		//System.out.println("Procedures: " + doProcedures);
-		//System.out.println("Lab-Results: " + doLabResults);
-		//System.out.println("Orders: " + doOrders);
-		//System.out.println("Allergies: " + doAllergies);
-		
+		if (jsonInput.has("patientsFile")) {
+			EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
+		}
+
+		// System.out.println("Vitals: " + doVitals);
+		// System.out.println("Problems: " + doProblems);
+		// System.out.println("Procedures: " + doProcedures);
+		// System.out.println("Lab-Results: " + doLabResults);
+		// System.out.println("Orders: " + doOrders);
+		// System.out.println("Allergies: " + doAllergies);
+
 		// prepare the response
 		JsonObject finalJsonResponse = new JsonObject();
 
@@ -391,7 +406,7 @@ public class PatientProvisionerResource {
 			return Response.status(createSessionRes.getStatus()).entity(finalJsonResponse.toString())
 					.type(MediaType.APPLICATION_JSON).build(); // createSessionRes;
 		}
-		
+
 		// upload templates
 		String assetsBaseFile = "assets/sample_requests/";
 
@@ -487,7 +502,7 @@ public class PatientProvisionerResource {
 			}
 			// atm the subjectid is the marand party id
 			// overwrite the subjectID and use the NHS number from the CSV file
-			EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
+			//EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 			// EHR
 			// create ehr
 			Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(),
@@ -508,10 +523,12 @@ public class PatientProvisionerResource {
 					numOfPatientUploadErrors++;
 					continue;
 				} else {
-					//System.out.println("Got EhrId: " + EhrscapeRequest.config.getEhrId());
+					// System.out.println("Got EhrId: " +
+					// EhrscapeRequest.config.getEhrId());
 				}
 			} else {
-				//System.out.println("Created EHR: " + EhrscapeRequest.config.getEhrId());
+				// System.out.println("Created EHR: " +
+				// EhrscapeRequest.config.getEhrId());
 			}
 
 			// compositions
@@ -541,11 +558,112 @@ public class PatientProvisionerResource {
 
 		finalJsonResponse.addProperty("Errors", numOfPatientUploadErrors);
 		finalJsonResponse.addProperty("Number uploaded", patientsSuccessfullyUploaded);
-		
+
 		return Response.status(200).entity(finalJsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 	}
 	
+	// Handling the multiProvisioner Requests in the background
 	
+	// First request starts the script and returns an http 202
+	// Subsequent requests from client check the work, and eventually return 200 when it's done.
 	
+	// TODO turn this into a database
+	static HashMap<String,MultiPatientProvisionerResponse> responseMap = new HashMap<String,MultiPatientProvisionerResponse>();
+	
+	@GET
+	@Path("background")
+	public Response backgroundTaskMethod() throws InterruptedException {
+		MultiPatientProvisionerResponse res = createMultiPatientProvisionerResponse();
+		Runnable r = new Runnable() {
+			public void run() {
+				boolean flag = true;	
+				int i = 0;
+				while(flag){
+					i++;
+					System.out.println("Thread started... Counter ==> " + i);	
+					try {
+						Thread.sleep(1000);
+						if (i >= 10) {
+							updateResponse(res.getResponseId(), "final response body", "finito");
+							break;
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		};
+ 
+		Thread t = new Thread(r);
+		// Lets run Thread in background..
+		// Sometimes you need to run thread in background for your Timer application..
+		t.start(); // starts thread in background..
+		// t.run(); // is going to execute the code in the thread's run method on the current thread..
+		
+		System.out.println("Main() Program Exited...\n");
+		return Response.status(Response.Status.ACCEPTED).build();
+	}
+	
+	@POST
+	@Path("response")
+	public MultiPatientProvisionerResponse createMultiPatientProvisionerResponse() {
+		int count = responseMap.size()+1;
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	    Date now = new Date();
+	    String date = formatter.format(now);
+		MultiPatientProvisionerResponse obj = new MultiPatientProvisionerResponse(String.valueOf(count),"In Progress",null,date);
+		responseMap.put(obj.getResponseId(), obj);
+		return obj;
+	}
+	
+	private MultiPatientProvisionerResponse updateResponse(String id, String content, String status) {
+		MultiPatientProvisionerResponse res = responseMap.get(id);
+		res.setResponseBody(content);
+		res.setProvisioningStatus(status);
+		responseMap.put(id, res);
+		return res;
+	}
+	
+	@GET
+	@Path("response/{responseId}")
+	public MultiPatientProvisionerResponse getMultiPatientProvisionerResponse(@PathParam(value = "responseId") String id) {
+		System.out.println(responseMap.size());
+		return responseMap.get(id); // multiResponseList.get(Integer.parseInt(id)-1);
+	}
+	
+	// TODO FIX THE JSON RESPONSE FORMATTING WHEN APPENDING IT INTO RESPONSE TICKET
+	// TODO FIX LOCATION HEADER
+	
+	@POST
+	@Path("cloud-multi-provisioner")
+	public Response cloudMultiProvisioner(String inputBody) {
+		MultiPatientProvisionerResponse responseTicket = createMultiPatientProvisionerResponse();
+		Runnable runnable = new Runnable() {
+			//MultiPatientProvisionerResponse responseTicket = createMultiPatientProvisionerResponse();
+			@Override
+			public void run() {
+				try {
+					Response provisionResponse = multiplePatientProvisionCustom(inputBody);
+					String jsonProvisionResBody = provisionResponse.getEntity().toString();
+					updateResponse(responseTicket.getResponseId(), jsonProvisionResBody, "complete");
+				} catch (ClientProtocolException e) {
+					//TODO show errors in the response body the client will see
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		Thread thread = new Thread(runnable);
+		// Lets run Thread in background..
+		// Sometimes you need to run thread in background for your Timer application..
+		thread.start(); // starts thread in background..
+		// t.run(); // is going to execute the code in the thread's run method on the current thread..
+		return Response.status(Status.ACCEPTED).header("location", responseTicket.getResponseId()).build();
+	}
 
 }
