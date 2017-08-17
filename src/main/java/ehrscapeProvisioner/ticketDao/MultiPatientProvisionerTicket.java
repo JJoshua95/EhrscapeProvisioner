@@ -8,7 +8,7 @@ public class MultiPatientProvisionerTicket {
 	private String startTime;
 	private String ticketId;
 	private String provisioningStatus;
-	private JsonElement responseBody;
+	private JsonElement provisioningResponseBody;
 	private String completionTime;
 	
 	public MultiPatientProvisionerTicket(String responseId, String status, String startTime) {
@@ -34,11 +34,11 @@ public class MultiPatientProvisionerTicket {
 	}
 
 	public JsonElement getResponseBody() {
-		return responseBody;
+		return provisioningResponseBody;
 	}
 
 	public void setResponseBody(JsonElement responseBody) {
-		this.responseBody = responseBody;
+		this.provisioningResponseBody = responseBody;
 	}
 
 	public String getCompletionTime() {

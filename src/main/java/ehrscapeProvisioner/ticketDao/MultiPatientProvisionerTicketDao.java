@@ -40,6 +40,8 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 		return ticket;
 	}
 	
+	// not needed as create record overwrites the record if necessary
+	/*
 	@Override
 	public MultiPatientProvisionerTicket updateTicketRecord(MultiPatientProvisionerTicket ticket) {
 		// TODO Auto-generated method stub
@@ -49,6 +51,7 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 		// rewrite it
 		return ticket;
 	}
+	*/
 	
 	// functions to read and write files
 	
@@ -120,13 +123,5 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 		}
 		
 	}
-	
-	/*
-	// not needed as the above method will rewrite a file if found
-	private void updateJsonFile(String ticketId, String updatedBody) {
-		// get the specific file
-		// rewrite it
-	}
-	*/
 	
 }

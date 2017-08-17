@@ -697,9 +697,9 @@ public class PatientProvisionerResource {
 	}
 
 	@GET
-	@Path("readTicketFile/{tickId}")
+	@Path("readTicketFile/{ticketId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response txtToJsonObjects(@PathParam(value = "tickId") String id) {
+	public Response getTicket(@PathParam(value = "ticketId") String id) {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
 		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
 		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
@@ -708,13 +708,32 @@ public class PatientProvisionerResource {
 	@GET
 	@Path("createTicketFile")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response txtUpdate() {
+	public Response createTicket() {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
 		String date = formatter.format(now);
 		String uniqueId = UUID.randomUUID().toString();
 		MultiPatientProvisionerTicket ticket = new MultiPatientProvisionerTicket(uniqueId, "In Progress", date);
+		dao.createTicketRecord(ticket);
+		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+	}
+	
+	@GET
+	@Path("updateTicketFile/{ticketId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateTicket(@PathParam(value = "ticketId") String id) {
+		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		Date now = new Date();
+		String date = formatter.format(now);
+		ticket.setCompletionTime(date);
+		ticket.setProvisioningStatus("Completed");
+		JsonObject json = new JsonObject();
+		json.addProperty("testing update", true);
+		JsonElement element = (new JsonParser()).parse(json.toString());
+		ticket.setResponseBody(element);
 		dao.createTicketRecord(ticket);
 		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
 	}
