@@ -1,11 +1,19 @@
 package ehrscapeProvisioner;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -20,13 +28,15 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.http.client.ClientProtocolException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import ehrscapeProvisioner.model.EhrscapeRequest;
-import ehrscapeProvisioner.model.MultiPatientProvisionerTicket;
 import ehrscapeProvisioner.model.PatientDemographic;
+import ehrscapeProvisioner.ticketDao.MultiPatientProvisionerTicket;
+import ehrscapeProvisioner.ticketDao.MultiPatientProvisionerTicketDao;
 
 /**
  * Root resource (exposed at "provision" path)
@@ -37,8 +47,8 @@ public class PatientProvisionerResource {
 	// TODO change these strings to Response objects and use the constituent
 	// responses to return relevant errors
 	// return feedback if the requests fail
-	// TODO make a new resource class with the invidual requests for the
-	// frontend to access directly
+	// TODO make a new resource class with the individual requests for the
+	// front end to access directly
 
 	@POST
 	@Path("single-provision-no-demographic")
@@ -155,8 +165,8 @@ public class PatientProvisionerResource {
 		// System.out.println(jsonInput.toString());
 		return finalConfig; // gson.toJson(jsonOutput);
 	}
-	
-	//TODO Add the create pateint etc responses to the final response
+
+	// TODO Add the create pateint etc responses to the final response
 
 	@POST
 	@Path("multi-patient-default")
@@ -178,9 +188,9 @@ public class PatientProvisionerResource {
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
-		//if (jsonInput.has("patientsFile")) {
-		//	EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
-		//}
+		// if (jsonInput.has("patientsFile")) {
+		// EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
+		// }
 
 		// prepare the response
 		JsonObject finalJsonResponse = new JsonObject();
@@ -504,7 +514,7 @@ public class PatientProvisionerResource {
 			}
 			// atm the subjectid is the marand party id
 			// overwrite the subjectID and use the NHS number from the CSV file
-			//EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
+			// EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 			// EHR
 			// create ehr
 			Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(),
@@ -563,82 +573,91 @@ public class PatientProvisionerResource {
 
 		return Response.status(200).entity(finalJsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 	}
-	
+
 	// Handling the multiProvisioner Requests in the background
-	// otherwise on azure no repsonse is returned as request is too long and its switched off by 
+	// otherwise on azure no repsonse is returned as request is too long and its
+	// switched off by
 	// default after 2 minutes with no response
-	
+
 	// First request starts the script and returns an http 202
-	// Subsequent requests from client check the work, and eventually return 200 when it's done.
-	
+	// Subsequent requests from client check the work, and eventually return 200
+	// when it's done.
+
 	// TODO turn this into a database
-	static HashMap<String,MultiPatientProvisionerTicket> responseMap = new HashMap<String,MultiPatientProvisionerTicket>();
-	
+	static HashMap<String, MultiPatientProvisionerTicket> responseMap = new HashMap<String, MultiPatientProvisionerTicket>();
+
 	@GET
 	@Path("background")
 	public Response backgroundTaskMethod() throws InterruptedException {
 		MultiPatientProvisionerTicket ticket = createMultiPatientProvisionerTicket();
 		Runnable r = new Runnable() {
 			public void run() {
-				boolean flag = true;	
+				boolean flag = true;
 				int i = 0;
-				while(flag){
+				while (flag) {
 					i++;
-					System.out.println("Thread started... Counter ==> " + i);	
+					System.out.println("Thread started... Counter ==> " + i);
 					try {
 						Thread.sleep(1000);
 						if (i >= 10) {
 							JsonObject json = new JsonObject();
 							json.addProperty("testing update", true);
 							JsonElement element = (new JsonParser()).parse(json.toString());
-							updateTicket(ticket.getResponseId(), element, "finito");
+							updateTicket(ticket.getTicketId(), element, "finito");
 							break;
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
 		};
- 
+
 		Thread t = new Thread(r);
 		// Lets run Thread in background..
-		// Sometimes you need to run thread in background for your Timer application..
+		// Sometimes you need to run thread in background for your Timer
+		// application..
 		t.start(); // starts thread in background..
-		// t.run(); // is going to execute the code in the thread's run method on the current thread..
-		
+		// t.run(); // is going to execute the code in the thread's run method
+		// on the current thread..
+
 		System.out.println("Main() Program Exited...\n");
 		return Response.status(Response.Status.ACCEPTED).build();
 	}
-	
+
+	// TODO change "response" path to "ticket"
+
 	@POST
 	@Path("response")
 	@Produces(MediaType.APPLICATION_JSON)
 	public MultiPatientProvisionerTicket createMultiPatientProvisionerTicket() {
-		int count = responseMap.size()+1;
+		int count = responseMap.size() + 1;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	    Date now = new Date();
-	    String date = formatter.format(now);
-	    
-		MultiPatientProvisionerTicket obj = new MultiPatientProvisionerTicket(String.valueOf(count),"In Progress",date);
-		responseMap.put(obj.getResponseId(), obj);
-		
-		return obj; //.toJsonObject().toString();
+		Date now = new Date();
+		String date = formatter.format(now);
+
+		MultiPatientProvisionerTicket obj = new MultiPatientProvisionerTicket(String.valueOf(count), "In Progress",
+				date);
+		responseMap.put(obj.getTicketId(), obj);
+
+		return obj; // .toJsonObject().toString();
 	}
-	
+
 	private MultiPatientProvisionerTicket updateTicket(String id, JsonElement content, String status) {
 		MultiPatientProvisionerTicket ticket = responseMap.get(id);
 		ticket.setResponseBody(content);
 		ticket.setProvisioningStatus(status);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	    Date now = new Date();
-	    String fTime = formatter.format(now);
-	    ticket.setCompletionTime(fTime);
-	    responseMap.put(id, ticket);
+		Date now = new Date();
+		String fTime = formatter.format(now);
+		ticket.setCompletionTime(fTime);
+		responseMap.put(id, ticket);
 		return ticket;
 	}
-	
+
+	// TODO Catch the response not found null pointer errors
+
 	@GET
 	@Path("response/{responseId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -646,7 +665,7 @@ public class PatientProvisionerResource {
 		System.out.println(responseMap.size());
 		return responseMap.get(id).toJsonObject().toString(); // multiResponseList.get(Integer.parseInt(id)-1);
 	}
-	
+
 	@POST
 	@Path("cloud-multi-provisioner")
 	public Response cloudMultiProvisioner(String inputBody) {
@@ -658,9 +677,9 @@ public class PatientProvisionerResource {
 					Response provisionResponse = multiplePatientProvisionCustom(inputBody);
 					String jsonProvisionResBody = provisionResponse.getEntity().toString();
 					JsonElement element = (new JsonParser()).parse(jsonProvisionResBody.toString());
-					updateTicket(responseTicket.getResponseId(), element, "complete");
+					updateTicket(responseTicket.getTicketId(), element, "complete");
 				} catch (ClientProtocolException e) {
-					//TODO show errors in the response body the client will see
+					// TODO show errors in the response body the client will see
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -669,11 +688,34 @@ public class PatientProvisionerResource {
 				}
 			}
 		};
-		
+
 		Thread thread = new Thread(runnable);
 		// run multi provisioner in background..
 		thread.start(); // starts thread in background..
-		return Response.status(Status.ACCEPTED).header("location", "provisioner/response/"+responseTicket.getResponseId()).build();
+		return Response.status(Status.ACCEPTED)
+				.header("location", "provisioner/response/" + responseTicket.getTicketId()).build();
 	}
 
+	@GET
+	@Path("readTicketFile/{tickId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response txtToJsonObjects(@PathParam(value = "tickId") String id) {
+		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
+		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+	}
+
+	@GET
+	@Path("createTicketFile")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response txtUpdate() {
+		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		Date now = new Date();
+		String date = formatter.format(now);
+		String uniqueId = UUID.randomUUID().toString();
+		MultiPatientProvisionerTicket ticket = new MultiPatientProvisionerTicket(uniqueId, "In Progress", date);
+		dao.createTicketRecord(ticket);
+		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+	}
 }

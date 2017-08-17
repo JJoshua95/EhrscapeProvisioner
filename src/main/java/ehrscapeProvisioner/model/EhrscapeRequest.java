@@ -47,6 +47,7 @@ public class EhrscapeRequest {
 
 	HttpClient client = HttpClientBuilder.create().build();
 
+	// TODO Maybe use singleton pattern for this?
 	public static EhrscapeConfig config = new EhrscapeConfig();
 
 	public String getFileAsString(String fileName) {
