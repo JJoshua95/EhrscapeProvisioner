@@ -205,7 +205,9 @@ public class PatientProvisionerResource {
 		
 		return Response.status(200).entity(jsonOutput.toString()).build(); // gson.toJson(jsonOutput);
 	}
-
+	
+	// TODO Optional baseURLS below needed
+	
 	@POST
 	@Path("multi-patient-default")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -714,15 +716,22 @@ public class PatientProvisionerResource {
 	public Response getTicket(@PathParam(value = "ticketId") String id) {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
 		//System.out.println(id);
-		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
-		//System.out.println(ticket.toJsonObject().toString());
-		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+		MultiPatientProvisionerTicket ticket;
+		try {
+			ticket = dao.getTicketRecord(id);
+			//System.out.println(ticket.toJsonObject().toString());
+			return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+		} catch(Exception e) {
+			e.printStackTrace();
+			return Response.status(204).build();
+		}
+		//return Response.status(201).entity(ticket.toJsonObject().toString()).build();
 	}
 
-	@POST
-	@Path("createTicketFile")
+	//@POST
+	//@Path("createTicketFile")
 	@Produces(MediaType.APPLICATION_JSON)
-	public MultiPatientProvisionerTicket createTicket() {
+	private MultiPatientProvisionerTicket createTicket() {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
