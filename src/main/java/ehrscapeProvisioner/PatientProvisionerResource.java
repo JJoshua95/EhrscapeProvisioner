@@ -582,14 +582,14 @@ public class PatientProvisionerResource {
 	// First request starts the script and returns an http 202
 	// Subsequent requests from client check the work, and eventually return 200
 	// when it's done.
-
-	// TODO turn this into a database
-	static HashMap<String, MultiPatientProvisionerTicket> responseMap = new HashMap<String, MultiPatientProvisionerTicket>();
-
+	
+	
+	// auto compilation on eclipse can lead to thread errors it seems
 	@GET
 	@Path("background")
 	public Response backgroundTaskMethod() throws InterruptedException {
-		MultiPatientProvisionerTicket ticket = createMultiPatientProvisionerTicket();
+		MultiPatientProvisionerTicket ticket = createTicket();
+		//MultiPatientProvisionerTicket ticket = createMultiPatientProvisionerTicket();
 		Runnable r = new Runnable() {
 			public void run() {
 				boolean flag = true;
@@ -623,53 +623,13 @@ public class PatientProvisionerResource {
 		// on the current thread..
 
 		System.out.println("Main() Program Exited...\n");
-		return Response.status(Response.Status.ACCEPTED).build();
-	}
-
-	// TODO change "response" path to "ticket"
-
-	@POST
-	@Path("response")
-	@Produces(MediaType.APPLICATION_JSON)
-	public MultiPatientProvisionerTicket createMultiPatientProvisionerTicket() {
-		int count = responseMap.size() + 1;
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		Date now = new Date();
-		String date = formatter.format(now);
-
-		MultiPatientProvisionerTicket obj = new MultiPatientProvisionerTicket(String.valueOf(count), "In Progress",
-				date);
-		responseMap.put(obj.getTicketId(), obj);
-
-		return obj; // .toJsonObject().toString();
-	}
-
-	private MultiPatientProvisionerTicket updateTicket(String id, JsonElement content, String status) {
-		MultiPatientProvisionerTicket ticket = responseMap.get(id);
-		ticket.setResponseBody(content);
-		ticket.setProvisioningStatus(status);
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		Date now = new Date();
-		String fTime = formatter.format(now);
-		ticket.setCompletionTime(fTime);
-		responseMap.put(id, ticket);
-		return ticket;
-	}
-
-	// TODO Catch the response not found null pointer errors
-
-	@GET
-	@Path("response/{responseId}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getMultiPatientProvisionerResponse(@PathParam(value = "responseId") String id) {
-		System.out.println(responseMap.size());
-		return responseMap.get(id).toJsonObject().toString(); // multiResponseList.get(Integer.parseInt(id)-1);
+		return Response.status(Response.Status.ACCEPTED).header("location", "ticket/"+ticket.getTicketId()).build();
 	}
 
 	@POST
 	@Path("cloud-multi-provisioner")
 	public Response cloudMultiProvisioner(String inputBody) {
-		MultiPatientProvisionerTicket responseTicket = createMultiPatientProvisionerTicket();
+		MultiPatientProvisionerTicket responseTicket = createTicket();
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
@@ -693,22 +653,24 @@ public class PatientProvisionerResource {
 		// run multi provisioner in background..
 		thread.start(); // starts thread in background..
 		return Response.status(Status.ACCEPTED)
-				.header("location", "provisioner/response/" + responseTicket.getTicketId()).build();
+				.header("location", "provisioner/ticket/" + responseTicket.getTicketId()).build();
 	}
 
 	@GET
-	@Path("readTicketFile/{ticketId}")
+	@Path("ticket/{ticketId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getTicket(@PathParam(value = "ticketId") String id) {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+		//System.out.println(id);
 		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
+		//System.out.println(ticket.toJsonObject().toString());
 		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
 	}
 
-	@GET
+	@POST
 	@Path("createTicketFile")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createTicket() {
+	public MultiPatientProvisionerTicket createTicket() {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
@@ -716,25 +678,19 @@ public class PatientProvisionerResource {
 		String uniqueId = UUID.randomUUID().toString();
 		MultiPatientProvisionerTicket ticket = new MultiPatientProvisionerTicket(uniqueId, "In Progress", date);
 		dao.createTicketRecord(ticket);
-		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+		return ticket; //Response.status(201).entity(ticket.toJsonObject().toString()).build();
 	}
 	
-	@GET
-	@Path("updateTicketFile/{ticketId}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateTicket(@PathParam(value = "ticketId") String id) {
+	private MultiPatientProvisionerTicket updateTicket(@PathParam(value = "ticketId") String id, JsonElement responseContent, String status) {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
 		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
 		String date = formatter.format(now);
 		ticket.setCompletionTime(date);
-		ticket.setProvisioningStatus("Completed");
-		JsonObject json = new JsonObject();
-		json.addProperty("testing update", true);
-		JsonElement element = (new JsonParser()).parse(json.toString());
-		ticket.setResponseBody(element);
+		ticket.setProvisioningStatus(status);
+		ticket.setResponseBody(responseContent);
 		dao.createTicketRecord(ticket);
-		return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+		return ticket;// Response.status(201).entity(ticket.toJsonObject().toString()).build();
 	}
 }

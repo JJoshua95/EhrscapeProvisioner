@@ -13,6 +13,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+// change where the files are uploaded must be outside the IDE 
+
 public class MultiPatientProvisionerTicketDao implements MultiPatientProvisionerTicketDaoInterface {
 	
 	@Override
@@ -56,6 +58,8 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 	// functions to read and write files
 	
 	private String readTicketFile(String ticketId) throws FileNotFoundException {
+		//String sRootPath = new File("").getAbsolutePath();
+		//System.out.println(sRootPath);
 		ClassLoader classLoader = getClass().getClassLoader();
 		String ticketDirectory = "savedData/tickets";
 		File file = new File(classLoader.getResource(ticketDirectory).getFile() + "ticket-" + ticketId+".txt");
