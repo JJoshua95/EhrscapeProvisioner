@@ -4,6 +4,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 	$scope.password = '';
 	$scope.baseUrl = 'https://ehrscape.code4health.org/rest/v1/'; // 'https://cdr.code4health.org/rest/v1/'; //default
 	
+	
 	$scope.response; // = 'Response';
 	
 	$scope.testFunction = function() {

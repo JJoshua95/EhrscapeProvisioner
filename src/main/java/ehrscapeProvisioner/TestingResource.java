@@ -26,7 +26,7 @@ import ehrscapeProvisioner.model.PatientDemographic;
  * Root resource (exposed at "myresource" path)
  */
 @Path("myresource")
-public class MyResource {
+public class TestingResource {
 	EhrscapeRequest req =  new EhrscapeRequest();
 	Gson gson = new Gson();
 	

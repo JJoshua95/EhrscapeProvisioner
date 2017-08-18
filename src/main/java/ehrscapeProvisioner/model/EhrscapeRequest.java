@@ -619,7 +619,8 @@ public class EhrscapeRequest {
 		return list;
 
 	}
-
+	
+	
 	private String[] getAllCompositionFileNamesFromFolder(String folderName) {
 		ClassLoader classLoader = getClass().getClassLoader();
 		String path = classLoader.getResource(folderName).getFile();

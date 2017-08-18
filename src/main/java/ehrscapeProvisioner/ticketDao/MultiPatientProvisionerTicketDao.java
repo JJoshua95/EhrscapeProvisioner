@@ -13,6 +13,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+
+
 // change where the files are uploaded must be outside the IDE 
 
 public class MultiPatientProvisionerTicketDao implements MultiPatientProvisionerTicketDaoInterface {
@@ -58,8 +60,6 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 	// functions to read and write files
 	
 	private String readTicketFile(String ticketId) throws FileNotFoundException {
-		//String sRootPath = new File("").getAbsolutePath();
-		//System.out.println(sRootPath);
 		ClassLoader classLoader = getClass().getClassLoader();
 		String ticketDirectory = "savedData/tickets";
 		File file = new File(classLoader.getResource(ticketDirectory).getFile() + "ticket-" + ticketId+".txt");
@@ -89,10 +89,11 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 	}
 	
 	private void writeTicketObjToFile(MultiPatientProvisionerTicket ticket) {
-		//String uniqueId = UUID.randomUUID().toString();
+		
 		String newFileName = "ticket-" + ticket.getTicketId() +".txt";
 		ClassLoader classLoader = getClass().getClassLoader();
-		URL directory = classLoader.getResource("savedData/tickets/");
+		URL directory = classLoader.getResource("/savedData/tickets/");
+		System.out.println(directory.getFile());
 		System.out.println(directory.getFile());
 		String fileDirectoryString = directory.getFile();
 		File file = new File(fileDirectoryString + newFileName);
@@ -100,6 +101,7 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 		FileWriter fw = null;
 		BufferedWriter bw = null;
 		try {
+			
 			if (file.createNewFile()) {
 			    System.out.println("File is created!");
 			    System.out.println(file.exists());
@@ -107,6 +109,7 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 			    System.out.println("File already exists.");
 			    System.out.println(file.exists());
 			}
+			
 			fw = new FileWriter(file);
 			bw = new BufferedWriter(fw);
 			System.out.println(ticket.toJsonObject().toString());

@@ -21,7 +21,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -584,7 +586,7 @@ public class PatientProvisionerResource {
 	// when it's done.
 	
 	
-	// auto compilation on eclipse can lead to thread errors it seems
+	// auto compilation on eclipse can lead to thread errors it seems when writing files into the web inf / classes folder
 	@GET
 	@Path("background")
 	public Response backgroundTaskMethod() throws InterruptedException {
@@ -678,7 +680,7 @@ public class PatientProvisionerResource {
 		String uniqueId = UUID.randomUUID().toString();
 		MultiPatientProvisionerTicket ticket = new MultiPatientProvisionerTicket(uniqueId, "In Progress", date);
 		dao.createTicketRecord(ticket);
-		return ticket; //Response.status(201).entity(ticket.toJsonObject().toString()).build();
+		return ticket; 
 	}
 	
 	private MultiPatientProvisionerTicket updateTicket(@PathParam(value = "ticketId") String id, JsonElement responseContent, String status) {
@@ -691,6 +693,6 @@ public class PatientProvisionerResource {
 		ticket.setProvisioningStatus(status);
 		ticket.setResponseBody(responseContent);
 		dao.createTicketRecord(ticket);
-		return ticket;// Response.status(201).entity(ticket.toJsonObject().toString()).build();
+		return ticket;
 	}
 }
