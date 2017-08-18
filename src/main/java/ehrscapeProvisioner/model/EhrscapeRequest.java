@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,7 +16,6 @@ import javax.ws.rs.core.Response;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -43,7 +41,7 @@ public class EhrscapeRequest {
 
 	Gson gson = new Gson();
 
-	private final static Logger logger = Logger.getLogger(EhrscapeRequest.class.getName());
+	//private final static Logger logger = Logger.getLogger(EhrscapeRequest.class.getName());
 
 	HttpClient client = HttpClientBuilder.create().build();
 
@@ -106,10 +104,10 @@ public class EhrscapeRequest {
 
 		HttpPost request = new HttpPost(url);
 
-		List<NameValuePair> params = ub.getQueryParams();
+		//List<NameValuePair> params = ub.getQueryParams();
 
 		HttpResponse response = client.execute(request);
-		String finalUrl = request.getRequestLine().toString();
+		//String finalUrl = request.getRequestLine().toString();
 		//System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl + " "
 		//		+ params.toString());
 
@@ -127,7 +125,7 @@ public class EhrscapeRequest {
 					.type(MediaType.APPLICATION_JSON).build();
 
 		} else {
-			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+			//JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			//System.out.println(jsonObject.toString());
 			// return Response.ok(result,
 			// MediaType.APPLICATION_JSON).status(response.getStatusLine().getStatusCode()).build();
@@ -238,7 +236,7 @@ public class EhrscapeRequest {
 		HttpPost request = new HttpPost(url);
 		request.addHeader("Ehr-Session", config.getSessionId());
 		// logger.info("The current session is" + config.getSessionId());
-		String finalUrl = request.getRequestLine().toString();
+		//String finalUrl = request.getRequestLine().toString();
 		//System.out.println(finalUrl);
 		HttpResponse response = client.execute(request);
 		//System.out.println("Response Code : " + response.getStatusLine().getStatusCode() + "\n URL: " + finalUrl);
@@ -286,7 +284,7 @@ public class EhrscapeRequest {
 			result = EntityUtils.toString(entity);
 			// return Response.ok(result,
 			// MediaType.APPLICATION_JSON).status(responseCode).build();
-			String ehrId;
+			//String ehrId;
 			// parse the response and save the ehrId to config
 			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			// logger.info("" + jsonObject.get("ehrId"));
@@ -369,7 +367,7 @@ public class EhrscapeRequest {
 		request.setEntity(new StringEntity(body));
 
 		// logger.info("The current session is" + config.getSessionId());
-		String finalUrl = request.getRequestLine().toString();
+		//String finalUrl = request.getRequestLine().toString();
 		//System.out.println(finalUrl);
 
 		HttpResponse response = client.execute(request);
@@ -424,7 +422,7 @@ public class EhrscapeRequest {
 		if (responseCode == 201 || responseCode == 200) {
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
+			//JsonObject jsonObject = (new JsonParser()).parse(result.toString()).getAsJsonObject();
 			// logger.info("" + jsonObject.get("compositionUid"));
 			// return Response.ok(result,
 			// MediaType.APPLICATION_JSON).status(responseCode).build();
@@ -460,7 +458,7 @@ public class EhrscapeRequest {
 		request.setEntity(new StringEntity(body));
 
 		// logger.info("The current session is" + config.getSessionId());
-		String finalUrl = request.getRequestLine().toString();
+		//String finalUrl = request.getRequestLine().toString();
 		//System.out.println(finalUrl);
 
 		HttpResponse response = client.execute(request);
@@ -507,7 +505,7 @@ public class EhrscapeRequest {
 		request.addHeader("Content-Type", "application/xml");
 		request.setEntity(new StringEntity(body));
 
-		String finalUrl = request.getRequestLine().toString();
+		//String finalUrl = request.getRequestLine().toString();
 		// logger.info("Post Request to : " + finalUrl);
 
 		HttpResponse response = client.execute(request);

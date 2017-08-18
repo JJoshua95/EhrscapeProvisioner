@@ -13,7 +13,7 @@ public class EhrscapeConfig {
 	private String ehrId = "";
 	private String templateId = "Vital Signs Encounter (Composition)";
 	private String compositionId = "";
-	private String commiterName = "ehrscapeProvisioner";
+	private String commiterName = "EhrscapeProvisioner";
 	private String fhirDemographicBaseUrl = "http://51.140.57.74:8090/fhir/";
 	
 	// FHIR BASE URL HERE 

@@ -47,7 +47,8 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		.then(function(response) {
             var res = JSON.stringify(response);
             //$window.alert(res);
-            $scope.response = res;
+            var obj = JSON.parse(res);
+            $scope.response = JSON.stringify(obj.data,null,2);
         });
 	};
 	
@@ -62,7 +63,8 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
             var res = JSON.stringify(response);
             //$window.alert(res);
             //console.log(res);
-            $scope.response = res;
+            var obj = JSON.parse(res);
+            $scope.response = JSON.stringify(obj.data,null,2);
         });
 	};
 	

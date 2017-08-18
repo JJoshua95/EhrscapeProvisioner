@@ -1,17 +1,9 @@
 package ehrscapeProvisioner;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,16 +13,13 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.client.ClientProtocolException;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -50,54 +39,71 @@ public class PatientProvisionerResource {
 	// responses to return relevant errors
 	// return feedback if the requests fail
 	// TODO make a new resource class with the individual requests for the
-	// front end to access directly
+	// front end to access directly?
+	
+	// TODO combine the single patient provisioner method into a single method, where the subject namespace dictates which 
+	// type of demographic?
 
 	@POST
 	@Path("single-provision-no-demographic")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String singleProvision(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {
+	public Response singleProvision(String inputBody) throws ClientProtocolException, IOException, URISyntaxException {
 		EhrscapeRequest req = new EhrscapeRequest();
 
 		Gson gson = new Gson();
-		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
+		JsonParser parser = new JsonParser();
+		JsonObject jsonInput = parser.parse(inputBody.toString()).getAsJsonObject();
 		// System.out.println(jsonInput.get("username").getAsString());
 		// System.out.println(jsonInput.get("password").getAsString());
+		
+		// put the final response stuff here
 
+		JsonObject jsonOutput = new JsonObject();
+		
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
-
+		
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
 				jsonInput.get("password").getAsString());
 		// System.out.println(EhrscapeRequest.config.getSessionId());
-		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
+		JsonElement sessionElement = parser.parse(getSessionResponse.getEntity().toString());
+		jsonOutput.add("Get Session:", sessionElement);
+		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
+			String finalConfig = gson.toJson(EhrscapeRequest.config);
+			JsonElement configElement = parser.parse(finalConfig);
+			jsonOutput.add("Final Configuration", configElement);
+			return Response.status(200).entity(jsonOutput.toString()).build();
+		}
+		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), EhrscapeRequest.config.getCommiterName());
+		JsonElement ehrElement = parser.parse(createEhrResponse.getEntity().toString());
+		jsonOutput.add("Create EHR:", ehrElement);
 		Response uploadTemplateResponse = req.uploadDefaultTemplate();
+		JsonElement templateElement = parser.parse(uploadTemplateResponse.getEntity().toString());
+		jsonOutput.add("Upload Template:", templateElement);
 		Response uploadCompResponse = req.uploadDefaultComposition();
-
-		// put the final response stuff here
-
-		// JsonObject jsonOutput = new JsonObject();
-		// jsonOutput.addProperty("num", 123);
-		// jsonOutput.addProperty("testKey", "testVal"); // for a custom
-		// response later if needed
+		JsonElement compositionElement = parser.parse(uploadCompResponse.getEntity().toString());
+		jsonOutput.add("Commit Composition:", compositionElement);
 
 		String finalConfig = gson.toJson(EhrscapeRequest.config);
-		// //System.out.println(jsonInput.toString());
-		return finalConfig; // gson.toJson(jsonOutput);
+		JsonElement configElement = parser.parse(finalConfig);
+		jsonOutput.add("Final Configuration", configElement);
+		// System.out.println(jsonInput.toString());
+		return Response.status(200).entity(jsonOutput.toString()).build(); // gson.toJson(jsonOutput);
 	}
 
 	@POST
 	@Path("single-provision-marand")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String singleProvisionDemographic(String inputBody)
+	public Response singleProvisionDemographic(String inputBody)
 			throws ClientProtocolException, IOException, URISyntaxException {
 		EhrscapeRequest req = new EhrscapeRequest();
-
+		JsonParser parser = new JsonParser();
 		Gson gson = new Gson();
-		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
+		JsonObject jsonInput = parser.parse(inputBody.toString()).getAsJsonObject();
 		// System.out.println(jsonInput.get("username").getAsString());
 		// System.out.println(jsonInput.get("password").getAsString());
 
@@ -105,42 +111,63 @@ public class PatientProvisionerResource {
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
+		
+		// put the final response stuff here
 
+		JsonObject jsonOutput = new JsonObject();
+		
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
 				jsonInput.get("password").getAsString());
+		// System.out.println(EhrscapeRequest.config.getSessionId());
+		JsonElement sessionElement = parser.parse(getSessionResponse.getEntity().toString());
+		jsonOutput.add("Get Session:", sessionElement);
+		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
+			String finalConfig = gson.toJson(EhrscapeRequest.config);
+			JsonElement configElement = parser.parse(finalConfig);
+			jsonOutput.add("Final Configuration", configElement);
+			return Response.status(200).entity(jsonOutput.toString()).build();
+		}
 		Response createPatientDemographicResponse = req.createPatientDefault();
-		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), "JarrodEhrscapeProvisioner");
-		// replace uk.nhs.nhs_number , let that be a user input
+		JsonElement demographicElement = parser.parse(createPatientDemographicResponse.getEntity().toString());
+		jsonOutput.add("Marand Demographic:", demographicElement);
+		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), EhrscapeRequest.config.getCommiterName());
+		JsonElement ehrElement = parser.parse(createEhrResponse.getEntity().toString());
+		jsonOutput.add("Create EHR:", ehrElement);
+		// TODO replace uk.nhs.nhs_number , let that be a user input
 		// make the default https://fhir.nhs.uk/Id/nhs-number but make this a
 		// customisable input
 		Response uploadTemplateResponse = req.uploadDefaultTemplate();
+		JsonElement templateElement = parser.parse(uploadTemplateResponse.getEntity().toString());
+		jsonOutput.add("Upload Template:", templateElement);
 		Response uploadCompResponse = req.uploadDefaultComposition();
-
-		// put the final response stuff here
-
-		// JsonObject jsonOutput = new JsonObject();
-		// jsonOutput.addProperty("num", 123);
-		// jsonOutput.addProperty("testKey", "testVal"); // for a custom
-		// response later if needed
+		JsonElement compositionElement = parser.parse(uploadCompResponse.getEntity().toString());
+		jsonOutput.add("Commit Composition:", compositionElement);
 
 		String finalConfig = gson.toJson(EhrscapeRequest.config);
+		JsonElement configElement = parser.parse(finalConfig);
+		jsonOutput.add("Final Configuration", configElement);
 		// System.out.println(jsonInput.toString());
-		return finalConfig; // gson.toJson(jsonOutput);
+		return Response.status(200).entity(jsonOutput.toString()).build(); // gson.toJson(jsonOutput);
 	}
 
 	@POST
 	@Path("single-provision-fhir")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String singleProvisionFhirDemographic(String inputBody)
+	public Response singleProvisionFhirDemographic(String inputBody)
 			throws ClientProtocolException, IOException, URISyntaxException {
 		EhrscapeRequest req = new EhrscapeRequest();
 
 		Gson gson = new Gson();
-		JsonObject jsonInput = (new JsonParser()).parse(inputBody.toString()).getAsJsonObject();
+		JsonParser parser = new JsonParser();
+		JsonObject jsonInput = parser.parse(inputBody.toString()).getAsJsonObject();
 		// System.out.println(jsonInput.get("username").getAsString());
 		// System.out.println(jsonInput.get("password").getAsString());
 
+		// put the final response stuff here
+
+		JsonObject jsonOutput = new JsonObject();
+		
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
@@ -148,27 +175,36 @@ public class PatientProvisionerResource {
 
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
 				jsonInput.get("password").getAsString());
+		JsonElement sessionElement = parser.parse(getSessionResponse.getEntity().toString());
+		jsonOutput.add("Get Session:", sessionElement);
+		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
+			String finalConfig = gson.toJson(EhrscapeRequest.config);
+			JsonElement configElement = parser.parse(finalConfig);
+			jsonOutput.add("Final Configuration", configElement);
+			return Response.status(200).entity(jsonOutput.toString()).build();
+		}
 		Response createPatientDemographicResponse = req.createDefaultFhirPatientDemographic();
-		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), "JarrodEhrscapeProvisioner");
+		JsonElement fhirElement = parser.parse(createPatientDemographicResponse.getEntity().toString());
+		jsonOutput.add("FHIR demographic:", fhirElement);
+		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), EhrscapeRequest.config.getCommiterName());
 		// replace uk.nhs.nhs_number , let that be a user input
 		// make the default https://fhir.nhs.uk/Id/nhs-number but make this a
 		// customisable input
+		JsonElement ehrElement = parser.parse(createEhrResponse.getEntity().toString());
+		jsonOutput.add("Create EHR:", ehrElement);
 		Response uploadTemplateResponse = req.uploadDefaultTemplate();
+		JsonElement templateElement = parser.parse(uploadTemplateResponse.getEntity().toString());
+		jsonOutput.add("Upload Template:", templateElement);
 		Response uploadCompResponse = req.uploadDefaultComposition();
-
-		// put the final response stuff here
-
-		// JsonObject jsonOutput = new JsonObject();
-		// jsonOutput.addProperty("num", 123);
-		// jsonOutput.addProperty("testKey", "testVal"); // for a custom
-		// response later if needed
+		JsonElement compositionElement = parser.parse(uploadCompResponse.getEntity().toString());
+		jsonOutput.add("Commit Composition:", compositionElement);
 
 		String finalConfig = gson.toJson(EhrscapeRequest.config);
-		// System.out.println(jsonInput.toString());
-		return finalConfig; // gson.toJson(jsonOutput);
+		JsonElement configElement = parser.parse(finalConfig);
+		jsonOutput.add("Final Configuration", configElement);
+		
+		return Response.status(200).entity(jsonOutput.toString()).build(); // gson.toJson(jsonOutput);
 	}
-
-	// TODO Add the create pateint etc responses to the final response
 
 	@POST
 	@Path("multi-patient-default")
@@ -284,8 +320,12 @@ public class PatientProvisionerResource {
 				numOfPatientUploadErrors++;
 				continue;
 			}
-			// atm the subjectid is the marand party id
+
+			JsonElement demographicElement = parser.parse(demographicResponse.getEntity().toString());
+			finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), demographicElement);
+			// as it stands the subjectid is the marand party id
 			// overwrite the subjectID and use the NHS number from the CSV file
+			// this is exactly how the previous version worked
 			EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 			// EHR
 			// create ehr
@@ -309,12 +349,15 @@ public class PatientProvisionerResource {
 				} else {
 					// System.out.println("Got EhrId: " +
 					// EhrscapeRequest.config.getEhrId());
+					JsonElement EhrElement = parser.parse(getEhrResponse.getEntity().toString());
+					finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), EhrElement);
 				}
 			} else {
 				// System.out.println("Created EHR: " +
 				// EhrscapeRequest.config.getEhrId());
+				JsonElement EhrElement = parser.parse(createEhrResponse.getEntity().toString());
+				finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), EhrElement);
 			}
-
 			// compositions
 			Response multiCompositionRes = req.uploadMultipleCompositionsDefaultFolders(
 					EhrscapeRequest.config.getEhrId(), true, true, true, true, true);
@@ -514,6 +557,8 @@ public class PatientProvisionerResource {
 				numOfPatientUploadErrors++;
 				continue;
 			}
+			JsonElement demographicElement = parser.parse(demographicResponse.getEntity().toString());
+			finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), demographicElement);
 			// atm the subjectid is the marand party id
 			// overwrite the subjectID and use the NHS number from the CSV file
 			// EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
@@ -539,10 +584,15 @@ public class PatientProvisionerResource {
 				} else {
 					// System.out.println("Got EhrId: " +
 					// EhrscapeRequest.config.getEhrId());
+					JsonElement ehrElement = parser.parse(getEhrResponse.getEntity().toString());
+					finalJsonResponse.add("Create EHR Response - Patient key: " + patient.getKey(), ehrElement);
 				}
 			} else {
 				// System.out.println("Created EHR: " +
 				// EhrscapeRequest.config.getEhrId());
+				JsonElement ehrElement = parser.parse(createEhrResponse.getEntity().toString());
+				finalJsonResponse.add("Create EHR Response - Patient key: " + patient.getKey(), ehrElement);
+				
 			}
 
 			// compositions
@@ -655,7 +705,7 @@ public class PatientProvisionerResource {
 		// run multi provisioner in background..
 		thread.start(); // starts thread in background..
 		return Response.status(Status.ACCEPTED)
-				.header("location", "provisioner/ticket/" + responseTicket.getTicketId()).build();
+				.header("location", "provision/ticket/" + responseTicket.getTicketId()).build();
 	}
 
 	@GET
