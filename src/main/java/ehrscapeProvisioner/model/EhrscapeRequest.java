@@ -46,6 +46,8 @@ public class EhrscapeRequest {
 	HttpClient client = HttpClientBuilder.create().build();
 
 	// TODO Maybe use singleton pattern for this?
+	// TODO or just not make this static and each time a EhrscapeRequest Obj is made it has its own 
+	// EhrscapeConfig associated with it
 	public static EhrscapeConfig config = new EhrscapeConfig();
 
 	public String getFileAsString(String fileName) {
@@ -496,23 +498,27 @@ public class EhrscapeRequest {
 
 	public Response createFhirPatientDemographic(String fhirBaseUrl, String body)
 			throws URISyntaxException, ClientProtocolException, IOException {
-
 		String url;
 		URIBuilder ub = new URIBuilder(fhirBaseUrl + "Patient");
 		url = ub.toString();
-
 		HttpPost request = new HttpPost(url);
 		request.addHeader("Content-Type", "application/xml");
 		request.setEntity(new StringEntity(body));
-
+		//System.out.println(body);
+		//System.out.println("ENTITY-"+request.getEntity().toString());
 		//String finalUrl = request.getRequestLine().toString();
 		// logger.info("Post Request to : " + finalUrl);
-
+		
 		HttpResponse response = client.execute(request);
+		HttpEntity entity = response.getEntity();
+		@SuppressWarnings("unused") // this needs to be here or else the multi patient 
+		// for loop gets stuck after a couple of rows
+		String result = EntityUtils.toString(entity);
+		//System.out.println(result);
 		int responseCode = response.getStatusLine().getStatusCode();
-
+		//System.out.println("response "+responseCode);
 		if (responseCode == 200 || responseCode == 201) {
-
+			//System.out.println("success");
 			/*
 			 * Example response header set from this server:
 			 * 
@@ -533,7 +539,7 @@ public class EhrscapeRequest {
 			String trimmedUrl = locationUrl.substring(locationUrl.lastIndexOf("Patient"),
 					locationUrl.lastIndexOf("/_history/"));
 			//System.out.println(trimmedUrl);
-			// then look at whats left after the forward slash
+			// then look at what's left after the forward slash
 			String fhirPatientId = trimmedUrl.substring(trimmedUrl.lastIndexOf("/") + 1);
 			//System.out.println(fhirPatientId);
 
@@ -556,6 +562,7 @@ public class EhrscapeRequest {
 					.build();
 
 		} else {
+			System.out.println("error");
 			JsonObject jsonResponse = new JsonObject();
 			jsonResponse.addProperty("errorMessage", "Error creating this FHIR Resource");
 			// TODO add more info to this error message

@@ -148,6 +148,8 @@ public class PatientDemographic {
 					+ this.getTelephone() + " " + this.getNHSNumber() + " ";
 	}
 	
+	// TODO performace maybe just write directly as XML
+	
 	public String encodeInFhirFormat(boolean formatAsXML) {
 		Patient patient = new Patient();
 		// tutorial: https://fhir-drills.github.io/fhir-api.html
@@ -204,6 +206,37 @@ public class PatientDemographic {
         }
         return encoded;
 
+	}
+	
+	public String toFhirXML() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<Patient xmlns=\"http://hl7.org/fhir\">");
+		sb.append("<identifier>");
+		sb.append("<system value=\"http://fhir.nhs.net/Id/nhs-number\"/>");
+		sb.append("<value value=\""+this.getNHSNumber()+"\"/>");
+		sb.append("</identifier>");
+		sb.append("<name>");
+		sb.append("<use value=\"official\"/>");
+		sb.append("<family value=\""+this.getSurname()+"\"/>");
+		sb.append("<given value=\""+this.getForename()+"\"/>");
+		sb.append("<prefix value=\""+this.getPrefix()+"\"/>");
+		sb.append("</name>");
+		sb.append("<telecom>");
+		sb.append("<system value=\"phone\"/>");
+		sb.append("<value value=\""+this.getTelephone()+"\"/>");
+		sb.append("</telecom>");
+		sb.append("<gender value=\""+this.getGender()+"\"/>");
+		String[] dateComponents = this.getDateofBirth().split("/");
+		sb.append("<birthDate value=\""+dateComponents[2] + "-" + dateComponents[1] + "-" + dateComponents[0]+"\"/>");
+		sb.append("<address>");
+		sb.append("<text value=\""+this.getAddress_1() + ", " + this.getAddress_2() + ", " + this.getAddress_3()+"\"/>");
+		sb.append("<line value=\""+this.getAddress_1() +"\"/>");
+		sb.append("<city value=\""+ this.getAddress_2() +"\"/>");
+		sb.append("<state value=\""+ this.getAddress_3()+"\"/>");
+		sb.append("<postalCode value=\""+this.getPostcode()+"\"/>");
+		sb.append("</address>");
+		sb.append("</Patient>");
+		return sb.toString();
 	}
 	
 	public String toMarandPartyJson() {

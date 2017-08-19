@@ -458,8 +458,9 @@ public class PatientProvisionerResource {
 		if (jsonInput.has("fhirDemographicBaseUrl")) {
 			EhrscapeRequest.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
 		}
+		String userDemographicChoice = "";
 		if (jsonInput.has("demographicType")) {
-			String userDemographicChoice = jsonInput.get("demographicType").getAsString();
+			userDemographicChoice = jsonInput.get("demographicType").getAsString();
 			if ( (userDemographicChoice.equalsIgnoreCase("fhir")) ) {
 				fhirDemographic = true;
 				marandDemographic = false;
@@ -578,13 +579,15 @@ public class PatientProvisionerResource {
 			// demographics
 			if (fhirDemographic == true && marandDemographic == false) {
 				// fhir demographic upload
-				String fhirPatientBody = patient.encodeInFhirFormat(true);
-				// //System.out.println(patient.toMarandPartyJson());
+				String fhirPatientBody = patient.encodeInFhirFormat(true); //or .toFhirXML();
+				//System.out.println(fhirPatientBody);
+				//System.out.println(patient.getForename());
 				Response demographicResponse = req.createFhirPatientDemographic(EhrscapeRequest.config.getFhirDemographicBaseUrl()
 						, fhirPatientBody);
+				//System.out.println(demographicResponse.getEntity().toString());
 				// if creating the FHIR demographic fails move onto next patient
-				if (demographicResponse.getStatus() == 400 || demographicResponse.getStatus() == 401
-						|| demographicResponse.getStatus() == 403 || demographicResponse.getStatus() == 503) {
+				if (demographicResponse.getStatus() != 201) {
+					//System.out.println("Error fhir demographic");
 					patientUploadErrorsSb.append("Create FHIR Demographic Failed on Patient with Key: " + patient.getKey()
 							+ ", Request Status: " + demographicResponse.getStatus() + "\n");
 					numOfPatientUploadErrors++;
@@ -659,6 +662,7 @@ public class PatientProvisionerResource {
 			patientsSuccessfullyUploaded++;
 			JsonElement compositionElement = parser.parse(multiCompositionRes.getEntity().toString());
 			finalJsonResponse.add("Commit Composition Response Patient key: " + patient.getKey(), compositionElement);
+			//System.out.println(patientsSuccessfullyUploaded);
 		}
 
 		// vitals + import csv

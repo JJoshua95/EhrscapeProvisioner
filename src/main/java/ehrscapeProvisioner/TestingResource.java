@@ -127,7 +127,7 @@ public class TestingResource {
     @Produces(MediaType.APPLICATION_XML)
     public String readCsvPatient() throws IOException {
     	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
-    	return list.get(5).writeEhrStatusBody();//.encodeInFhirFormat(true);
+    	return list.get(5).encodeInFhirFormat(true);
     }
     
     @POST
@@ -143,6 +143,14 @@ public class TestingResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response importCsvCall() throws IOException, URISyntaxException {
     	return req.importCsv("assets/data/nursing-obs.csv");
+    }
+    
+    @GET
+    @Path("patientFhir")
+    @Produces(MediaType.APPLICATION_XML)
+    public String fhirPatientFormatting() throws IOException {
+    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+    	return list.get(5).toFhirXML();//writeEhrStatusBody();//.encodeInFhirFormat(true);
     }
     
 }
