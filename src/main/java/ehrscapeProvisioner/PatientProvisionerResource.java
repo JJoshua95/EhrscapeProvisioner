@@ -169,6 +169,10 @@ public class PatientProvisionerResource {
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
+		// for when fhir server location changes 
+		if (jsonInput.has("fhirDemographicBaseUrl")) {
+			EhrscapeRequest.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
+		}
 
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
 				jsonInput.get("password").getAsString());
@@ -397,7 +401,13 @@ public class PatientProvisionerResource {
 			throws ClientProtocolException, IOException, URISyntaxException {
 
 		EhrscapeRequest req = new EhrscapeRequest();
-
+		
+		// demographic configurations
+		boolean marandDemographic = false;
+		boolean fhirDemographic = false;
+		// else no demographics 
+		
+		// compositions and vitals configuration settings
 		boolean doVitals = false;
 		boolean doLabResults = false;
 		boolean doAllergies = false;
@@ -444,6 +454,24 @@ public class PatientProvisionerResource {
 		if (jsonInput.has("patientsFile")) {
 			EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
 		}
+		// for when fhir server location changes 
+		if (jsonInput.has("fhirDemographicBaseUrl")) {
+			EhrscapeRequest.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
+		}
+		if (jsonInput.has("demographicType")) {
+			String userDemographicChoice = jsonInput.get("demographicType").getAsString();
+			if ( (userDemographicChoice.equalsIgnoreCase("fhir")) ) {
+				fhirDemographic = true;
+				marandDemographic = false;
+			} else if (userDemographicChoice.equalsIgnoreCase("marand")) {
+				fhirDemographic = false;
+				marandDemographic = true;
+			} else {
+				fhirDemographic = false;
+				marandDemographic = false;
+				// demographics will be skipped by default here
+			}
+		}
 
 		// System.out.println("Vitals: " + doVitals);
 		// System.out.println("Problems: " + doProblems);
@@ -451,6 +479,7 @@ public class PatientProvisionerResource {
 		// System.out.println("Lab-Results: " + doLabResults);
 		// System.out.println("Orders: " + doOrders);
 		// System.out.println("Allergies: " + doAllergies);
+		// System.out.println(userDemographicChoice);
 
 		// prepare the response
 		JsonObject finalJsonResponse = new JsonObject();
@@ -547,19 +576,47 @@ public class PatientProvisionerResource {
 		StringBuilder patientUploadErrorsSb = new StringBuilder();
 		for (PatientDemographic patient : patientList) {
 			// demographics
-			String marandPartyJson = patient.toMarandPartyJson();
-			// //System.out.println(patient.toMarandPartyJson());
-			Response demographicResponse = req.createMarandPatientDemographic(marandPartyJson);
-			// if creating the demographic fails move onto next patient
-			if (demographicResponse.getStatus() == 400 || demographicResponse.getStatus() == 401
-					|| demographicResponse.getStatus() == 403 || demographicResponse.getStatus() == 503) {
-				patientUploadErrorsSb.append("Create Demographics Party Failed on Patient with Key: " + patient.getKey()
-						+ ", Request Status: " + demographicResponse.getStatus() + "\n");
+			if (fhirDemographic == true && marandDemographic == false) {
+				// fhir demographic upload
+				String fhirPatientBody = patient.encodeInFhirFormat(true);
+				// //System.out.println(patient.toMarandPartyJson());
+				Response demographicResponse = req.createFhirPatientDemographic(EhrscapeRequest.config.getFhirDemographicBaseUrl()
+						, fhirPatientBody);
+				// if creating the FHIR demographic fails move onto next patient
+				if (demographicResponse.getStatus() == 400 || demographicResponse.getStatus() == 401
+						|| demographicResponse.getStatus() == 403 || demographicResponse.getStatus() == 503) {
+					patientUploadErrorsSb.append("Create FHIR Demographic Failed on Patient with Key: " + patient.getKey()
+							+ ", Request Status: " + demographicResponse.getStatus() + "\n");
+					numOfPatientUploadErrors++;
+					continue;
+				}
+				JsonElement demographicElement = parser.parse(demographicResponse.getEntity().toString());
+				finalJsonResponse.add("Create FHIR Demographic Response - Patient key: " + patient.getKey(), demographicElement);
+			} else if (fhirDemographic == false && marandDemographic == true) {
+				// marand demographic upload
+				String marandPartyJson = patient.toMarandPartyJson();
+				// //System.out.println(patient.toMarandPartyJson());
+				Response demographicResponse = req.createMarandPatientDemographic(marandPartyJson);
+				// if creating the demographic fails move onto next patient
+				if (demographicResponse.getStatus() == 400 || demographicResponse.getStatus() == 401
+						|| demographicResponse.getStatus() == 403 || demographicResponse.getStatus() == 503) {
+					patientUploadErrorsSb.append("Create Demographics Party Failed on Patient with Key: " + patient.getKey()
+							+ ", Request Status: " + demographicResponse.getStatus() + "\n");
+					numOfPatientUploadErrors++;
+					continue;
+				}
+				JsonElement demographicElement = parser.parse(demographicResponse.getEntity().toString());
+				finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), demographicElement);
+			} else if(fhirDemographic == false && marandDemographic == false) {
+				// no demographic upload
+				EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
+			} else {
+				// error
+				EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 				numOfPatientUploadErrors++;
+				patientUploadErrorsSb.append("Create Demographics Invalid Request Input, Patient with Key: " + patient.getKey() + "\n");
 				continue;
 			}
-			JsonElement demographicElement = parser.parse(demographicResponse.getEntity().toString());
-			finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), demographicElement);
 			// atm the subjectid is the marand party id
 			// overwrite the subjectID and use the NHS number from the CSV file
 			// EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
@@ -622,13 +679,14 @@ public class PatientProvisionerResource {
 		}
 
 		finalJsonResponse.addProperty("Errors", numOfPatientUploadErrors);
+		finalJsonResponse.addProperty("Error messages:", patientUploadErrorsSb.toString());
 		finalJsonResponse.addProperty("Number uploaded", patientsSuccessfullyUploaded);
 
 		return Response.status(200).entity(finalJsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	// Handling the multiProvisioner Requests in the background
-	// otherwise on azure no repsonse is returned as request is too long and its
+	// otherwise on azure no response is returned as request is too long and its
 	// switched off by
 	// default after 2 minutes with no response
 
@@ -638,6 +696,8 @@ public class PatientProvisionerResource {
 	
 	
 	// auto compilation on eclipse can lead to thread errors it seems when writing files into the web inf / classes folder
+	// thread practice function
+	/*
 	@GET
 	@Path("background")
 	public Response backgroundTaskMethod() throws InterruptedException {
@@ -678,7 +738,8 @@ public class PatientProvisionerResource {
 		System.out.println("Main() Program Exited...\n");
 		return Response.status(Response.Status.ACCEPTED).header("location", "ticket/"+ticket.getTicketId()).build();
 	}
-
+	*/
+	
 	@POST
 	@Path("cloud-multi-provisioner")
 	public Response cloudMultiProvisioner(String inputBody) {
@@ -688,6 +749,36 @@ public class PatientProvisionerResource {
 			public void run() {
 				try {
 					Response provisionResponse = multiplePatientProvisionCustom(inputBody);
+					String jsonProvisionResBody = provisionResponse.getEntity().toString();
+					JsonElement element = (new JsonParser()).parse(jsonProvisionResBody.toString());
+					updateTicket(responseTicket.getTicketId(), element, "complete");
+				} catch (ClientProtocolException e) {
+					// TODO show errors in the response body the client will see
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		Thread thread = new Thread(runnable);
+		// run multi provisioner in background..
+		thread.start(); // starts thread in background..
+		return Response.status(Status.ACCEPTED)
+				.header("location", "provision/ticket/" + responseTicket.getTicketId()).build();
+	}
+	
+	@POST
+	@Path("cloud-default-multi-provisioner")
+	public Response cloudMultiProvisionerDefault(String inputBody) {
+		MultiPatientProvisionerTicket responseTicket = createTicket();
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Response provisionResponse = multiplePatientProvisionDefault(inputBody);
 					String jsonProvisionResBody = provisionResponse.getEntity().toString();
 					JsonElement element = (new JsonParser()).parse(jsonProvisionResBody.toString());
 					updateTicket(responseTicket.getTicketId(), element, "complete");

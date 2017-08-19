@@ -30,7 +30,7 @@ public class ImportCsvResource {
 
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
-
+	
 	@POST
 	@Path("csv")
 	@Consumes(MediaType.TEXT_PLAIN)
