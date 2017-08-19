@@ -40,9 +40,6 @@ public class PatientProvisionerResource {
 	// return feedback if the requests fail
 	// TODO make a new resource class with the individual requests for the
 	// front end to access directly?
-	
-	// TODO combine the single patient provisioner method into a single method, where the subject namespace dictates which 
-	// type of demographic?
 
 	@POST
 	@Path("single-provision-no-demographic")
@@ -206,7 +203,9 @@ public class PatientProvisionerResource {
 		return Response.status(200).entity(jsonOutput.toString()).build(); // gson.toJson(jsonOutput);
 	}
 	
-	// TODO Optional baseURLS below needed
+
+	// TODO use the subject namespace to dictate which 
+	// type of demographic?
 	
 	@POST
 	@Path("multi-patient-default")
@@ -228,9 +227,9 @@ public class PatientProvisionerResource {
 		if (jsonInput.has("baseUrl")) {
 			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
-		// if (jsonInput.has("patientsFile")) {
-		// EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
-		// }
+		if (jsonInput.has("patientsFile")) {
+			EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
+		}
 
 		// prepare the response
 		JsonObject finalJsonResponse = new JsonObject();
@@ -720,7 +719,7 @@ public class PatientProvisionerResource {
 		try {
 			ticket = dao.getTicketRecord(id);
 			//System.out.println(ticket.toJsonObject().toString());
-			return Response.status(201).entity(ticket.toJsonObject().toString()).build();
+			return Response.status(200).entity(ticket.toJsonObject().toString()).build();
 		} catch(Exception e) {
 			e.printStackTrace();
 			return Response.status(204).build();
@@ -741,6 +740,7 @@ public class PatientProvisionerResource {
 		dao.createTicketRecord(ticket);
 		return ticket; 
 	}
+	
 	
 	private MultiPatientProvisionerTicket updateTicket(@PathParam(value = "ticketId") String id, JsonElement responseContent, String status) {
 		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();

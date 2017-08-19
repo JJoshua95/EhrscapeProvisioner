@@ -14,14 +14,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 
-
-// change where the files are uploaded must be outside the IDE 
+// Temporary solution for storing tickets due to time concerns
+// TODO change where the files are uploaded must be outside the webapp folders
+// TODO Move this into a database
 
 public class MultiPatientProvisionerTicketDao implements MultiPatientProvisionerTicketDaoInterface {
 	
 	@Override
 	public MultiPatientProvisionerTicket getTicketRecord(String ticketId) {
-		// TODO Auto-generated method stub
 		MultiPatientProvisionerTicket ticketObj = null;
 		try {
 			String ticketFileStr = readTicketFile(ticketId);
@@ -31,7 +31,6 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 			ticketObj = gson.fromJson(jsonObj, 
 					MultiPatientProvisionerTicket.class);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ticketObj;
@@ -39,7 +38,6 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 
 	@Override
 	public MultiPatientProvisionerTicket createTicketRecord(MultiPatientProvisionerTicket ticket) {
-		// TODO Auto-generated method stub
 		writeTicketObjToFile(ticket);
 		return ticket;
 	}
@@ -48,7 +46,6 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 	/*
 	@Override
 	public MultiPatientProvisionerTicket updateTicketRecord(MultiPatientProvisionerTicket ticket) {
-		// TODO Auto-generated method stub
 		// get the current object record
 		getTicketRecord(ticket.getTicketId());
 		createTicketRecord(ticket);
@@ -73,7 +70,6 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 				result.append(line);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {
@@ -116,7 +112,6 @@ public class MultiPatientProvisionerTicketDao implements MultiPatientProvisioner
 			bw.write(ticket.toJsonObject().toString());
 			System.out.println("written");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {
