@@ -3,22 +3,8 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 	$scope.username = '';
 	$scope.password = '';
 	$scope.baseUrl = 'https://ehrscape.code4health.org/rest/v1/'; // 'https://cdr.code4health.org/rest/v1/'; //default
-	
-	
+
 	$scope.response; // = 'Response';
-	
-	$scope.testFunction = function() {
-		$window.alert("Clicked!");
-	};
-	
-	$scope.getSession = function() {
-		$http.post("api/myresource/getSession")
-		.then(function(response) {
-            var res = JSON.stringify(response);
-            //$window.alert(res);
-            console.log(res);
-        });
-	};
 	
 	$scope.provisionSingle = function() {
 		console.log($scope.username);

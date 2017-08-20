@@ -1,50 +1,44 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"> -->
-<script src="angular/lib/angular.js">
-	
-</script>
-
-<title>Insert title here</title>
-</head>
-<body ng-app="myApp">
-
-	<div class="Main" ng-controller="MainController">
-		<!-- 
-		<button ng-click="testFunction()">Click test</button>
-		<br>
-		<button ng-click="count = count + 1" ng-init="count=0">
-			Increment</button>
-		<span> count: {{count}} </span>
-		<br>
-		<button ng-click="getSession()">Get Session API Call</button>
-		<br>
-		-->
-		<h3>Single Patient Provision</h3>
-		<p>Username: <input type="text" ng-model="username" placeholder="Enter username"></p>
-		<p>Password: <input type="text" ng-model="password" placeholder="Enter password"></p>
-		<p>BaseURL: <input type="text" ng-model="baseUrl" placeholder="CDR API Url"></p>
-		
-		<!-- <input type="text" ng-model="foo" placeholder="Enter something" /> -->
-     	<input type="button" ng-click="provisionSingle()" value="Provision (Skip Demographic)" /> <br>
-		<input type="button" ng-click="provisionSingleWithMarandDemographic()" value="Provision With Marand Demographic" /> <br>
-		<input type="button" ng-click="provisionSingleWithFhirDemographic()" value="Provision With FHIR Demographic" />
-		
-		<br>
-		<h4>Response:</h4>
-		
-		<pre id="json"> {{ response }} </pre>
-		
-	</div>
-	
-	<!-- Modules -->
-	<script src="angular/app.js"></script>
-
-	<!-- Controllers -->
-	<script src="angular/controller/MainController.js"></script>
-
-</body>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script src="angular/lib/angular.js"></script>
+      <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+      <link rel="stylesheet" href="assets/css/style.css">
+      <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+      <title>Ehrscape Provisioner</title>
+   </head>
+   <div class="jumbotron text-center">
+      <h2>Ehrscape Provisioner</h2>
+      <h3>Single Patient Provision</h3>
+   </div>
+   <body ng-app="myApp">
+      <div class="Main" ng-controller="MainController">
+         <div class="container">
+            <div class="row">
+               <div class="col-sm-4">
+                  <h3>Configuration</h3>
+                  <p>Inputs</p>
+                  <p>Username: <input type="text" ng-model="username" placeholder="Enter username"></p>
+                  <p>Password: <input type="text" ng-model="password" placeholder="Enter password"></p>
+                  <p>BaseURL: <input type="text" ng-model="baseUrl" placeholder="CDR API Url"></p>
+                  <input type="button" ng-click="provisionSingle()" value="Provision (Skip Demographic)" /> <br>
+                  <input type="button" ng-click="provisionSingleWithMarandDemographic()" value="Provision With Marand Demographic" /> <br>
+                  <input type="button" ng-click="provisionSingleWithFhirDemographic()" value="Provision With FHIR Demographic" />
+                  <br>
+               </div>
+               <div class="col-sm-8">
+                  <h3 align="center">Results</h3>
+                  <h4 align="center">Response:</h4>
+                  <pre id="json"> {{ response }} </pre>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Modules -->
+      <script src="angular/app.js"></script>
+      <!-- Controllers -->
+      <script src="angular/controller/MainController.js"></script>
+   </body>
 </html>
