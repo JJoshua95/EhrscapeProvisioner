@@ -13,10 +13,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-
 // Temporary solution for storing tickets due to time concerns
 // TODO change where the files are uploaded must be outside the webapp folders
-// TODO Move this into a database
 
 public class FileSystemTicketDao implements MultiPatientProvisionerTicketDao {
 	

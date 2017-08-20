@@ -160,21 +160,19 @@ public class TestingResource {
     public String sqlconnection() throws SQLException {
        	MySqlTicketDao sqlTick = new MySqlTicketDao();
        	if (sqlTick.isDbConnected() == true) {
-
+        	//sqlTick.getAllTicketRecords();
+        	//sqlTick.getTicket("testid");
+        	//String json = req.getFileAsString("savedData/tickets/responseExample.txt");
+        	//sqlTick.insertTicket("testiNSERT1", "startTime", "provisioningStatus", json, "completionTime");
+        	//sqlTick.updateTicket("testid", "UPDATE", "UPDATE", null, "UPDATE");
+        	//sqlTick.getTicket("testid");
+        	//return "connected";
         	sqlTick.getAllTicketRecords();
         	sqlTick.insertTicket("azureTestID", "startTime", "provisioningStatus", null, "completionTime");
-        	
        		return "connected";
        	} else {
        		return "error";
        	}
-    	//sqlTick.getAllTicketRecords();
-    	//sqlTick.getTicket("testid");
-    	//String json = req.getFileAsString("savedData/tickets/responseExample.txt");
-    	//sqlTick.insertTicket("testiNSERT1", "startTime", "provisioningStatus", json, "completionTime");
-    	//sqlTick.updateTicket("testid", "qqqqqqq", "qqqqqq", json, "qqqqq");
-    	//sqlTick.getTicket("testid");
-    	//return "connected";
     }
     
 }

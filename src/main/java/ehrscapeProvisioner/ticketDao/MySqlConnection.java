@@ -10,6 +10,8 @@ import org.apache.commons.dbcp2.BasicDataSource;
     database: ehrscapeprovisionerdb
    
     Creating table
+    
+    USE ehrscapeprovisionerdb;
 
 	CREATE TABLE tickets (
 		id INT NOT NULL AUTO_INCREMENT,
@@ -38,6 +40,7 @@ public class MySqlConnection {
 	static final String LOCAL_PASS = "NTWCY,Awy8qk";
 	
 	// AZURE DATABASE
+	
 	// Database URL
 	static final String AZURE_DB_URL = "jdbc:mysql://ehrscapeprovisionerazuredb.mysql.database.azure.com:3306/ehrscapeprovisionerdb?"
 			+ "verifyServerCertificate=true&useSSL=true&requireSSL=false";
