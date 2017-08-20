@@ -46,7 +46,7 @@ public class EhrscapeRequest {
 	HttpClient client = HttpClientBuilder.create().build();
 
 	// TODO Maybe use singleton pattern for this?
-	// TODO or just not make this static and each time a EhrscapeRequest Obj is made it has its own 
+	// TODO or just make this non static and each time a EhrscapeRequest Obj is made it has its own 
 	// EhrscapeConfig associated with it
 	public static EhrscapeConfig config = new EhrscapeConfig();
 

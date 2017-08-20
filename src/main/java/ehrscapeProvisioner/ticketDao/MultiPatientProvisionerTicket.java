@@ -11,10 +11,18 @@ public class MultiPatientProvisionerTicket {
 	private JsonElement provisioningResponseBody;
 	private String completionTime;
 	
-	public MultiPatientProvisionerTicket(String responseId, String status, String startTime) {
-		this.ticketId = responseId;
+	public MultiPatientProvisionerTicket(String ticketId, String status, String startTime) {
+		this.ticketId = ticketId;
 		this.provisioningStatus = status;
 		this.startTime = startTime;
+	}
+	
+	public MultiPatientProvisionerTicket(String ticketId, String status, String startTime, JsonElement ResponseBody, String completion) {
+		this.ticketId = ticketId;
+		this.provisioningStatus = status;
+		this.startTime = startTime;
+		this.provisioningResponseBody = ResponseBody;
+		this.completionTime = completion;
 	}
 
 	public String getStartTime() {

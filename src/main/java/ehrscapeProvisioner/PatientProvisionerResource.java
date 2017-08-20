@@ -27,7 +27,7 @@ import com.google.gson.JsonParser;
 import ehrscapeProvisioner.model.EhrscapeRequest;
 import ehrscapeProvisioner.model.PatientDemographic;
 import ehrscapeProvisioner.ticketDao.MultiPatientProvisionerTicket;
-import ehrscapeProvisioner.ticketDao.MultiPatientProvisionerTicketDao;
+import ehrscapeProvisioner.ticketDao.MySqlTicketDao;
 
 /**
  * Root resource (exposed at "provision" path)
@@ -701,7 +701,7 @@ public class PatientProvisionerResource {
 	
 	// auto compilation on eclipse can lead to thread errors it seems when writing files into the web inf / classes folder
 	// thread practice function
-	/*
+	
 	@GET
 	@Path("background")
 	public Response backgroundTaskMethod() throws InterruptedException {
@@ -716,7 +716,7 @@ public class PatientProvisionerResource {
 					System.out.println("Thread started... Counter ==> " + i);
 					try {
 						Thread.sleep(1000);
-						if (i >= 10) {
+						if (i >= 15) {
 							JsonObject json = new JsonObject();
 							json.addProperty("testing update", true);
 							JsonElement element = (new JsonParser()).parse(json.toString());
@@ -740,9 +740,9 @@ public class PatientProvisionerResource {
 		// on the current thread..
 
 		System.out.println("Main() Program Exited...\n");
-		return Response.status(Response.Status.ACCEPTED).header("location", "ticket/"+ticket.getTicketId()).build();
+		return Response.status(Response.Status.ACCEPTED).header("location", "provision/ticket/"+ticket.getTicketId()).build();
 	}
-	*/
+	
 	
 	@POST
 	@Path("cloud-multi-provisioner")
@@ -808,7 +808,8 @@ public class PatientProvisionerResource {
 	@Path("ticket/{ticketId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getTicket(@PathParam(value = "ticketId") String id) {
-		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+		//FileSystemTicketDao dao = new FileSystemTicketDao();
+		MySqlTicketDao dao = new MySqlTicketDao();
 		//System.out.println(id);
 		MultiPatientProvisionerTicket ticket;
 		try {
@@ -826,7 +827,8 @@ public class PatientProvisionerResource {
 	//@Path("createTicketFile")
 	@Produces(MediaType.APPLICATION_JSON)
 	private MultiPatientProvisionerTicket createTicket() {
-		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+		//FileSystemTicketDao dao = new FileSystemTicketDao();
+		MySqlTicketDao dao = new MySqlTicketDao();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
 		String date = formatter.format(now);
@@ -837,8 +839,9 @@ public class PatientProvisionerResource {
 	}
 	
 	
-	private MultiPatientProvisionerTicket updateTicket(@PathParam(value = "ticketId") String id, JsonElement responseContent, String status) {
-		MultiPatientProvisionerTicketDao dao = new MultiPatientProvisionerTicketDao();
+	private MultiPatientProvisionerTicket updateTicket(String id, JsonElement responseContent, String status) {
+		//FileSystemTicketDao dao = new FileSystemTicketDao();
+		MySqlTicketDao dao = new MySqlTicketDao();
 		MultiPatientProvisionerTicket ticket = dao.getTicketRecord(id);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
@@ -846,7 +849,8 @@ public class PatientProvisionerResource {
 		ticket.setCompletionTime(date);
 		ticket.setProvisioningStatus(status);
 		ticket.setResponseBody(responseContent);
-		dao.createTicketRecord(ticket);
+		//dao.createTicketRecord(ticket);
+		dao.updateTicketRecord(ticket);
 		return ticket;
 	}
 }

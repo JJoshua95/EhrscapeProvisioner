@@ -2,6 +2,7 @@ package ehrscapeProvisioner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -21,6 +22,7 @@ import com.google.gson.Gson;
 
 import ehrscapeProvisioner.model.EhrscapeRequest;
 import ehrscapeProvisioner.model.PatientDemographic;
+import ehrscapeProvisioner.ticketDao.MySqlTicketDao;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -151,6 +153,28 @@ public class TestingResource {
     public String fhirPatientFormatting() throws IOException {
     	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
     	return list.get(5).toFhirXML();//writeEhrStatusBody();//.encodeInFhirFormat(true);
+    }
+    
+    @GET
+    @Path("mysqlTest")
+    public String sqlconnection() throws SQLException {
+       	MySqlTicketDao sqlTick = new MySqlTicketDao();
+       	if (sqlTick.isDbConnected() == true) {
+
+        	sqlTick.getAllTicketRecords();
+        	sqlTick.insertTicket("azureTestID", "startTime", "provisioningStatus", null, "completionTime");
+        	
+       		return "connected";
+       	} else {
+       		return "error";
+       	}
+    	//sqlTick.getAllTicketRecords();
+    	//sqlTick.getTicket("testid");
+    	//String json = req.getFileAsString("savedData/tickets/responseExample.txt");
+    	//sqlTick.insertTicket("testiNSERT1", "startTime", "provisioningStatus", json, "completionTime");
+    	//sqlTick.updateTicket("testid", "qqqqqqq", "qqqqqq", json, "qqqqq");
+    	//sqlTick.getTicket("testid");
+    	//return "connected";
     }
     
 }
