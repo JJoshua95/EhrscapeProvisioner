@@ -1,0 +1,25 @@
+<Patient xmlns="http://hl7.org/fhir">
+   <identifier>
+      <system value="http://fhir.nhs.net/Id/nhs-number"/>
+      <value value="7430555"/>
+   </identifier>
+   <name>
+      <use value="official"/>
+      <family value="Walford"/>
+      <given value="Steve"/>
+      <prefix value="Mr"/>
+   </name>
+   <telecom>
+      <system value="phone"/>
+      <value value="011981 32362"/>
+   </telecom>
+   <gender value="male"/>
+   <birthDate value="1965-07-12"/>
+   <address>
+      <text value="60 Florida Gardens, Cardiff, Glamorgan, LS23 4RT"/>
+      <line value="60 Florida Gardens"/>
+      <city value="Cardiff"/>
+      <state value="Glamorgan"/>
+      <postalCode value="LS23 4RT"/>
+   </address>
+</Patient>

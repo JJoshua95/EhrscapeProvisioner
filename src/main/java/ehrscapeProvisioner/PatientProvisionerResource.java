@@ -625,6 +625,7 @@ public class PatientProvisionerResource {
 			// EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 			// EHR
 			// create ehr
+			EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 			Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(),
 					EhrscapeRequest.config.getCommiterName());
 			if (createEhrResponse.getStatus() == 401 || createEhrResponse.getStatus() == 403) {

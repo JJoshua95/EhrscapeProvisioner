@@ -148,7 +148,7 @@ public class PatientDemographic {
 					+ this.getTelephone() + " " + this.getNHSNumber() + " ";
 	}
 	
-	// TODO performace maybe just write directly as XML
+	// TODO performance maybe just write directly as XML
 	
 	public String encodeInFhirFormat(boolean formatAsXML) {
 		Patient patient = new Patient();
@@ -172,7 +172,7 @@ public class PatientDemographic {
         addressList.add(st);
         patient.addAddress()
         		.setCity(this.getAddress_2()).setPostalCode(this.getPostcode()).setLine(addressList)
-        		.setState(this.getAddress_3()).setText(this.getAddress_1() + " " + this.getAddress_2() + " " + this.getAddress_3());
+        		.setState(this.getAddress_3()).setText(this.getAddress_1() + ", " + this.getAddress_2() + ", " + this.getAddress_3() + ", " + this.getPostcode());
         String[] dateComponents = this.getDateofBirth().split("/");
         Calendar cal = Calendar.getInstance();
         int dayInt = Integer.parseInt(dateComponents[0]);
@@ -225,11 +225,11 @@ public class PatientDemographic {
 		sb.append("<system value=\"phone\"/>");
 		sb.append("<value value=\""+this.getTelephone()+"\"/>");
 		sb.append("</telecom>");
-		sb.append("<gender value=\""+this.getGender()+"\"/>");
+		sb.append("<gender value=\""+this.getGender().toLowerCase()+"\"/>");
 		String[] dateComponents = this.getDateofBirth().split("/");
 		sb.append("<birthDate value=\""+dateComponents[2] + "-" + dateComponents[1] + "-" + dateComponents[0]+"\"/>");
 		sb.append("<address>");
-		sb.append("<text value=\""+this.getAddress_1() + ", " + this.getAddress_2() + ", " + this.getAddress_3()+"\"/>");
+		sb.append("<text value=\""+this.getAddress_1() + ", " + this.getAddress_2() + ", " + this.getAddress_3()+ ", " + this.getPostcode() + "\"/>");
 		sb.append("<line value=\""+this.getAddress_1() +"\"/>");
 		sb.append("<city value=\""+ this.getAddress_2() +"\"/>");
 		sb.append("<state value=\""+ this.getAddress_3()+"\"/>");
@@ -282,7 +282,7 @@ public class PatientDemographic {
 		String yearOfBirth = dateComponents[2];
 		String jsonEhrStatusBody
 				= " {"
-				+ "    \"subjectId\": \"" + EhrscapeRequest.config.getSubjectId() + "\","
+				+ "    \"subjectId\": \"" + this.getNHSNumber() + "\","
 				+ "    \"subjectNamespace\": \"" + EhrscapeRequest.config.getSubjectNamespace() + "\","
 				+ "    \"queryable\": true,"
 				+ "    \"modifiable\": true,"
