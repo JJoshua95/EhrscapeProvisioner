@@ -168,7 +168,7 @@ public class TestingResource {
         	//sqlTick.getTicket("testid");
         	//return "connected";
         	sqlTick.getAllTicketRecords();
-        	sqlTick.insertTicket("azureTestID", "startTime", "provisioningStatus", null, "completionTime");
+        	sqlTick.insertTicketToDb("azureTestID", "startTime", "provisioningStatus", null, "completionTime");
        		return "connected";
        	} else {
        		return "error";

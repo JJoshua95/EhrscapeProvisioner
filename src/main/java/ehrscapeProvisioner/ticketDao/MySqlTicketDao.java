@@ -30,7 +30,7 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 	public MultiPatientProvisionerTicket getTicketRecord(String ticketId) {
 		MultiPatientProvisionerTicket ticket = null;
 		try {
-			ticket = getTicket(ticketId);
+			ticket = getTicketFromDb(ticketId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -41,7 +41,7 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 	// only for creating new ticket records with no response or completion times
 	public void createTicketRecord(MultiPatientProvisionerTicket ticket) {
 		try {
-			insertTicket(ticket.getTicketId(), ticket.getStartTime(), ticket.getProvisioningStatus(), null, null);
+			insertTicketToDb(ticket.getTicketId(), ticket.getStartTime(), ticket.getProvisioningStatus(), null, null);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -50,7 +50,7 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 	@Override
 	public void updateTicketRecord(MultiPatientProvisionerTicket ticket) {
 		try {
-			updateTicket(ticket.getTicketId(), ticket.getProvisioningStatus(), ticket.getResponseBody().toString(),
+			updateTicketInDb(ticket.getTicketId(), ticket.getProvisioningStatus(), ticket.getResponseBody().toString(),
 					ticket.getCompletionTime());
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -86,19 +86,19 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 		}
 	}
 
-	public MultiPatientProvisionerTicket getTicket(String ticketId) throws SQLException {
+	public MultiPatientProvisionerTicket getTicketFromDb(String ticketId) throws SQLException {
 		MultiPatientProvisionerTicket ticket = null;
-		PreparedStatement prepStmt = null;
+		PreparedStatement preparedStatement = null;
 		Connection conn = null;
 		ResultSet result = null;
 		try {
 			conn = ds.getConnection();
 			String query = "SELECT * FROM tickets WHERE ticketId = ?;";
-			prepStmt = conn.prepareStatement(query);
-			prepStmt.setString(1, ticketId);
-			result = prepStmt.executeQuery();
+			preparedStatement = conn.prepareStatement(query);
+			preparedStatement.setString(1, ticketId);
+			result = preparedStatement.executeQuery();
 			while (result.next()) {
-				// System.out.println(ticketId);
+				//System.out.println(ticketId);
 				String startTime = result.getString("startTime");
 				// System.out.println(startTime);
 				String provisioningStatus = result.getString("provisioningStatus");
@@ -127,14 +127,14 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 			if (result != null) {
 				result.close();
 			}
-			if (prepStmt != null) {
-				prepStmt.close();
+			if (preparedStatement != null) {
+				preparedStatement.close();
 			}
 		}
 		return ticket;
 	}
 
-	public void insertTicket(String ticketId, String startTime, String provisioningStatus,
+	public void insertTicketToDb(String ticketId, String startTime, String provisioningStatus,
 			String provisioningResponseBody, String completionTime) throws SQLException {
 		String query;
 		PreparedStatement preparedStatement = null;
@@ -168,7 +168,7 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 		}
 	}
 
-	public void updateTicket(String ticketId, String provisioningStatus, String provisioningResponseBody,
+	public void updateTicketInDb(String ticketId, String provisioningStatus, String provisioningResponseBody,
 			String completionTime) throws SQLException {
 		PreparedStatement preparedStatement = null;
 		String query = "UPDATE tickets "

@@ -40,6 +40,7 @@ public class PatientProvisionerResource {
 	// return feedback if the requests fail
 	// TODO make a new resource class with the individual requests for the
 	// front end to access directly?
+	// TODO remove final config element from response when request fails
 
 	@POST
 	@Path("single-provision-no-demographic")
@@ -70,8 +71,8 @@ public class PatientProvisionerResource {
 		jsonOutput.add("Get Session:", sessionElement);
 		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
 			String finalConfig = gson.toJson(EhrscapeRequest.config);
-			JsonElement configElement = parser.parse(finalConfig);
-			jsonOutput.add("Final Configuration", configElement);
+			//JsonElement configElement = parser.parse(finalConfig);
+			//jsonOutput.add("Final Configuration", configElement);
 			return Response.status(200).entity(jsonOutput.toString()).build();
 		}
 		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), EhrscapeRequest.config.getCommiterName());
@@ -120,8 +121,8 @@ public class PatientProvisionerResource {
 		jsonOutput.add("Get Session:", sessionElement);
 		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
 			String finalConfig = gson.toJson(EhrscapeRequest.config);
-			JsonElement configElement = parser.parse(finalConfig);
-			jsonOutput.add("Final Configuration", configElement);
+			//JsonElement configElement = parser.parse(finalConfig);
+			//jsonOutput.add("Final Configuration", configElement);
 			return Response.status(200).entity(jsonOutput.toString()).build();
 		}
 		Response createPatientDemographicResponse = req.createPatientDefault();
@@ -180,8 +181,8 @@ public class PatientProvisionerResource {
 		jsonOutput.add("Get Session:", sessionElement);
 		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
 			String finalConfig = gson.toJson(EhrscapeRequest.config);
-			JsonElement configElement = parser.parse(finalConfig);
-			jsonOutput.add("Final Configuration", configElement);
+			//JsonElement configElement = parser.parse(finalConfig);
+			//jsonOutput.add("Final Configuration", configElement);
 			return Response.status(200).entity(jsonOutput.toString()).build();
 		}
 		Response createPatientDemographicResponse = req.createDefaultFhirPatientDemographic();
