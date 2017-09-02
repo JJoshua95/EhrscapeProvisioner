@@ -44,6 +44,8 @@ public class PatientDemographic {
 	private String Department;
 	private String GPNumber;
 	
+	// maybe pass an Ehrscape request object here through the constructor
+	
 	// Getters and Setters
 	
 	public void setKey(String key) {
@@ -283,7 +285,7 @@ public class PatientDemographic {
 		String jsonEhrStatusBody
 				= " {"
 				+ "    \"subjectId\": \"" + this.getNHSNumber() + "\","
-				+ "    \"subjectNamespace\": \"" + EhrscapeRequest.config.getSubjectNamespace() + "\","
+				+ "    \"subjectNamespace\": \"" + "http://fhir.nhs.net/Id/nhs-number" + "\","
 				+ "    \"queryable\": true,"
 				+ "    \"modifiable\": true,"
 				+ "    \"otherDetails\": {"

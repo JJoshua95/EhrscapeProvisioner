@@ -55,7 +55,7 @@ public class ImportCsvResource {
 			if (PingSessionResponse.getStatus() == 204) {
 				// do the upload
 				// set the provided session
-				EhrscapeRequest.config.setSessionId(sessionId);
+				req.config.setSessionId(sessionId);
 				String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
 				if (csvResponse.equals("ERROR PARSING")) {
 					return Response.status(400).entity("Bad request - unreadable CSV data.").type(MediaType.TEXT_PLAIN).build();
@@ -67,9 +67,9 @@ public class ImportCsvResource {
 				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 			}
 			// also check if the session is already set from previous API calls
-		} else if (!EhrscapeRequest.config.getSessionId().isEmpty()) {
+		} else if (!req.config.getSessionId().isEmpty()) {
 			// check if this sessionId is valid 
-			Response PingSessionResponse = req.pingSession(EhrscapeRequest.config.getSessionId());
+			Response PingSessionResponse = req.pingSession(req.config.getSessionId());
 			if (PingSessionResponse.getStatus() == 204) {
 				// do the upload
 				String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
@@ -166,14 +166,14 @@ public class ImportCsvResource {
 			if (responseCode == 400) {
 				// get ehr
 				Response getEhrResponse = req.getEhrWithSubjectId(subjectId,
-						EhrscapeRequest.config.getSubjectNamespace());
+						req.config.getSubjectNamespace());
 				String getEhrResponseBody = getEhrResponse.getEntity().toString();
 				//System.out.println("Get EHR response body \n" + getEhrResponseBody);
 				// parse the response to get the ehrId
 				JsonObject jsonObject = (new JsonParser()).parse(getEhrResponseBody.toString()).getAsJsonObject();
 				String ehrId = jsonObject.get("ehrId").getAsString();
 				Response uploadCompositionResponse = req.uploadComposition(compositionPostBody,
-						EhrscapeRequest.config.getSessionId(), "Vital Signs Encounter (Composition)",
+						req.config.getSessionId(), "Vital Signs Encounter (Composition)",
 						"importCsvResource", ehrId);
 				String uploadCompositionResponseBody = uploadCompositionResponse.getEntity().toString();
 				int uploadCompositionResponseCode = uploadCompositionResponse.getStatus();
@@ -195,7 +195,7 @@ public class ImportCsvResource {
 						.getAsJsonObject();
 				String newlyCreatedEhrId = jsonNewEhrResponseObject.get("ehrId").getAsString();
 				Response uploadCompositionResponse = req.uploadComposition(compositionPostBody,
-						EhrscapeRequest.config.getSessionId(), "Vital Signs Encounter (Composition)",
+						req.config.getSessionId(), "Vital Signs Encounter (Composition)",
 						"importCsvResource", newlyCreatedEhrId);
 				String uploadCompositionResponseBody = uploadCompositionResponse.getEntity().toString();
 				int uploadCompositionResponseCode = uploadCompositionResponse.getStatus();
@@ -259,8 +259,8 @@ public class ImportCsvResource {
 			// if the ehr exists get the ehrId
 			// then use the ehrId to upload the composition
 			if (responseCode == 200) {
-				Response uploadCompositionResponse = req.uploadComposition(compositionPostBody, EhrscapeRequest.config.getSessionId(), 
-						EhrscapeRequest.config.getTemplateId(), "ImportCSV-Tool", ehrId);
+				Response uploadCompositionResponse = req.uploadComposition(compositionPostBody, req.config.getSessionId(), 
+						req.config.getTemplateId(), "ImportCSV-Tool", ehrId);
 				String uploadCompositionResponseBody = uploadCompositionResponse.getEntity().toString();
 				int uploadCompositionResponseCode = uploadCompositionResponse.getStatus();
 				if (uploadCompositionResponseCode == 201 || uploadCompositionResponseCode == 200) {
@@ -294,6 +294,7 @@ public class ImportCsvResource {
 			csvResponseSb.append(compositionUidCsvString + ",");
 			csvResponseSb.append(errorCsvValue);
 			csvResponseSb.append("\n");
+			//System.out.println(i); //TODO DELETE
 		}
 		return csvResponseSb.toString();
 	}

@@ -20,9 +20,10 @@ public class FhirDemographicIT {
 	
 	EhrscapeRequest req = new EhrscapeRequest();
 	
-	@Test
+	// this test switched off by default as the open empi server is often switched off currently
+	//@Test
 	public void test() throws ClientProtocolException, URISyntaxException, IOException {
-		EhrscapeRequest.config.setFhirDemographicBaseUrl("http://51.140.57.74:8090/fhir/");
+		req.config.setFhirDemographicBaseUrl("http://51.140.57.74:8090/fhir/");
 		Response fhirRes = req.createDefaultFhirPatientDemographic();
 		int statusCode = fhirRes.getStatus();
 		assertEquals("Check status of marand demographic call", 201 , statusCode);

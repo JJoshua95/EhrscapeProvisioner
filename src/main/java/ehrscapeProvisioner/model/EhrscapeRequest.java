@@ -41,7 +41,7 @@ public class EhrscapeRequest {
 
 	HttpClient client = HttpClientBuilder.create().build();
 
-	public static EhrscapeConfig config = new EhrscapeConfig();
+	public EhrscapeConfig config = new EhrscapeConfig();
 
 	public String getFileAsString(String fileName) {
 
@@ -65,6 +65,8 @@ public class EhrscapeRequest {
 			}
 			bReader.close();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 

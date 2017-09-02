@@ -61,7 +61,7 @@ public class PatientProvisionerResource {
 		
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
-			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
@@ -70,12 +70,12 @@ public class PatientProvisionerResource {
 		JsonElement sessionElement = parser.parse(getSessionResponse.getEntity().toString());
 		jsonOutput.add("Get Session:", sessionElement);
 		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
-			String finalConfig = gson.toJson(EhrscapeRequest.config);
+			String finalConfig = gson.toJson(req.config);
 			//JsonElement configElement = parser.parse(finalConfig);
 			//jsonOutput.add("Final Configuration", configElement);
 			return Response.status(200).entity(jsonOutput.toString()).build();
 		}
-		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), EhrscapeRequest.config.getCommiterName());
+		Response createEhrResponse = req.createEhr(req.config.getSessionId(), req.config.getCommiterName());
 		JsonElement ehrElement = parser.parse(createEhrResponse.getEntity().toString());
 		jsonOutput.add("Create EHR:", ehrElement);
 		Response uploadTemplateResponse = req.uploadDefaultTemplate();
@@ -85,7 +85,7 @@ public class PatientProvisionerResource {
 		JsonElement compositionElement = parser.parse(uploadCompResponse.getEntity().toString());
 		jsonOutput.add("Commit Composition:", compositionElement);
 
-		String finalConfig = gson.toJson(EhrscapeRequest.config);
+		String finalConfig = gson.toJson(req.config);
 		JsonElement configElement = parser.parse(finalConfig);
 		jsonOutput.add("Final Configuration", configElement);
 		// System.out.println(jsonInput.toString());
@@ -107,7 +107,7 @@ public class PatientProvisionerResource {
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
-			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		
 		// put the final response stuff here
@@ -120,7 +120,7 @@ public class PatientProvisionerResource {
 		JsonElement sessionElement = parser.parse(getSessionResponse.getEntity().toString());
 		jsonOutput.add("Get Session:", sessionElement);
 		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
-			String finalConfig = gson.toJson(EhrscapeRequest.config);
+			String finalConfig = gson.toJson(req.config);
 			//JsonElement configElement = parser.parse(finalConfig);
 			//jsonOutput.add("Final Configuration", configElement);
 			return Response.status(200).entity(jsonOutput.toString()).build();
@@ -128,7 +128,7 @@ public class PatientProvisionerResource {
 		Response createPatientDemographicResponse = req.createPatientDefault();
 		JsonElement demographicElement = parser.parse(createPatientDemographicResponse.getEntity().toString());
 		jsonOutput.add("Marand Demographic:", demographicElement);
-		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSessionId(), EhrscapeRequest.config.getCommiterName());
+		Response createEhrResponse = req.createEhr(req.config.getSessionId(), req.config.getCommiterName());
 		JsonElement ehrElement = parser.parse(createEhrResponse.getEntity().toString());
 		jsonOutput.add("Create EHR:", ehrElement);
 		// TODO replace uk.nhs.nhs_number , let that be a user input
@@ -141,7 +141,7 @@ public class PatientProvisionerResource {
 		JsonElement compositionElement = parser.parse(uploadCompResponse.getEntity().toString());
 		jsonOutput.add("Commit Composition:", compositionElement);
 
-		String finalConfig = gson.toJson(EhrscapeRequest.config);
+		String finalConfig = gson.toJson(req.config);
 		JsonElement configElement = parser.parse(finalConfig);
 		jsonOutput.add("Final Configuration", configElement);
 		// System.out.println(jsonInput.toString());
@@ -168,11 +168,11 @@ public class PatientProvisionerResource {
 		
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
-			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		// for when fhir server location changes 
 		if (jsonInput.has("fhirDemographicBaseUrl")) {
-			EhrscapeRequest.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
+			req.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
 		}
 
 		Response getSessionResponse = req.getSession(jsonInput.get("username").getAsString(),
@@ -180,7 +180,7 @@ public class PatientProvisionerResource {
 		JsonElement sessionElement = parser.parse(getSessionResponse.getEntity().toString());
 		jsonOutput.add("Get Session:", sessionElement);
 		if (getSessionResponse.getStatus() == 400 || getSessionResponse.getStatus() == 401) {
-			String finalConfig = gson.toJson(EhrscapeRequest.config);
+			String finalConfig = gson.toJson(req.config);
 			//JsonElement configElement = parser.parse(finalConfig);
 			//jsonOutput.add("Final Configuration", configElement);
 			return Response.status(200).entity(jsonOutput.toString()).build();
@@ -188,7 +188,7 @@ public class PatientProvisionerResource {
 		Response createPatientDemographicResponse = req.createDefaultFhirPatientDemographic();
 		JsonElement fhirElement = parser.parse(createPatientDemographicResponse.getEntity().toString());
 		jsonOutput.add("FHIR demographic:", fhirElement);
-		Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(), EhrscapeRequest.config.getCommiterName());
+		Response createEhrResponse = req.createEhr(req.config.getSubjectId(), req.config.getCommiterName());
 		// replace uk.nhs.nhs_number , let that be a user input
 		// make the default https://fhir.nhs.uk/Id/nhs-number but make this a
 		// customisable input
@@ -201,7 +201,7 @@ public class PatientProvisionerResource {
 		JsonElement compositionElement = parser.parse(uploadCompResponse.getEntity().toString());
 		jsonOutput.add("Commit Composition:", compositionElement);
 
-		String finalConfig = gson.toJson(EhrscapeRequest.config);
+		String finalConfig = gson.toJson(req.config);
 		JsonElement configElement = parser.parse(finalConfig);
 		jsonOutput.add("Final Configuration", configElement);
 		
@@ -230,10 +230,10 @@ public class PatientProvisionerResource {
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
-			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 		if (jsonInput.has("patientsFile")) {
-			EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
+			req.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
 		}
 
 		// prepare the response
@@ -308,7 +308,7 @@ public class PatientProvisionerResource {
 		}
 
 		// go through patients csv file
-		List<PatientDemographic> patientList = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+		List<PatientDemographic> patientList = req.readPatientCsvToObjectlist(req.config.getPatientsFile());
 		// for each patient:
 		int patientsSuccessfullyUploaded = 0;
 		int numOfPatientUploadErrors = 0;
@@ -332,11 +332,11 @@ public class PatientProvisionerResource {
 			// as it stands the subjectid is the marand party id
 			// overwrite the subjectID and use the NHS number from the CSV file
 			// this is exactly how the previous version worked
-			EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
+			req.config.setSubjectId(patient.getNHSNumber());
 			// EHR
 			// create ehr
-			Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(),
-					EhrscapeRequest.config.getCommiterName());
+			Response createEhrResponse = req.createEhr(req.config.getSubjectId(),
+					req.config.getCommiterName());
 			if (createEhrResponse.getStatus() == 401 || createEhrResponse.getStatus() == 403) {
 				patientUploadErrorsSb.append("Create EHR Failed on Patient with Key: " + patient.getKey()
 						+ ", Request Status: " + createEhrResponse.getStatus() + "\n");
@@ -344,8 +344,8 @@ public class PatientProvisionerResource {
 				continue;
 			} else if (createEhrResponse.getStatus() == 400) {
 				// but if it already exists get it
-				Response getEhrResponse = req.getEhrWithSubjectId(EhrscapeRequest.config.getSubjectId(),
-						EhrscapeRequest.config.getSubjectNamespace());
+				Response getEhrResponse = req.getEhrWithSubjectId(req.config.getSubjectId(),
+						req.config.getSubjectNamespace());
 				if (getEhrResponse.getStatus() == 204 || getEhrResponse.getStatus() == 400
 						|| getEhrResponse.getStatus() == 401 || getEhrResponse.getStatus() == 403) {
 					patientUploadErrorsSb.append("Get EHR Failed on Patient with Key: " + patient.getKey()
@@ -366,7 +366,7 @@ public class PatientProvisionerResource {
 			}
 			// compositions
 			Response multiCompositionRes = req.uploadMultipleCompositionsDefaultFolders(
-					EhrscapeRequest.config.getEhrId(), true, true, true, true, true);
+					req.config.getEhrId(), true, true, true, true, true);
 			JsonElement compositionElement = parser.parse(multiCompositionRes.getEntity().toString());
 			finalJsonResponse.add("Commit Composition Response Patient key: " + patient.getKey(), compositionElement);
 			patientsSuccessfullyUploaded++;
@@ -426,7 +426,7 @@ public class PatientProvisionerResource {
 
 		// Check if user wants to overwrite the base url
 		if (jsonInput.has("baseUrl")) {
-			EhrscapeRequest.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
+			req.config.setBaseUrl(jsonInput.get("baseUrl").getAsString());
 		}
 
 		if (jsonInput.has("doAllergies")) {
@@ -453,11 +453,11 @@ public class PatientProvisionerResource {
 			doVitals = jsonInput.get("doVitals").getAsBoolean();
 		}
 		if (jsonInput.has("patientsFile")) {
-			EhrscapeRequest.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
+			req.config.setPatientsFile(jsonInput.get("patientsFile").getAsString());
 		}
 		// for when fhir server location changes 
 		if (jsonInput.has("fhirDemographicBaseUrl")) {
-			EhrscapeRequest.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
+			req.config.setFhirDemographicBaseUrl(jsonInput.get("fhirDemographicBaseUrl").getAsString());
 		}
 		String userDemographicChoice = "";
 		if (jsonInput.has("demographicType")) {
@@ -501,12 +501,15 @@ public class PatientProvisionerResource {
 
 		if (doAllergies) {
 			String allergiesTemplateBody = req.getFileAsString(assetsBaseFile + "allergies/allergies-template.xml");
+			//System.out.println(allergiesTemplateBody.length()); //TODO
 			Response allergiesUploadTemplateRes = req.uploadTemplate(allergiesTemplateBody);
 			JsonElement allergyElement = parser.parse(allergiesUploadTemplateRes.getEntity().toString());
 			finalJsonResponse.add("Upload Allergies Template Response", allergyElement);
 			// finalJsonResponse.addProperty("Upload Allergies Template
 			// Response", allergiesUploadTemplateRes.getEntity().toString());
 			if (allergiesUploadTemplateRes.getStatus() == 400 || allergiesUploadTemplateRes.getStatus() == 403) {
+				//System.out.println(allergiesTemplateBody.length()); //TODO
+				//System.out.println(allergiesTemplateBody);
 				finalJsonResponse.addProperty("Error", "Failed to upload allergies template");
 				return Response.status(allergiesUploadTemplateRes.getStatus()).entity(finalJsonResponse.toString())
 						.type(MediaType.APPLICATION_JSON).build();
@@ -515,12 +518,14 @@ public class PatientProvisionerResource {
 
 		if (doProblems) {
 			String problemsTemplateBody = req.getFileAsString(assetsBaseFile + "problems/problems-template.xml");
+			//System.out.println(problemsTemplateBody.length()); //TODO
 			Response problemsUploadTemplateRes = req.uploadTemplate(problemsTemplateBody);
 			JsonElement problemsElement = parser.parse(problemsUploadTemplateRes.getEntity().toString());
 			finalJsonResponse.add("Upload Problems Template Response", problemsElement);
 			// finalJsonResponse.addProperty("Upload Problems Template
 			// Response", allergiesUploadTemplateRes.getEntity().toString());
 			if (problemsUploadTemplateRes.getStatus() == 400 || problemsUploadTemplateRes.getStatus() == 403) {
+				//System.out.println(problemsTemplateBody.length()); //TODO
 				finalJsonResponse.addProperty("Error", "Failed to upload problems template");
 				return Response.status(problemsUploadTemplateRes.getStatus()).entity(finalJsonResponse.toString())
 						.type(MediaType.APPLICATION_JSON).build();
@@ -529,12 +534,14 @@ public class PatientProvisionerResource {
 
 		if (doOrders) {
 			String ordersTemplateBody = req.getFileAsString(assetsBaseFile + "orders/orders-template.xml");
+			//System.out.println(ordersTemplateBody.length()); //TODO
 			Response ordersUploadTemplateRes = req.uploadTemplate(ordersTemplateBody);
 			JsonElement ordersElement = parser.parse(ordersUploadTemplateRes.getEntity().toString());
 			finalJsonResponse.add("Upload Orders Template Response", ordersElement);
 			// finalJsonResponse.addProperty("Upload Orders Template Response",
 			// allergiesUploadTemplateRes.getEntity().toString());
 			if (ordersUploadTemplateRes.getStatus() == 400 || ordersUploadTemplateRes.getStatus() == 403) {
+				//System.out.println(ordersTemplateBody.length()); //TODO
 				finalJsonResponse.addProperty("Error", "Failed to upload orders template");
 				return Response.status(ordersUploadTemplateRes.getStatus()).entity(finalJsonResponse.toString())
 						.type(MediaType.APPLICATION_JSON).build();
@@ -543,12 +550,14 @@ public class PatientProvisionerResource {
 
 		if (doProcedures) {
 			String proceduresTemplateBody = req.getFileAsString(assetsBaseFile + "procedures/procedures-template.xml");
+			//System.out.println(proceduresTemplateBody.length()); //TODO
 			Response proceduresUploadTemplateRes = req.uploadTemplate(proceduresTemplateBody);
 			JsonElement proceduresElement = parser.parse(proceduresUploadTemplateRes.getEntity().toString());
 			finalJsonResponse.add("Upload Procedures Template Response", proceduresElement);
 			// finalJsonResponse.addProperty("Upload Procedures Template
 			// Response", allergiesUploadTemplateRes.getEntity().toString());
 			if (proceduresUploadTemplateRes.getStatus() == 400 || proceduresUploadTemplateRes.getStatus() == 403) {
+				//System.out.println(proceduresTemplateBody.length()); //TODO
 				finalJsonResponse.addProperty("Error", "Failed to upload procedures template");
 				return Response.status(proceduresUploadTemplateRes.getStatus()).entity(finalJsonResponse.toString())
 						.type(MediaType.APPLICATION_JSON).build();
@@ -558,12 +567,14 @@ public class PatientProvisionerResource {
 		if (doLabResults) {
 			String labResultsTemplateBody = req
 					.getFileAsString(assetsBaseFile + "lab-results/lab-results-template.xml");
+			//System.out.println(labResultsTemplateBody.length()); //TODO
 			Response labResultsUploadTemplateRes = req.uploadTemplate(labResultsTemplateBody);
 			JsonElement labResultsElement = parser.parse(labResultsUploadTemplateRes.getEntity().toString());
 			finalJsonResponse.add("Upload Lab Results Template Response", labResultsElement);
 			// finalJsonResponse.addProperty("Upload Lab Results Template
 			// Response", allergiesUploadTemplateRes.getEntity().toString());
 			if (labResultsUploadTemplateRes.getStatus() == 400 || labResultsUploadTemplateRes.getStatus() == 403) {
+				//System.out.println(labResultsTemplateBody.length()); //TODO
 				finalJsonResponse.addProperty("Error", "Failed to upload lab results template");
 				return Response.status(labResultsUploadTemplateRes.getStatus()).entity(finalJsonResponse.toString())
 						.type(MediaType.APPLICATION_JSON).build();
@@ -571,7 +582,7 @@ public class PatientProvisionerResource {
 		}
 
 		// go through patients csv file
-		List<PatientDemographic> patientList = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+		List<PatientDemographic> patientList = req.readPatientCsvToObjectlist(req.config.getPatientsFile());
 		// for each patient:
 		int patientsSuccessfullyUploaded = 0;
 		int numOfPatientUploadErrors = 0;
@@ -583,7 +594,7 @@ public class PatientProvisionerResource {
 				String fhirPatientBody = patient.encodeInFhirFormat(true); //or .toFhirXML();
 				//System.out.println(fhirPatientBody);
 				//System.out.println(patient.getForename());
-				Response demographicResponse = req.createFhirPatientDemographic(EhrscapeRequest.config.getFhirDemographicBaseUrl()
+				Response demographicResponse = req.createFhirPatientDemographic(req.config.getFhirDemographicBaseUrl()
 						, fhirPatientBody);
 				//System.out.println(demographicResponse.getEntity().toString());
 				// if creating the FHIR demographic fails move onto next patient
@@ -613,10 +624,10 @@ public class PatientProvisionerResource {
 				finalJsonResponse.add("Create Patient Demographic Response - Patient key: " + patient.getKey(), demographicElement);
 			} else if(fhirDemographic == false && marandDemographic == false) {
 				// no demographic upload
-				EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
+				req.config.setSubjectId(patient.getNHSNumber());
 			} else {
 				// error
-				EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
+				req.config.setSubjectId(patient.getNHSNumber());
 				numOfPatientUploadErrors++;
 				patientUploadErrorsSb.append("Create Demographics Invalid Request Input, Patient with Key: " + patient.getKey() + "\n");
 				continue;
@@ -626,9 +637,9 @@ public class PatientProvisionerResource {
 			// EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
 			// EHR
 			// create ehr
-			EhrscapeRequest.config.setSubjectId(patient.getNHSNumber());
-			Response createEhrResponse = req.createEhr(EhrscapeRequest.config.getSubjectId(),
-					EhrscapeRequest.config.getCommiterName());
+			req.config.setSubjectId(patient.getNHSNumber());
+			Response createEhrResponse = req.createEhr(req.config.getSubjectId(),
+					req.config.getCommiterName());
 			if (createEhrResponse.getStatus() == 401 || createEhrResponse.getStatus() == 403) {
 				patientUploadErrorsSb.append("Create EHR Failed on Patient with Key: " + patient.getKey()
 						+ ", Request Status: " + createEhrResponse.getStatus() + "\n");
@@ -636,8 +647,8 @@ public class PatientProvisionerResource {
 				continue;
 			} else if (createEhrResponse.getStatus() == 400) {
 				// but if it already exists get it
-				Response getEhrResponse = req.getEhrWithSubjectId(EhrscapeRequest.config.getSubjectId(),
-						EhrscapeRequest.config.getSubjectNamespace());
+				Response getEhrResponse = req.getEhrWithSubjectId(req.config.getSubjectId(),
+						req.config.getSubjectNamespace());
 				if (getEhrResponse.getStatus() == 204 || getEhrResponse.getStatus() == 400
 						|| getEhrResponse.getStatus() == 401 || getEhrResponse.getStatus() == 403) {
 					patientUploadErrorsSb.append("Get EHR Failed on Patient with Key: " + patient.getKey()
@@ -660,11 +671,12 @@ public class PatientProvisionerResource {
 
 			// compositions
 			Response multiCompositionRes = req.uploadMultipleCompositionsDefaultFolders(
-					EhrscapeRequest.config.getEhrId(), doAllergies, doOrders, doProblems, doProcedures, doLabResults);
+					req.config.getEhrId(), doAllergies, doOrders, doProblems, doProcedures, doLabResults);
 			patientsSuccessfullyUploaded++;
 			JsonElement compositionElement = parser.parse(multiCompositionRes.getEntity().toString());
 			finalJsonResponse.add("Commit Composition Response Patient key: " + patient.getKey(), compositionElement);
-			//System.out.println(patientsSuccessfullyUploaded);
+			//System.out.println(patientsSuccessfullyUploaded); //TODO delete
+			
 		}
 
 		// vitals + import csv
@@ -681,6 +693,7 @@ public class PatientProvisionerResource {
 						.type(MediaType.APPLICATION_JSON).build();
 			}
 			Response importCsvResponse = req.importCsv("assets/data/nursing-obs.csv");
+			//System.out.println(importCsvResponse.getEntity().toString()); // TODO DELETE
 			finalJsonResponse.addProperty("importCSV", importCsvResponse.getEntity().toString());
 		}
 

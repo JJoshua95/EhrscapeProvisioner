@@ -46,7 +46,7 @@ public class TestingResource {
     public Response doPost() throws ClientProtocolException, IOException, URISyntaxException {
     	//EhrscapeRequest req =  new EhrscapeRequest();
     	Response res = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
-    	System.out.println("Session id = " + EhrscapeRequest.config.getSessionId());
+    	System.out.println("Session id = " + req.config.getSessionId());
     	System.out.println(res.getStatus());
     	System.out.println("Response content: " + res.getEntity().toString());
     	//req.config.setSessionId(sessionId);
@@ -67,7 +67,7 @@ public class TestingResource {
     public Response createEhr() throws ClientProtocolException, IOException, URISyntaxException {
     	//System.out.println(req.config.getSessionId().replace("\"", "")); //details = details.replace("\"","\\\"");
     	// watch out for speech marks when getting strings from json objects
-    	Response res = req.createEhr(EhrscapeRequest.config.getSessionId(), "JarrodEhrscapeProvisioner");
+    	Response res = req.createEhr(req.config.getSessionId(), "JarrodEhrscapeProvisioner");
 		return res;
     }
     
@@ -99,7 +99,7 @@ public class TestingResource {
     @Path("getEhrWithSubjectId")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEhrWithSubject() throws ClientProtocolException, URISyntaxException, IOException {
-    	return req.getEhrWithSubjectId(EhrscapeRequest.config.getSubjectId(), EhrscapeRequest.config.getSubjectNamespace());
+    	return req.getEhrWithSubjectId(req.config.getSubjectId(), req.config.getSubjectNamespace());
     }
     
     @GET
@@ -113,7 +113,7 @@ public class TestingResource {
     @Path("pingSession")
     @Produces(MediaType.APPLICATION_JSON)
     public Response pingEhrSession() throws ClientProtocolException, URISyntaxException, IOException {
-    	return req.pingSession(EhrscapeRequest.config.getSessionId());
+    	return req.pingSession(req.config.getSessionId());
     }
     
     @PUT
@@ -128,7 +128,7 @@ public class TestingResource {
     @Path("csvTest")
     @Produces(MediaType.APPLICATION_XML)
     public String readCsvPatient() throws IOException {
-    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(req.config.getPatientsFile());
     	return list.get(5).encodeInFhirFormat(true);
     }
     
@@ -151,7 +151,7 @@ public class TestingResource {
     @Path("patientFhir")
     @Produces(MediaType.APPLICATION_XML)
     public String fhirPatientFormatting() throws IOException {
-    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(EhrscapeRequest.config.getPatientsFile());
+    	List<PatientDemographic> list = req.readPatientCsvToObjectlist(req.config.getPatientsFile());
     	return list.get(5).toFhirXML();//writeEhrStatusBody();//.encodeInFhirFormat(true);
     }
     
