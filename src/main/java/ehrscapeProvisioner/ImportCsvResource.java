@@ -19,14 +19,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import au.com.bytecode.opencsv.CSVParser;
-
 import ehrscapeProvisioner.model.EhrscapeRequest;
 
 @Path("import")
 public class ImportCsvResource {
-
-	// TODO allow a JSON input for the username password and namespace config options here?
-	// Consider what type of input should go here? How stand alone should this resource be?
 
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
@@ -40,16 +36,12 @@ public class ImportCsvResource {
 		// loop through the JSON compositions and upload them to the ehrScape
 		// server
 		
-		// TODO Ideally catch whether the template is invalid earlier
-		// perhaps throw an exception for that response earlier
-		
-		// included the option of providing a session id in the header in case another 
+		// also included the option of providing a session id in the header in case another 
 		// service wants to use this resource 
 		// directly with a single call
-		
+
 		// check if the user has provided a Ehr-Session header 
 		if (sessionId != null) {
-			//System.out.println("SessionId provided: " + sessionId);
 			// check if it is valid 
 			Response PingSessionResponse = req.pingSession(sessionId);//sessionId);
 			if (PingSessionResponse.getStatus() == 204) {
@@ -80,11 +72,9 @@ public class ImportCsvResource {
 				}
 			} else {
 				// return an unauthorised response
-				//System.out.println("Session not found");
 				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 			}
 		} else {
-			//System.out.println("Session not provided");
 			// return an unauthorised response
 			return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 		}
@@ -95,38 +85,31 @@ public class ImportCsvResource {
 		String[] split = body.split("\n");
 		csvInputHeader = split[0];
 		if (csvInputHeader.contains("subjectId")) {
-			//System.out.println("subjectId column is present");
 			JsonObject[] compositionArray = mapToJsonObjects(body);
 			String csvResponse = uploadJsonCompositionsArrayWithSubjectId(compositionArray);
 			return csvResponse;
 		} else if (csvInputHeader.contains("ehrId")) {
-			//System.out.println("ehrId column is present");
 			JsonObject[] compositionArray = mapToJsonObjects(body);
 			String csvResponse = uploadJsonCompositionsArrayWithEhrId(compositionArray);
 			return csvResponse;
 		} else {
 			// return an error message
-			//System.out.println("ERROR PARSING");
 			return "ERROR PARSING";
 		}
 	}
 
 	private JsonObject[] mapToJsonObjects(String body) throws IOException {
 		CSVParser csvParser = new CSVParser();
-		// String[] lines = csvParser.parseLineMulti(body);
 		String csvRows[] = body.split("\n");
 		String header = csvRows[0];
 		String[] compositionJsonKeys = csvParser.parseLine(header);
 		// go through remaining rows
-		//System.out.println("Number of rows " + csvRows.length);
 		JsonObject[] jsonCompositionsArray = new JsonObject[csvRows.length - 1];
 		for (int i = 1; i < csvRows.length; i++) {
 			JsonObject jsonComposition = new JsonObject();
 			// look at the individual row
 			String csvRow = csvRows[i];
 			String csvRowValues[] = csvParser.parseLine(csvRow);
-			// //System.out.println("Number of rows components: " +
-			// csvRowValues.length);
 			// loop through the rows components with index j starting from the
 			// second element
 			// the first element is the subject id - extract that separately to
@@ -148,7 +131,7 @@ public class ImportCsvResource {
 		for (int i = 0; i < compositionArray.length; i++) {
 			String subjectId = compositionArray[i].get("subjectId").getAsString();
 			// remove the subject id from the composition json body before it is
-			// posted to the ehrScape server
+			// posted to the C4H server
 			compositionArray[i].remove("subjectId");
 			String compositionPostBody = compositionArray[i].toString();
 			// //System.out.println(compositionPostBody);
@@ -157,8 +140,6 @@ public class ImportCsvResource {
 			// use subjectId to create Ehr or if it exists retrieve one
 			Response ehrCreateResponse = req.createEhr(subjectId, "ImportCsvTool");
 			int responseCode = ehrCreateResponse.getStatus();
-			//System.out.println("Create EHR Response Code: " + responseCode);
-			//System.out.println("Create EHR Response Content:" + ehrCreateResponse.getEntity());
 			String compositionUidCsvString = "";
 			String errorCsvValue = "";
 			// if the ehr exists get the ehrId
@@ -168,7 +149,6 @@ public class ImportCsvResource {
 				Response getEhrResponse = req.getEhrWithSubjectId(subjectId,
 						req.config.getSubjectNamespace());
 				String getEhrResponseBody = getEhrResponse.getEntity().toString();
-				//System.out.println("Get EHR response body \n" + getEhrResponseBody);
 				// parse the response to get the ehrId
 				JsonObject jsonObject = (new JsonParser()).parse(getEhrResponseBody.toString()).getAsJsonObject();
 				String ehrId = jsonObject.get("ehrId").getAsString();
@@ -216,7 +196,6 @@ public class ImportCsvResource {
 						+ ehrCreateResponse.getEntity().toString().replaceAll(",", ";");
 			}
 			// get all the values from the JSON object
-			// https://stackoverflow.com/questions/31094305/java-gson-getting-the-list-of-all-keys-under-a-jsonobject
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(compositionPostBody);
 			JsonObject obj = element.getAsJsonObject();
@@ -245,15 +224,11 @@ public class ImportCsvResource {
 			// posted to the ehrScape server
 			compositionArray[i].remove("ehrId");
 			String compositionPostBody = compositionArray[i].toString();
-			// System.out.println(compositionPostBody);
 
 			// Do the post request to upload the composition
-			
 			// use ehrId to get the Ehr if it exists, if it does exist upload composition
 			Response ehrGetResponse = req.getEhrWithEhrId(ehrId);
 			int responseCode = ehrGetResponse.getStatus();
-			//System.out.println("Create EHR Response Code: " + responseCode);
-			//System.out.println("Create EHR Response Content:" + ehrGetResponse.getEntity());
 			String compositionUidCsvString = "";
 			String errorCsvValue = "";
 			// if the ehr exists get the ehrId
@@ -278,9 +253,6 @@ public class ImportCsvResource {
 				errorCsvValue = "Error with Get Ehr Call: " + ehrGetResponse.getStatus() + " "
 						+ ehrGetResponse.getEntity().toString().replaceAll(",", ";");
 			}
-			
-			// get all the values from the JSON object
-			// https://stackoverflow.com/questions/31094305/java-gson-getting-the-list-of-all-keys-under-a-jsonobject
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(compositionPostBody);
 			JsonObject obj = element.getAsJsonObject();
@@ -288,15 +260,12 @@ public class ImportCsvResource {
 			// put the ehrID in the response
 			csvResponseSb.append(ehrId + ",");
 			for (Map.Entry<String, JsonElement> entry : entries) {
-				// System.out.println(entry.getKey());
 				csvResponseSb.append(entry.getValue().getAsString() + ",");
 			}
 			csvResponseSb.append(compositionUidCsvString + ",");
 			csvResponseSb.append(errorCsvValue);
 			csvResponseSb.append("\n");
-			//System.out.println(i); //TODO DELETE
 		}
 		return csvResponseSb.toString();
 	}
-
 }

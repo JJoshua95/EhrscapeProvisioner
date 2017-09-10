@@ -2,7 +2,7 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 	
 	$scope.username = '';
 	$scope.password = '';
-	$scope.baseUrl = 'https://ehrscape.code4health.org/rest/v1/'; // 'https://cdr.code4health.org/rest/v1/'; //default
+	$scope.baseUrl = 'https://cdr.code4health.org/rest/v1/'; // Old server: 'https://ehrscape.code4health.org/rest/v1/'
 
 	$scope.response; // = 'Response';
 	
@@ -15,9 +15,6 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		$http.post("api/provision/single-provision-no-demographic", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
-            //$window.alert(res);
-            // console.log(res);
-            //$scope.response = res;
             var obj = JSON.parse(res);
             $scope.response = JSON.stringify(obj.data,null,2);
         });
@@ -32,7 +29,6 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		$http.post("api/provision/single-provision-marand", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
-            //$window.alert(res);
             var obj = JSON.parse(res);
             $scope.response = JSON.stringify(obj.data,null,2);
         });
@@ -47,8 +43,6 @@ app.controller('MainController', ['$scope', '$window', '$http', function($scope,
 		$http.post("api/provision/single-provision-fhir", body)
 		.then(function(response) {
             var res = JSON.stringify(response);
-            //$window.alert(res);
-            //console.log(res);
             var obj = JSON.parse(res);
             $scope.response = JSON.stringify(obj.data,null,2);
         });

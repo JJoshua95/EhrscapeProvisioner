@@ -3,8 +3,8 @@ package ehrscapeProvisioner.model;
 public class EhrscapeConfig {
 	
 	// defaults
-	private String patientsFile = "assets/data/patientsAll.csv"; // "assets/data/patientsAll.csv"; // "assets/data/singlePatient.csv"; // "assets/data/patientsAll.csv";
-	private String baseUrl = "https://ehrscape.code4health.org/rest/v1/"; // "https://cdr.code4health.org/rest/v1/"; //
+	private String patientsFile = "assets/data/patientsAll.csv"; 
+	private String baseUrl = "https://cdr.code4health.org/rest/v1/"; // Old server available at https://ehrscape.code4health.org/rest/v1/
 	private String username = "";
 	private String password = "";
 	private String sessionId = "";
@@ -15,9 +15,6 @@ public class EhrscapeConfig {
 	private String compositionId = "";
 	private String commiterName = "EhrscapeProvisioner";
 	private String fhirDemographicBaseUrl = "http://51.140.57.74:8090/fhir/";
-	
-	// FHIR BASE URL HERE 
-	// use template id to customise what type of data to upload
 	
 	public String getPatientsFile() {
 		return patientsFile;

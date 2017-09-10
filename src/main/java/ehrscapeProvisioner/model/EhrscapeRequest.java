@@ -40,9 +40,9 @@ public class EhrscapeRequest {
 	Gson gson = new Gson();
 
 	HttpClient client = HttpClientBuilder.create().build();
-
+	
 	public EhrscapeConfig config = new EhrscapeConfig();
-
+	
 	public String getFileAsString(String fileName) {
 
 		StringBuilder result = new StringBuilder("");
@@ -74,7 +74,7 @@ public class EhrscapeRequest {
 
 	}
 
-	// SINGLE PATIENT
+	// OPENEHR / EHRSCAPE REQUESTS
 
 	public Response getSession(String username, String password)
 			throws ClientProtocolException, IOException, URISyntaxException {
@@ -437,7 +437,7 @@ public class EhrscapeRequest {
 		return response;
 	}
 
-	// MULTIPLE PATIENT
+	// Methods for MULTIPLE PATIENT Script
 
 	public List<PatientDemographic> readPatientCsvToObjectlist(String fileName) throws IOException {
 
@@ -445,7 +445,6 @@ public class EhrscapeRequest {
 		File file = new File(classLoader.getResource(fileName).getFile());
 
 		CsvToBean<PatientDemographic> csvToBean = new CsvToBean<PatientDemographic>();
-		// https://stackoverflow.com/questions/13505653/opencsv-how-to-map-selected-columns-to-java-bean-regardless-of-order/14976689#14976689
 		// CSV Header:
 		// [Key, , Forename, Surname, Address_1, Address_2, Address_3, Postcode,
 		// Telephone,
@@ -592,7 +591,6 @@ public class EhrscapeRequest {
 		String body = getFileAsString(fileName);
 		ImportCsvResource importer = new ImportCsvResource();
 		Response importResponse = importer.csvToCompositions(config.getSessionId(), body);
-		// custom response here
 		return importResponse;
 	}
 
