@@ -30,20 +30,22 @@ public class ImportCsvResource {
 	@POST
 	@Path("csv")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response csvToCompositions(@HeaderParam("Ehr-Session") String sessionId, String inputCsvBody)
+	public Response csvToCompositions(@HeaderParam("Ehr-Session") String sessionId, String inputCsvBody, 
+			@HeaderParam("BaseURL") String baseUrl)
 			throws IOException, URISyntaxException {
 		// parse the CSV input and turn each row into JsonObject compositions
-		// loop through the JSON compositions and upload them to the ehrScape
+		// loop through the JSON compositions and upload them to the C4H
 		// server
 		
-		// also included the option of providing a session id in the header in case another 
-		// service wants to use this resource 
-		// directly with a single call
+		// Check if baseUrl set
+		if (baseUrl != null) {
+			req.config.setBaseUrl(baseUrl);
+		}
 
 		// check if the user has provided a Ehr-Session header 
 		if (sessionId != null) {
 			// check if it is valid 
-			Response PingSessionResponse = req.pingSession(sessionId);//sessionId);
+			Response PingSessionResponse = req.pingSession(sessionId);
 			if (PingSessionResponse.getStatus() == 204) {
 				// do the upload
 				// set the provided session
@@ -58,29 +60,14 @@ public class ImportCsvResource {
 				// return unauthorised response
 				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
 			}
-			// also check if the session is already set from previous API calls
-		} else if (!req.config.getSessionId().isEmpty()) {
-			// check if this sessionId is valid 
-			Response PingSessionResponse = req.pingSession(req.config.getSessionId());
-			if (PingSessionResponse.getStatus() == 204) {
-				// do the upload
-				String csvResponse = csvBodyToJsonCompositions(inputCsvBody);
-				if (csvResponse.equals("ERROR PARSING")) {
-					return Response.status(400).entity("Bad request - unreadable CSV data.").type(MediaType.TEXT_PLAIN).build();
-				} else {
-					return Response.status(200).entity(csvResponse).type(MediaType.TEXT_PLAIN).build();
-				}
-			} else {
-				// return an unauthorised response
-				return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
-			}
 		} else {
 			// return an unauthorised response
 			return Response.status(401).entity("Unauthenticated - could not authenticate the user").type(MediaType.TEXT_PLAIN).build();
+			
 		}
 		
 	}
-
+	
 	private String csvBodyToJsonCompositions(String body) throws IOException, URISyntaxException {
 		String[] split = body.split("\n");
 		csvInputHeader = split[0];

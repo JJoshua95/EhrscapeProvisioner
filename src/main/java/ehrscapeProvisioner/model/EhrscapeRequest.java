@@ -590,7 +590,7 @@ public class EhrscapeRequest {
 	public Response importCsv(String fileName) throws IOException, URISyntaxException {
 		String body = getFileAsString(fileName);
 		ImportCsvResource importer = new ImportCsvResource();
-		Response importResponse = importer.csvToCompositions(config.getSessionId(), body);
+		Response importResponse = importer.csvToCompositions(config.getSessionId(), body, config.getBaseUrl());
 		return importResponse;
 	}
 

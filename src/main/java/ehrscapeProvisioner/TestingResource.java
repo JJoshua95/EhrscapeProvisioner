@@ -37,6 +37,7 @@ public class TestingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPost() throws ClientProtocolException, IOException, URISyntaxException {
     	//EhrscapeRequest req =  new EhrscapeRequest();
+    	req.config.setBaseUrl("https://ehrscape.code4health.org/rest/v1/");
     	Response res = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
     	System.out.println("Session id = " + req.config.getSessionId());
     	System.out.println(res.getStatus());
@@ -136,7 +137,12 @@ public class TestingResource {
     @Path("importCsvCall")
     @Produces(MediaType.TEXT_PLAIN)
     public Response importCsvCall() throws IOException, URISyntaxException {
-    	return req.importCsv("assets/data/nursing-obs.csv");
+    	ImportCsvResource importer = new ImportCsvResource();
+    	req.config.setBaseUrl("https://ehrscape.code4health.org/rest/v1/");
+    	Response session = req.getSession("c4h_c4h_jarrod", "GeoSIGaI287");
+    	System.out.println("Session "+req.config.getSessionId());
+    	return importer.csvToCompositions(req.config.getSessionId(), req.getFileAsString("assets/data/nursing-obs.csv"), req.config.getBaseUrl());
+    	//req.importCsv("assets/data/nursing-obs.csv");
     }
     
     @GET
