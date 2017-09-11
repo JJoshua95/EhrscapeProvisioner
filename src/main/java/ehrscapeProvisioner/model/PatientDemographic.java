@@ -16,6 +16,12 @@ import com.google.gson.JsonObject;
 
 import ca.uhn.fhir.context.FhirContext;
 
+
+/**
+ * This class is used to model patient demographic objects, allowing easy translation from a csv row outlining the personal 
+ * details of a dummy patient to a FHIR or marand resource representation of that rows data
+ *
+ */
 public class PatientDemographic {
 	
 	// patient.csv file header:
@@ -144,6 +150,7 @@ public class PatientDemographic {
 	// methods to create a marand party.json demographic body or fhir xml / json representation of this patient
 	
 	@Override
+	// Convenience method
 	public String toString() {
 		return this.getKey() + " " + this.getForename() + " " + this.getSurname() + " " + this.getAddress_1() + " " + this.getAddress_2() + " "
 				+ this.getAddress_3() + " " + this.getDateofBirth() + " " + this.getGender() + " " + this.getPostcode() + " " 
@@ -152,6 +159,12 @@ public class PatientDemographic {
 	
 	// TODO performance maybe just write directly as XML
 	
+	/**
+	 * This method uses HapiFHIR libraries to format a patient as a FHIR resource, in either xml or json depending on the boolean input
+	 * - xml generally as clearly different from Marand JSON
+	 * @param formatAsXML - if set to true this resource will be formatted as XML, else Json
+	 * @return String FHIR representation
+	 */
 	public String encodeInFhirFormat(boolean formatAsXML) {
 		Patient patient = new Patient();
 		// tutorial: https://fhir-drills.github.io/fhir-api.html
@@ -210,6 +223,12 @@ public class PatientDemographic {
 
 	}
 	
+	
+	/**
+	 * This method generates a FHIR xml representation of this patient object manually, for testing purposes and possibly
+	 * as an optimisation later
+	 * @return String xml fhir resource
+	 */
 	public String toFhirXML() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<Patient xmlns=\"http://hl7.org/fhir\">");
@@ -241,6 +260,10 @@ public class PatientDemographic {
 		return sb.toString();
 	}
 	
+	/**
+	 * This method formats this patient object as a marand JSON resource representation
+	 * @return String marand JSON
+	 */
 	public String toMarandPartyJson() {
 		
 		JsonObject jsonOutput = new JsonObject();
@@ -278,6 +301,12 @@ public class PatientDemographic {
 		return jsonOutput.toString();
 	}
 	
+	
+	/**
+	 * This method is used to generate an EHR status body from this patient objects attributes, used for
+	 *  updating ehrs from csv patient values
+	 * @return String ehr status
+	 */
 	public String writeEhrStatusBody() {
 		// TODO generate the JSON below with a library 
 		String[] dateComponents = this.getDateofBirth().split("/");

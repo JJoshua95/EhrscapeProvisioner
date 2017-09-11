@@ -25,6 +25,9 @@ import org.apache.commons.dbcp2.BasicDataSource;
  	
  */
 
+/**
+ * This class is used to establish a connection to a MySQL database, and implement a connection pool
+ */
 public class MySqlConnection {
 	
 	// JDBC driver name 
@@ -50,6 +53,11 @@ public class MySqlConnection {
 	static final String AZURE_PASS = "Password01";
 	
 	// for single connection testing purposes
+	/**
+	 * This method returns a connection object to the database using JDBC, mainly used to initialise 
+	 * this feature and for testing
+	 * @return Connection
+	 */
 	public static Connection Connector() {
 		try {
 
@@ -75,6 +83,11 @@ public class MySqlConnection {
 	
 	private static BasicDataSource dataSource;
 	
+	/**
+	 * This method allows other classes to access the single data source object which represents a pool of connections 
+	 * to the database
+	 * @return BasicDataSource dataSource
+	 */
 	public static BasicDataSource getDataSource() {
 		if (dataSource == null) {
 			BasicDataSource ds = new BasicDataSource();

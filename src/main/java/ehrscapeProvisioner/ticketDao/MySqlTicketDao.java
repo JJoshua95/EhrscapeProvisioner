@@ -56,7 +56,12 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
+	/**
+	 * Convenience method for retrieving all records used in initial stages for quick tests
+	 * @throws SQLException
+	 */
 	public void getAllTicketRecords() throws SQLException {
 		Statement statement = null;
 		Connection conn = null;
@@ -86,6 +91,12 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 		}
 	}
 
+	/**
+	 * This method directly retrieves a ticket record from the database given its unique ticket id
+	 * @param ticketId
+	 * @return MultiPatientProvisionerTicket
+	 * @throws SQLException
+	 */
 	public MultiPatientProvisionerTicket getTicketFromDb(String ticketId) throws SQLException {
 		MultiPatientProvisionerTicket ticket = null;
 		PreparedStatement preparedStatement = null;
@@ -134,6 +145,15 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 		return ticket;
 	}
 
+	/**
+	 * This method directly inserts a new ticket record into the database given its attributes
+	 * @param ticketId
+	 * @param startTime
+	 * @param provisioningStatus
+	 * @param provisioningResponseBody
+	 * @param completionTime
+	 * @throws SQLException
+	 */
 	public void insertTicketToDb(String ticketId, String startTime, String provisioningStatus,
 			String provisioningResponseBody, String completionTime) throws SQLException {
 		String query;
@@ -168,6 +188,14 @@ public class MySqlTicketDao implements MultiPatientProvisionerTicketDao {
 		}
 	}
 
+	/**
+	 * This method directly updates a ticket record given its ID and the attributes to update
+	 * @param ticketId
+	 * @param provisioningStatus
+	 * @param provisioningResponseBody
+	 * @param completionTime
+	 * @throws SQLException
+	 */
 	public void updateTicketInDb(String ticketId, String provisioningStatus, String provisioningResponseBody,
 			String completionTime) throws SQLException {
 		PreparedStatement preparedStatement = null;

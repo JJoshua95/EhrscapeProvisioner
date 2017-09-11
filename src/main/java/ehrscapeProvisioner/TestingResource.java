@@ -25,7 +25,7 @@ import ehrscapeProvisioner.model.PatientDemographic;
 import ehrscapeProvisioner.ticketDao.MySqlTicketDao;
 
 /**
- * Root resource (exposed at "myresource" path)
+ * This class was used for convenient testing of various methods
  */
 @Path("myresource")
 public class TestingResource {

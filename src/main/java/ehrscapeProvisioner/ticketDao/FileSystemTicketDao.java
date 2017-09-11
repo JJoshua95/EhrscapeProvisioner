@@ -13,9 +13,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-// Temporary solution for storing tickets due to time concerns
+// Initial solution for storing tickets
 // TODO change where the files are uploaded must be outside the webapp folders
 
+/**
+ * This class is an implementation of the DAO interface. It stores the data on the file system, ultimately it was decided that a 
+ * database would be used for tickets, however this class may be more efficient / useful in future iterations 
+ *
+ */
 public class FileSystemTicketDao implements MultiPatientProvisionerTicketDao {
 	
 	@Override
@@ -51,6 +56,12 @@ public class FileSystemTicketDao implements MultiPatientProvisionerTicketDao {
 	
 	// functions to read and write files
 	
+	/**
+	 * This method reads a ticket from a file in the file system given its ID
+	 * @param ticketId
+	 * @return String
+	 * @throws FileNotFoundException
+	 */
 	private String readTicketFile(String ticketId) throws FileNotFoundException {
 		ClassLoader classLoader = getClass().getClassLoader();
 		String ticketDirectory = "savedData/tickets";
@@ -79,6 +90,11 @@ public class FileSystemTicketDao implements MultiPatientProvisionerTicketDao {
 		return result.toString();
 	}
 	
+	
+	/**
+	 * This method writes a new file with a new ticket instance to the file system - which can be used for both create and update operations
+	 * @param ticket
+	 */
 	private void writeTicketObjToFile(MultiPatientProvisionerTicket ticket) {
 		
 		String newFileName = "ticket-" + ticket.getTicketId() +".txt";

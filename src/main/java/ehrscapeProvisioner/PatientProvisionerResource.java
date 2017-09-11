@@ -30,11 +30,20 @@ import ehrscapeProvisioner.ticketDao.MultiPatientProvisionerTicket;
 import ehrscapeProvisioner.ticketDao.MySqlTicketDao;
 
 /**
- * Root resource (exposed at "provision" path)
+ * This classes methods are accessible to users as RESTful resources using Jersey. It contains the provisioning scripts and ticket
+ * implementation
  */
 @Path("provision")
 public class PatientProvisionerResource {
 
+	/**
+	 * This method carries out the provisioning of a single patient with no demographics created
+	 * @param inputBody a JSON input the users enter to configure the script, with their domain credentials for instance
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	@POST
 	@Path("single-provision-no-demographic")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -75,6 +84,14 @@ public class PatientProvisionerResource {
 		return Response.status(200).entity(jsonOutput.toString()).build();
 	}
 
+	/**
+	 * This method carries out the provisioning of a single patient with a marand demographic resource created too
+	 * @param inputBody a JSON input the users enter to configure the script, with their domain credentials for instance
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	@POST
 	@Path("single-provision-marand")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -121,6 +138,14 @@ public class PatientProvisionerResource {
 		return Response.status(200).entity(jsonOutput.toString()).build(); // gson.toJson(jsonOutput);
 	}
 
+	/**
+	 * This method carries out the provisioning of a single patient with a FHIR Patient resource created too
+	 * @param inputBody a JSON input the users enter to configure the script, with their domain credentials for instance
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	@POST
 	@Path("single-provision-fhir")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -173,6 +198,15 @@ public class PatientProvisionerResource {
 		return Response.status(200).entity(jsonOutput.toString()).build(); 
 	}
 	
+	/**
+	 * This is a multi patient provisioning script, implemented with the exact same settings as the previous builds configuration,
+	 * included as a starting point for the client
+	 * @param inputBody a JSON input the users enter to configure the script, with their domain credentials for instance
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	@POST
 	@Path("multi-patient-default")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -338,7 +372,16 @@ public class PatientProvisionerResource {
 
 		return Response.status(200).entity(finalJsonResponse.toString()).type(MediaType.APPLICATION_JSON).build();
 	}
-
+	
+	/**
+	 * This is a multi patient provisioning script, implemented with customisable dummy data
+	 * @param inputBody a JSON input the users enter to configure the script, with their domain credentials for instance,
+	 * along with customisation options like demographics type and what templates and compositions to upload
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	@POST
 	@Path("multi-patient-custom")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -612,6 +655,14 @@ public class PatientProvisionerResource {
 	// Subsequent requests from client check the work, and eventually return 200
 	// when it's done.
 
+	/**
+	 * This method initiates the custom multi patient provisioner script in the background, and immediately returns
+	 * an accepted response to the user with a location header directing them to a 'ticket' resource outlining their scripts progress.
+	 * When the script completes the tivket resource is updated with the provisioner response
+	 * @param inputBody inputBody a JSON input the users enter to configure the script, with their domain credentials for instance,
+	 * along with customisation options like demographics type and what templates and compositions to upload
+	 * @return HTTP Response object
+	 */
 	@POST
 	@Path("cloud-multi-provisioner")
 	public Response cloudMultiProvisioner(String inputBody) {
@@ -641,6 +692,14 @@ public class PatientProvisionerResource {
 				.header("location", "provision/ticket/" + responseTicket.getTicketId()).build();
 	}
 	
+	/**
+	 * This method initiates the 'default' multi patient provisioner script in the background, and immediately returns
+	 * an accepted response to the user with a location header directing them to a 'ticket' resource outlining their scripts progress.
+	 * When the script completes the tivket resource is updated with the provisioner response
+	 * @param inputBody inputBody a JSON input the users enter to configure the script, with their domain credentials for instance,
+	 * along with customisation options like demographics type and what templates and compositions to upload
+	 * @return HTTP Response object
+	 */
 	@POST
 	@Path("cloud-default-multi-provisioner")
 	public Response cloudMultiProvisionerDefault(String inputBody) {
@@ -670,6 +729,11 @@ public class PatientProvisionerResource {
 				.header("location", "provision/ticket/" + responseTicket.getTicketId()).build();
 	}
 
+	/**
+	 * This method finds the stored ticket resource and returns it to the user
+	 * @param id - ticketID value
+	 * @return HTTP Reponse - with the ticket object as its entity
+	 */
 	@GET
 	@Path("ticket/{ticketId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -686,6 +750,10 @@ public class PatientProvisionerResource {
 		}
 	}
 
+	/**
+	 * This method creates a new Ticket object resource
+	 * @return MultiPatientProvisionerTicket resource
+	 */
 	@Produces(MediaType.APPLICATION_JSON)
 	private MultiPatientProvisionerTicket createTicket() {
 		//FileSystemTicketDao dao = new FileSystemTicketDao();
@@ -700,6 +768,13 @@ public class PatientProvisionerResource {
 	}
 	
 	
+	/**
+	 * This method updates an existing ticket resource - usually when a provisioing script finishes
+	 * @param id ticketId value
+	 * @param responseContent provisioner response to update the ticket with
+	 * @param status new status of the script
+	 * @return MultiPatientProvisionerTicket new ticket reource
+	 */
 	private MultiPatientProvisionerTicket updateTicket(String id, JsonElement responseContent, String status) {
 		//FileSystemTicketDao dao = new FileSystemTicketDao();
 		MySqlTicketDao dao = new MySqlTicketDao();

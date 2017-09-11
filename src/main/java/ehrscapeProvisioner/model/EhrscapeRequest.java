@@ -35,14 +35,24 @@ import au.com.bytecode.opencsv.bean.CsvToBean;
 import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 import ehrscapeProvisioner.ImportCsvResource;
 
+/**
+ * This class contains methods for accessing Ehrscape/openEHR API by generating HTTP requests, 
+ * and methods for moving and manipulating dummy data assets from the resources folder where they are
+ * needed in said requests
+ */
 public class EhrscapeRequest {
 
 	Gson gson = new Gson();
 
 	HttpClient client = HttpClientBuilder.create().build();
 	
-	public EhrscapeConfig config = new EhrscapeConfig();
+	public EhrscapeConfig config = new EhrscapeConfig(); //For passing info to subsequent requests
 	
+	/**
+	 * Gets a resource file and outputs its contents as a String
+	 * @param fileName File to get
+	 * @return String - Contents of file
+	 */
 	public String getFileAsString(String fileName) {
 
 		StringBuilder result = new StringBuilder("");
@@ -76,6 +86,16 @@ public class EhrscapeRequest {
 
 	// OPENEHR / EHRSCAPE REQUESTS
 
+	/**
+	 * Creates an EHR-Session by sending a POST request to the configured baseUrl which 
+	 * locates the domain server
+	 * @param username String
+	 * @param password String
+	 * @return HTTP Response Object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response getSession(String username, String password)
 			throws ClientProtocolException, IOException, URISyntaxException {
 
@@ -108,7 +128,17 @@ public class EhrscapeRequest {
 		}
 
 	}
-
+	
+	
+	/**
+	 * "Pings" a Session to refresh it by sending a PUT request with the SessionID to the specified domain - can be used to 
+	 * verify a session token too
+	 * @param sessionId String
+	 * @return HTTP Response Object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response pingSession(String sessionId) throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "session");
@@ -132,6 +162,16 @@ public class EhrscapeRequest {
 	}
 
 	// create patient demographic
+	/**
+	 * Create a Marand Demographic patient resource with a POST request to the Marand service, 
+	 * with only a Marand JSON formatted party object 
+	 * specifying the patients personal information.
+	 * @param body String marand JSON party 
+	 * @return Response Object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response createMarandPatientDemographic(String body)
 			throws ClientProtocolException, IOException, URISyntaxException {
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "demographics/party");
@@ -165,12 +205,31 @@ public class EhrscapeRequest {
 	}
 
 	// create patient demographic
+	
+	/**
+	 * Create a "default" Marand patient demographic reosurce - used in single patient provisioner for convenience
+	 * by sending a POST request to this Marand service
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response createPatientDefault() throws ClientProtocolException, IOException, URISyntaxException {
 		String body = getFileAsString("assets/sample_requests/party.json");
 		Response response = createMarandPatientDemographic(body);
 		return response;
 	}
 	
+	
+	/**
+	 * Create an EHR given a SubjectID to uniquely identify the owner, and a commiter name, by sending a POST request to the domain
+	 * @param subjectID String
+	 * @param commiter String
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response createEhr(String subjectID, String commiter)
 			throws ClientProtocolException, IOException, URISyntaxException {
 		String url; 
@@ -202,6 +261,15 @@ public class EhrscapeRequest {
 
 	}
 
+	/**
+	 * Retrieve an EHR given a subjectID and subject namespace with a GET request
+	 * @param subjectId String
+	 * @param subjectNamespace String
+	 * @return HTTP Response object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response getEhrWithSubjectId(String subjectId, String subjectNamespace)
 			throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
@@ -231,6 +299,14 @@ public class EhrscapeRequest {
 		}
 	}
 
+	/**
+	 * Get an ehr given an EhrID with a GET request
+	 * @param ehrId String
+	 * @return HTTP Response object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response getEhrWithEhrId(String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
 		URIBuilder ub = new URIBuilder(config.getBaseUrl() + "ehr/" + ehrId);
@@ -245,6 +321,15 @@ public class EhrscapeRequest {
 		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
+	/**
+	 * Update an EHR given a new EHR body string and the ID of the record to update, using a PUT request
+	 * @param body String new EHR contents
+	 * @param ehrId String
+	 * @return HTTP Response object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response updateEhr(String body, String ehrId)
 			throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
@@ -268,7 +353,14 @@ public class EhrscapeRequest {
 	}
 
 	// templates
-
+	
+	/**
+	 * Upload a template onto a domain given its XML representation as a String, using a POST request
+	 * @param body String template XML
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response uploadTemplate(String body) throws IOException, URISyntaxException {
 		
 		String url;
@@ -295,7 +387,14 @@ public class EhrscapeRequest {
 		}
 
 	}
-
+	
+	
+	/**
+	 * Upload the 'default' template used (vitals) used in single patient provisioning - convenience method
+	 * @return HTTP Response object
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response uploadDefaultTemplate() throws IOException, URISyntaxException {
 		String body = getFileAsString("assets/sample_requests/vital-signs/vital-signs-template.xml");
 		Response response = uploadTemplate(body);
@@ -305,6 +404,21 @@ public class EhrscapeRequest {
 	// Composition
 
 	// for the import csv tool
+	
+	/**
+	 * Upload a composition given all the attributes required by the API - this method is for the 
+	 * import CSV tool which needs to enter these manually not using a config object, and for uploading
+	 * compositions which are not describing vitals - needed in the multi patient provisioning scripts
+	 * @param body Composition JSON representation
+	 * @param sessionId
+	 * @param templateId of the template this composition fits into to
+	 * @param commiterName
+	 * @param ehrId
+	 * @return HTTP Response Object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response uploadComposition(String body, String sessionId, String templateId, String commiterName,
 			String ehrId) throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
@@ -331,6 +445,15 @@ public class EhrscapeRequest {
 		}
 	}
 
+	/**
+	 * Upload a composition given only a JSON representation - other required info passed along 
+	 * with the config object - mostly for the single patient provisioning - convenience method
+	 * @param body JSON representation of Composition
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response uploadComposition(String body) throws ClientProtocolException, IOException, URISyntaxException {
 		// get the composition body
 		String url = config.getBaseUrl() + "composition?ehrId=" + config.getEhrId() + "&templateId="
@@ -361,7 +484,15 @@ public class EhrscapeRequest {
 			return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 		}
 	}
-
+	
+	
+	/**
+	 * Uploads a 'default' vitals composition for single patient provisioner - convenience method 
+	 * @return HTTP Response object
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response uploadDefaultComposition() throws ClientProtocolException, IOException, URISyntaxException {
 		String body = getFileAsString("assets/sample_requests/vital-signs/vital-signs-composition.json");
 		Response response = uploadComposition(body);
@@ -369,7 +500,17 @@ public class EhrscapeRequest {
 	}
 
 	// FHIR Demographic call
-
+	
+	/**
+	 * Create a FHIR formatted XML patient resource, and upload it into openEMPI demographics server implmented
+	 * by UCL MSc SSE Students
+	 * @param fhirBaseUrl String - location of the openEMPI server
+	 * @param body FHIR patient resource
+	 * @return HTTP Response object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response createFhirPatientDemographic(String fhirBaseUrl, String body)
 			throws URISyntaxException, ClientProtocolException, IOException {
 		String url;
@@ -429,7 +570,15 @@ public class EhrscapeRequest {
 					.build();
 		}
 	}
-
+	
+	
+	/**
+	 * Create a 'default' FHIR patient used in single patient provisioner - convenience method
+	 * @return HTTP Response object
+	 * @throws URISyntaxException
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
 	public Response createDefaultFhirPatientDemographic()
 			throws URISyntaxException, ClientProtocolException, IOException {
 		String fhirPatientBody = getFileAsString("assets/sample_requests/defaultFhirPatient.xml");
@@ -438,7 +587,14 @@ public class EhrscapeRequest {
 	}
 
 	// Methods for MULTIPLE PATIENT Script
-
+	
+	/**
+	 * Turn a CSV file of patient demographic data, and convert it into a list of PatientDemographic objects,
+	 * which can then be easily formatted into marand of fhir representations
+	 * @param fileName of the patient asset file 
+	 * @return HTTP Response object
+	 * @throws IOException
+	 */
 	public List<PatientDemographic> readPatientCsvToObjectlist(String fileName) throws IOException {
 
 		ClassLoader classLoader = getClass().getClassLoader();
@@ -494,6 +650,19 @@ public class EhrscapeRequest {
 		return files;
 	}
 
+	/**
+	 * Upload all compositions of the specified types, using booleans to choose what templates, into a specified EHR
+	 * @param ehrId String
+	 * @param doAllergies boolean
+	 * @param doOrders boolean
+	 * @param doProblems boolean
+	 * @param doProcedures boolean
+	 * @param doLabResults
+	 * @return √
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response uploadMultipleCompositionsDefaultFolders(String ehrId, boolean doAllergies, boolean doOrders,
 			boolean doProblems, boolean doProcedures, boolean doLabResults)
 			throws ClientProtocolException, IOException, URISyntaxException {
@@ -586,7 +755,16 @@ public class EhrscapeRequest {
 		return Response.status(200).entity(result.toString()).type(MediaType.APPLICATION_JSON).build();
 
 	}
-
+	
+	
+	/**
+	 * use the impiort csv resource to upload multiple vitals compopsitions, outlined in an asset 
+	 * vitals CSV file in the resources folder
+	 * @param fileName
+	 * @return HTTP Response object
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public Response importCsv(String fileName) throws IOException, URISyntaxException {
 		String body = getFileAsString(fileName);
 		ImportCsvResource importer = new ImportCsvResource();

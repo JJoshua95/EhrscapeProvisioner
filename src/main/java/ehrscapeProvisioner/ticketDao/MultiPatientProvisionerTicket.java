@@ -3,6 +3,11 @@ package ehrscapeProvisioner.ticketDao;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/**
+ * This class represent a 'ticket' resource, which allows users to check on the progress of their multi patient provisioning scripts
+ * after initiating them, so scripts can run in background
+ *
+ */
 public class MultiPatientProvisionerTicket { 
 	
 	private String startTime;

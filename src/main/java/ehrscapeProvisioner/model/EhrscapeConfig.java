@@ -1,5 +1,10 @@
 package ehrscapeProvisioner.model;
 
+/**
+ * This class is used to pass info along EHR API requests in the EhrscapeRequest class, like a session id obtained at the start of a provisioning script
+ * and passed along as authentication to subsequent API calls 
+ *
+ */
 public class EhrscapeConfig {
 	
 	// defaults

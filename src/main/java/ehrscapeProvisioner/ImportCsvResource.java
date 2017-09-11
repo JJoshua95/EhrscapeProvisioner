@@ -21,12 +21,28 @@ import com.google.gson.JsonParser;
 import au.com.bytecode.opencsv.CSVParser;
 import ehrscapeProvisioner.model.EhrscapeRequest;
 
+/**
+ * This class is exposed as a Jersey REST resource through the path annotations
+ * The methods here allow users to input a CSV file of patient vitals, and each row will be
+ * mapped to a JSON composition and uploaded to specified EHRs
+ *
+ */
 @Path("import")
 public class ImportCsvResource {
 
 	private String csvInputHeader;
 	private EhrscapeRequest req = new EhrscapeRequest();
 	
+	/**
+	 * This method takes a session ID header for authentication, and a CSV formatted body of patient vitals to upload
+	 * as compositions. An optional baseURL is offered if using a domain other than https://cdr.code4health.org/rest/v1/
+	 * @param sessionId String
+	 * @param inputCsvBody String
+	 * @param baseUrl String
+	 * @return HTTP Response body
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	@POST
 	@Path("csv")
 	@Consumes(MediaType.TEXT_PLAIN)
@@ -68,6 +84,15 @@ public class ImportCsvResource {
 		
 	}
 	
+	
+	/**
+	 * This method parses the input and passes it to the subjectID based upload method, or EhrID based method
+	 * gor uploading the compositons
+	 * @param body CSV input
+	 * @return String Response
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private String csvBodyToJsonCompositions(String body) throws IOException, URISyntaxException {
 		String[] split = body.split("\n");
 		csvInputHeader = split[0];
@@ -85,6 +110,12 @@ public class ImportCsvResource {
 		}
 	}
 
+	/**
+	 * This method parses each row of the input and maps them to Gson JsonObjects, ready for upload
+	 * @param body
+	 * @return JsonObject[] of JSON vital composition objects
+	 * @throws IOException
+	 */
 	private JsonObject[] mapToJsonObjects(String body) throws IOException {
 		CSVParser csvParser = new CSVParser();
 		String csvRows[] = body.split("\n");
@@ -110,6 +141,14 @@ public class ImportCsvResource {
 		return jsonCompositionsArray;
 	}
 
+	/**
+	 * This uploads the array of JSON compositions given the subject ID of the ehr to upload to
+	 * (EHRs created here if they dont already exist) 
+	 * @param compositionArray
+	 * @return String response
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private String uploadJsonCompositionsArrayWithSubjectId(JsonObject[] compositionArray)
 			throws IOException, URISyntaxException {
 		// create the CSV response
@@ -200,6 +239,14 @@ public class ImportCsvResource {
 		return csvResponseSb.toString();
 	}
 
+	/**
+	 * This uploads the array of JSON compositions given the ehr ID of the ehr to upload to
+	 * (EHRs created here if they dont already exist) 
+	 * @param compositionArray
+	 * @return String response
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private String uploadJsonCompositionsArrayWithEhrId(JsonObject[] compositionArray) throws ClientProtocolException, 
 	URISyntaxException, IOException {
 		// create the CSV response
